@@ -4,4 +4,6 @@ public class Evaluator {
     public static void main(String[] args) {
         System.out.println("Evaluation executed!");
     }
+
+    public static void test() {System.out.println("Test executed!");}
 }
