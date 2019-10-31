@@ -15,23 +15,24 @@ public class RegistrationTime {
     public void readRegistrationType() {
         if (months == null) {
             System.out.println("Registration time: unknown.");
+
         }
         else if(months < 6) {
             System.out.println("Registration time: less than 6 months.");
         }
-        else if(months >= 6 && months < 12) {
+        else if(months < 12) {
             System.out.println("Registration time: between 0.5-1 years.");
         }
-        else if(months >= 12 && months < 60) {
+        else if(months < 60) {
             System.out.println("Registration time: between 1-5 years.");
         }
-        else if(months >= 60 && months < 120) {
+        else if(months < 120) {
             System.out.println("Registration time: between 5-10 years.");
         }
-        else if(months >= 120 && months < 180) {
+        else if(months < 180) {
             System.out.println("Registration time: between 10-15 years.");
         }
-        else if(months >= 180) {
+        else {
             System.out.println("Registration time: more than 15 years.");
         }
     }

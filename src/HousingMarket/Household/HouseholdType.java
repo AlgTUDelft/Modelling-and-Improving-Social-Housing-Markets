@@ -1,7 +1,5 @@
 package HousingMarket.Household;
 
-import javax.lang.model.type.NoType;
-
 public class HouseholdType {
 
     private int type;

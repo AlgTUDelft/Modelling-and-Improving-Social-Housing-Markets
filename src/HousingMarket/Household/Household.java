@@ -9,7 +9,6 @@ public class Household {
     private HouseholdType householdType;
     private RegistrationTime registrationTime; // In months
 
-
     private House house;
 
     public Household Household(int age, int income, int householdType, int registrationTime)  throws InvalidHousehold{
@@ -25,6 +24,7 @@ public class Household {
         return this;
     }
 
+
     public House getHouse(){
         return this.house;
     }
@@ -33,12 +33,22 @@ public class Household {
         this.house = house;
     }
 
+    public int getAge() {
+        return this.age;
+    }
+
+    public int getIncome() {
+        return this.income;
+    }
+
     public HouseholdType getHouseholdType() {
         return this.householdType;
     }
     public void readHouseholdType() {this.householdType.readType();}
 
-
+    public RegistrationTime getRegistrationTime() {
+        return this.registrationTime;
+    }
 
     public static void main(String[] args){
 
