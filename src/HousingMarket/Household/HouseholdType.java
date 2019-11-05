@@ -1,48 +1,32 @@
 package HousingMarket.Household;
 
-public class HouseholdType {
-
-    private int type;
-
-    public HouseholdType(int type) throws NoHouseholdTypeFoundException {
-        if(type < 0 || type > 5) {
-            throw new NoHouseholdTypeFoundException("Type not found!");
-        }
-        else {
-            this.type = type;
-        }
-    }
-
-    public int getType(){
-        return this.type;
-    }
+public enum HouseholdType {
+    ONE, TWO, HH1, HH2, HH3PLUS, OTHER;
 
     public void readType() {
-        switch(type) {
-            case 0:
+        switch(this) {
+            case ONE:
                 System.out.println("1-persoons");
                 break;
-            case 1:
+            case TWO:
                 System.out.println("2-persoons");
                 break;
-            case 2:
+            case HH1:
                 System.out.println("hh-1 kind");
                 break;
-            case 3:
+            case HH2:
                 System.out.println("hh-2 kind");
                 break;
-            case 4:
+            case HH3PLUS:
                 System.out.println("hh-3 of meer kind");
                 break;
-            case 5:
+            case OTHER:
                 System.out.println("overig");
                 break;
         }
     }
 
-    public class NoHouseholdTypeFoundException extends Exception {
-        public NoHouseholdTypeFoundException(String errorMessage) {
-            super(errorMessage);
-        }
+    public HouseholdType getType() {
+        return this;
     }
 }

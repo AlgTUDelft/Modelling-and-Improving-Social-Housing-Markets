@@ -1,6 +1,7 @@
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
+import HousingMarket.Household.HouseholdType;
 
 public class Main {
 
@@ -20,7 +21,7 @@ public class Main {
     public static void seedTestMatching(Matching matching) {
         House house1 = new House();
         House house2 = new House();
-        Household household1 = new Household();
+        Household household1 = new Household(43, 21000, HouseholdType.TWO, 12 * 5);
         matching.addHouse(house1);
         matching.addHouse(house2);
         matching.addHousehold(household1);
