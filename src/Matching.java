@@ -44,9 +44,14 @@ public class Matching {
         this.matchingGraph.removeVertex(household);
     }
 
-    public void connect(House house, Household household) {
-        // TODO: Only if neither currently are linked to anything else.
-        this.matchingGraph.addEdge(house, household);
+    public void connect(House house, Household household) throws HouseOrHouseholdAlreadyMatchedException {
+        if (!this.matchingGraph.edgesOf(house).isEmpty() || !this.matchingGraph.edgesOf(household).isEmpty()) {
+            throw new HouseOrHouseholdAlreadyMatchedException("House " + house.toString() + " or household "
+            + household.toString() + " is already matched!");
+        }
+        else {
+            this.matchingGraph.addEdge(house, household);
+        }
     }
 
     public void disconnect(House house, Household household) {
@@ -115,6 +120,12 @@ public class Matching {
 
     public class HouseholdLinkedToMultipleException extends Exception {
         public HouseholdLinkedToMultipleException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
+
+    public class HouseOrHouseholdAlreadyMatchedException extends Exception {
+        public HouseOrHouseholdAlreadyMatchedException(String errorMessage) {
             super(errorMessage);
         }
     }

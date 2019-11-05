@@ -7,12 +7,17 @@ public class MatchingEvaluator {
     }
 
     public void evaluateHouseless() {
-        this.matching.
+        this.matching.getHouses();
+        // TODO: finish
     }
 
-    public void evaluateHouseholdless() {}
+    public void evaluateHouseholdless() {
+        // TODO: finish
+    }
 
-    public void evaluateFinancialFit() {}
+    public void evaluateFinancialFit() {
+        // TODO: finish
+    }
 
 
 
