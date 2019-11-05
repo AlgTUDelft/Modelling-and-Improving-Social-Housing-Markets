@@ -10,7 +10,7 @@ public class Household extends HousingMarketVertex {
     private HouseholdType householdType;
     private RegistrationTime registrationTime; // In months
 
-    public Household Household(int age, int income, int householdType, int registrationTime)  throws InvalidHouseholdException{
+    public Household(int age, int income, int householdType, int registrationTime)  throws InvalidHouseholdException{
         this.age = age;
         this.income = income;
         try {
@@ -19,8 +19,6 @@ public class Household extends HousingMarketVertex {
             throw new InvalidHouseholdException(e.getMessage());
         }
         this.registrationTime = new RegistrationTime(registrationTime);
-
-        return this;
     }
 
     public int getAge() {

@@ -14,8 +14,8 @@ import org.jgrapht.graph.builder.GraphTypeBuilder;
 
 public class Matching {
     private SimpleGraph<HousingMarketVertex, DefaultEdge> matchingGraph;
-    private HashSet<House> houses;
-    private HashSet<Household> households;
+    private HashSet<House> houses = new HashSet<House>();
+    private HashSet<Household> households = new HashSet<Household>();
 
     private HousingMarket housingMarket;
 
@@ -129,13 +129,5 @@ public class Matching {
             super(errorMessage);
         }
     }
-
-
-
-    // TODO:
-    //  * Figure out what kinds of results this should show
-    //    (or should everything go into the evaluator class?)
-    //  * Show aggregated results of matching.
-
 
 }

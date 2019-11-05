@@ -1,3 +1,6 @@
+import HousingMarket.House.House;
+import HousingMarket.Household.Household;
+
 public class MatchingEvaluator {
 
     private Matching matching;
@@ -6,13 +9,49 @@ public class MatchingEvaluator {
         this.matching = matching;
     }
 
-    public void evaluateHouseless() {
-        this.matching.getHouses();
-        // TODO: finish
+    public float evaluateHouselessHouseholds() throws InvalidMatchingException {
+        float householdsCount = this.matching.getHouseholds().size();
+
+        int houselessHouseholdsCount = 0;
+        try {
+            for (Household household: this.matching.getHouseholds()
+                 ) {
+                    if (this.matching.getHouseFromHousehold(household) == null) {
+                        houselessHouseholdsCount++;
+                    }
+                    else continue;
+                }
+            } catch (Matching.HouseholdLinkedToHouseholdException
+                | Matching.HouseholdLinkedToMultipleException e) {
+            throw new InvalidMatchingException(e.getMessage());
+        }
+
+        return houselessHouseholdsCount/householdsCount;
     }
 
-    public void evaluateHouseholdless() {
-        // TODO: finish
+    public float evaluateHouseholdlessHouses() throws InvalidMatchingException {
+        float housesCount;
+        try {
+            housesCount = this.matching.getHouses().size();
+        } catch (NullPointerException e) {
+            throw new InvalidMatchingException("Matching is null.");
+        }
+
+        int householdlessHousesCount = 0;
+        try {
+            for (House house: this.matching.getHouses()
+            ) {
+                if (this.matching.getHouseholdFromHouse(house) == null) {
+                    householdlessHousesCount++;
+                }
+                else continue;
+            }
+        } catch (Matching.HouseLinkedToHouseException
+                | Matching.HouseLinkedToMultipleException e) {
+            throw new InvalidMatchingException(e.getMessage());
+        }
+
+        return householdlessHousesCount/housesCount;
     }
 
     public void evaluateFinancialFit() {
@@ -21,5 +60,9 @@ public class MatchingEvaluator {
 
 
 
-    public static void test() {System.out.println("Test executed!");}
+    public class InvalidMatchingException extends Exception {
+        public InvalidMatchingException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
 }
