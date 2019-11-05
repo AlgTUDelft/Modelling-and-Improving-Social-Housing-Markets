@@ -1,36 +1,26 @@
 package HousingMarket.Household;
 
 import HousingMarket.House.House;
+import HousingMarket.HousingMarketVertex;
 
-public class Household {
+public class Household extends HousingMarketVertex {
 
     private int age;
     private int income;
     private HouseholdType householdType;
     private RegistrationTime registrationTime; // In months
 
-    private House house;
-
-    public Household Household(int age, int income, int householdType, int registrationTime)  throws InvalidHousehold{
+    public Household Household(int age, int income, int householdType, int registrationTime)  throws InvalidHouseholdException{
         this.age = age;
         this.income = income;
         try {
             this.householdType = new HouseholdType(householdType);
         } catch (HouseholdType.NoHouseholdTypeFoundException e) {
-            throw new InvalidHousehold(e.getMessage());
+            throw new InvalidHouseholdException(e.getMessage());
         }
         this.registrationTime = new RegistrationTime(registrationTime);
 
         return this;
-    }
-
-
-    public House getHouse(){
-        return this.house;
-    }
-
-    public void setHouse(House house) {
-        this.house = house;
     }
 
     public int getAge() {
@@ -54,8 +44,8 @@ public class Household {
 
     }
 
-    public class InvalidHousehold extends Exception {
-        public InvalidHousehold(String errorMessage) {
+    public class InvalidHouseholdException extends Exception {
+        public InvalidHouseholdException(String errorMessage) {
             super(errorMessage);
         }
     }

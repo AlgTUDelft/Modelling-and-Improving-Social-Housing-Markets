@@ -1,8 +1,9 @@
 package HousingMarket.House;
 
 import HousingMarket.Household.Household;
+import HousingMarket.HousingMarketVertex;
 
-public class House {
+public class House extends HousingMarketVertex {
 
     private boolean multiFamilyHome;
     private int rent;
@@ -11,7 +12,6 @@ public class House {
     private boolean accessibility;
     private int constructionYear;
 
-    private Household household;
 
     public House House(boolean multiFamilyHome, int rent, int rooms,
                        int size, boolean accessibility, int constructionYear) {
@@ -23,15 +23,6 @@ public class House {
         this.constructionYear = constructionYear;
 
         return this;
-    }
-
-
-    public Household getHousehold() {
-        return this.household;
-    }
-
-    public void setHousehold(Household household) {
-        this.household = household;
     }
 
     public boolean getMultiFamilyHome() {
