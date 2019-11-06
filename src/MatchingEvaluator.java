@@ -58,6 +58,10 @@ public class MatchingEvaluator {
         // TODO: finish
     }
 
+    public void evaluateSizeFit() {
+        // TODO: finish; rooms and meters.
+    }
+
 
 
     public class InvalidMatchingException extends Exception {

@@ -19,8 +19,8 @@ public class Main {
     }
 
     public static void seedTestMatching(Matching matching) {
-        House house1 = new House();
-        House house2 = new House();
+        House house1 = new House(false, 500,3,50, false, 2011);
+        House house2 = new House(false, 600, 4, 60, true, 2016);
         Household household1 = new Household(43, 21000, HouseholdType.TWO, 12 * 5);
         matching.addHouse(house1);
         matching.addHouse(house2);
@@ -30,10 +30,14 @@ public class Main {
         } catch (Matching.HouseOrHouseholdAlreadyMatchedException e) {
             System.err.println(e.getMessage());
         }
+
     }
 
     // TODO:
-    //  * Finish MatchingEvaluator class
+    //  * Check which data you might want to include [See Evernote] [See HTML]
+    //  * Create new possible fits
+    //  * Create new goals to test for
     //  * Create test example
     //  * Evaluate test example
+    //  * Finish MatchingEvaluator class
 }

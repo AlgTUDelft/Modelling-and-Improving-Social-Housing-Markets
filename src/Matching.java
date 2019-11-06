@@ -3,14 +3,10 @@ import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import HousingMarket.HousingMarketVertex;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
-import org.jgrapht.*;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
-import org.jgrapht.graph.builder.GraphBuilder;
-import org.jgrapht.graph.builder.GraphTypeBuilder;
 
 public class Matching {
     private SimpleGraph<HousingMarketVertex, DefaultEdge> matchingGraph;
