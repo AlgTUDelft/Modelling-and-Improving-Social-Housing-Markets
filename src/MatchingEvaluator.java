@@ -26,7 +26,9 @@ public class MatchingEvaluator {
             throw new InvalidMatchingException(e.getMessage());
         }
 
-        return houselessHouseholdsCount/householdsCount;
+        float result = houselessHouseholdsCount/householdsCount;
+        System.out.println(result * 100 + "% of households have no house.");
+        return result;
     }
 
     public float evaluateHouseholdlessHouses() throws InvalidMatchingException {
@@ -34,7 +36,7 @@ public class MatchingEvaluator {
         try {
             housesCount = this.matching.getHouses().size();
         } catch (NullPointerException e) {
-            throw new InvalidMatchingException("Matching is null.");
+            throw new InvalidMatchingException("Error: Matching is null.");
         }
 
         int householdlessHousesCount = 0;
@@ -51,7 +53,9 @@ public class MatchingEvaluator {
             throw new InvalidMatchingException(e.getMessage());
         }
 
-        return householdlessHousesCount/housesCount;
+        float result = householdlessHousesCount/housesCount;
+        System.out.println(result * 100 + "% of houses have no household.");
+        return result;
     }
 
     public void evaluateFinancialFit() {
@@ -60,6 +64,14 @@ public class MatchingEvaluator {
 
     public void evaluateSizeFit() {
         // TODO: finish; rooms and meters.
+    }
+
+    public void evaluateDistributionOverSize() {
+        // TODO: finish
+    }
+
+    public void evaluateDistributionOverRoomCount() {
+        // TODO: finish
     }
 
 

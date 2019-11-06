@@ -42,7 +42,7 @@ public class Matching {
 
     public void connect(House house, Household household) throws HouseOrHouseholdAlreadyMatchedException {
         if (!this.matchingGraph.edgesOf(house).isEmpty() || !this.matchingGraph.edgesOf(household).isEmpty()) {
-            throw new HouseOrHouseholdAlreadyMatchedException("House " + house.toString() + " or household "
+            throw new HouseOrHouseholdAlreadyMatchedException("Error: House " + house.toString() + " or household "
             + household.toString() + " is already matched!");
         }
         else {
@@ -69,10 +69,10 @@ public class Matching {
             HousingMarketVertex household = this.matchingGraph.getEdgeTarget(edge);
             if (household instanceof Household) {
                 return (Household) household;
-            } else throw new HouseLinkedToHouseException("House " + house.toString() + " is linked " +
+            } else throw new HouseLinkedToHouseException("Error: House " + house.toString() + " is linked " +
                     "to house " + household.toString() + "!");
         } else if (this.matchingGraph.edgesOf(house).size() > 1) {
-            throw new HouseLinkedToMultipleException("House " + house.toString() + " is linked " +
+            throw new HouseLinkedToMultipleException("Error: House " + house.toString() + " is linked " +
                     "to multiples vertices!");
         }
         else return null;
@@ -86,10 +86,10 @@ public class Matching {
             HousingMarketVertex house = this.matchingGraph.getEdgeSource(edge);
             if (house instanceof House) {
                 return (House) house;
-            } else throw new HouseholdLinkedToHouseholdException("Household " + household.toString() +
+            } else throw new HouseholdLinkedToHouseholdException("Error: Household " + household.toString() +
                     " is linked to household " + house.toString() + "!");
         } else if (this.matchingGraph.edgesOf(household).size() > 1) {
-            throw new HouseholdLinkedToMultipleException("Household " + household.toString()
+            throw new HouseholdLinkedToMultipleException("Error: Household " + household.toString()
                     + " is linked to multiples vertices!");
         }
         else return null;
