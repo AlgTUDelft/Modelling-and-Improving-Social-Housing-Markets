@@ -40,12 +40,13 @@ public class Matching {
         this.matchingGraph.removeVertex(household);
     }
 
-    public void connect(House house, Household household) throws HouseOrHouseholdAlreadyMatchedException {
-        if (!this.matchingGraph.edgesOf(house).isEmpty() || !this.matchingGraph.edgesOf(household).isEmpty()) {
-            throw new HouseOrHouseholdAlreadyMatchedException("Error: House " + house.toString() + " or household "
-            + household.toString() + " is already matched!");
-        }
-        else {
+    public void connect(House house, Household household)
+            throws HouseAlreadyMatchedException, HouseholdAlreadyMatchedException {
+        if (!this.matchingGraph.edgesOf(house).isEmpty()) {
+            throw new HouseAlreadyMatchedException("Error: House " + house.toString() + " is already matched!");
+        } else if (!this.matchingGraph.edgesOf(household).isEmpty()) {
+            throw new HouseholdAlreadyMatchedException("Error: Household " + household.toString() + " is already matched!");
+        } else {
             this.matchingGraph.addEdge(house, household);
         }
     }
@@ -86,8 +87,8 @@ public class Matching {
             HousingMarketVertex house = this.matchingGraph.getEdgeSource(edge);
             if (house instanceof House) {
                 return (House) house;
-            } else throw new HouseholdLinkedToHouseholdException("Error: Household " + household.toString() +
-                    " is linked to household " + house.toString() + "!");
+            } else { throw new HouseholdLinkedToHouseholdException("Error: Household " + household.toString() +
+                    " is linked to household " + house.toString() + "!");}
         } else if (this.matchingGraph.edgesOf(household).size() > 1) {
             throw new HouseholdLinkedToMultipleException("Error: Household " + household.toString()
                     + " is linked to multiples vertices!");
@@ -120,8 +121,14 @@ public class Matching {
         }
     }
 
-    public class HouseOrHouseholdAlreadyMatchedException extends Exception {
-        public HouseOrHouseholdAlreadyMatchedException(String errorMessage) {
+    public class HouseAlreadyMatchedException extends Exception {
+        public HouseAlreadyMatchedException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
+
+    public class HouseholdAlreadyMatchedException extends Exception {
+        public HouseholdAlreadyMatchedException(String errorMessage) {
             super(errorMessage);
         }
     }

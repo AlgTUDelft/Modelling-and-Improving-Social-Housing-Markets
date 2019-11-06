@@ -34,7 +34,8 @@ public class Main {
         matching.addHousehold(household3);
         try {
             matching.connect(house1, household1);
-        } catch (Matching.HouseOrHouseholdAlreadyMatchedException e) {
+            matching.connect(house2, household1);
+        } catch (Matching.HouseAlreadyMatchedException | Matching.HouseholdAlreadyMatchedException e) {
             System.err.println(e.getMessage());
         }
 
