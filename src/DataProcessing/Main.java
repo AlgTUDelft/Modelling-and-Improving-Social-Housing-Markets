@@ -1,47 +1,43 @@
 package DataProcessing;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Iterator;
+import java.io.*;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+// Adapted from: https://www.mkyong.com/java/how-to-read-and-parse-csv-file-in-java/
 
-// Adapted from: https://medium.com/@ssaurel/reading-microsoft-excel-xlsx-files-in-java-2172f5aaccbe
 
 public class Main {
 
-    public static void main(String[] args) throws IOException {
-        File excelFile = new File("../../../Olivier Data [On Laptop]//dbo_V_verhuringen dd 11 jan 17.xlsx");
-        FileInputStream fis = new FileInputStream(excelFile);
+    public static void main(String[] args) {
+        String csvFileName = "../../../Olivier Data [On Laptop]//dbo_V_verhuringen dd 11 jan 17.csv";
+        BufferedReader br = null;
+        String line = "";
+        String cvsSplitBy = ";";
 
-        // we create an XSSF Workbook object for our XLSX Excel File
-        XSSFWorkbook workbook = new XSSFWorkbook(fis);
-        // we get first sheet
-        XSSFSheet sheet = workbook.getSheetAt(0);
+        try {
 
-        // we iterate on rows
-        Iterator<Row> rowIt = sheet.iterator();
+            br = new BufferedReader(new FileReader(csvFileName));
+            while ((line = br.readLine()) != null) {
 
-        while(rowIt.hasNext()) {
-            Row row = rowIt.next();
+                // use comma as separator
+                String[] row = line.split(cvsSplitBy);
 
-            // iterate on cells for the current row
-            Iterator<Cell> cellIterator = row.cellIterator();
+                System.out.println(line);
 
-            while (cellIterator.hasNext()) {
-                Cell cell = cellIterator.next();
-                System.out.print(cell.toString() + ";");
             }
 
-            System.out.println();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (br != null) {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
-
-        workbook.close();
-        fis.close();
     }
-
 }
+

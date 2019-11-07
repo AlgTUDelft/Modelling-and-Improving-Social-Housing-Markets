@@ -1,6 +1,5 @@
 package HousingMarket.House;
 
-import HousingMarket.Household.Household;
 import HousingMarket.HousingMarketVertex;
 
 public class House extends HousingMarketVertex {
