@@ -16,28 +16,30 @@ public class Main {
             matchingEvaluator.evaluateHouseholdlessHouses();
             matchingEvaluator.evaluateHouselessHouseholds();
         } catch (MatchingEvaluator.InvalidMatchingException
-                | HousingMarket.FreeSpaceException e) {
+                | HousingMarket.FreeSpaceException
+                | Household.InvalidHouseholdException
+                | Matching.HouseholdAlreadyMatchedException
+                | Matching.HouseAlreadyMatchedException e) {
             System.err.println(e.getMessage());
         }
     }
 
-    public static void seedTestMatching(Matching matching) {
+    public static void seedTestMatching(Matching matching)
+            throws Household.InvalidHouseholdException,
+            Matching.HouseholdAlreadyMatchedException,
+            Matching.HouseAlreadyMatchedException {
+
         House house1 = new House(false, 500,3,50, false, 2011);
         House house2 = new House(false, 600, 4, 60, true, 2016);
-        Household household1 = new Household(43, 25000, 4, 2, LabelType.DOORSTROMER , PersonalityType.RED, 12 * 8, false);
-        Household household2 = new Household(20, 20000, 1, 0, LabelType.STARTER, PersonalityType.GREEN, 12 * 1, false);
-        Household household3 = new Household(36, 35000, 2, 0, LabelType.DOORSTROMER, PersonalityType.BLUE, 12 * 4, true);
+        Household household1 = new Household(43, 25000, HouseholdType.HH2, 4, 2, LabelType.DOORSTROMER , PersonalityType.RED, 12 * 8, false);
+        Household household2 = new Household(20, 20000, HouseholdType.ONE, 1, 0, LabelType.STARTER, PersonalityType.GREEN, 12 * 1, false);
+        Household household3 = new Household(36, 35000, HouseholdType.TWO, 2, 0, LabelType.DOORSTROMER, PersonalityType.BLUE, 12 * 4, true);
         matching.addHouse(house1);
         matching.addHouse(house2);
         matching.addHousehold(household1);
         matching.addHousehold(household2);
         matching.addHousehold(household3);
-        try {
-            matching.connect(house1, household1);
-        } catch (Matching.HouseAlreadyMatchedException
-                | Matching.HouseholdAlreadyMatchedException e) {
-            System.err.println(e.getMessage());
-        }
+        matching.connect(house1, household1);
 
     }
 

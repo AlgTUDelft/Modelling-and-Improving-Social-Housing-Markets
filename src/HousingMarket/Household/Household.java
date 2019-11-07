@@ -6,7 +6,7 @@ public class Household extends HousingMarketVertex {
 
     private int age;
     private int income;
-//    private HouseholdType householdType;
+    private HouseholdType householdType;
     private int totalHouseholdCount;
     private int childrenCount;
     private LabelType labelType;
@@ -17,11 +17,20 @@ public class Household extends HousingMarketVertex {
     //  * Add voorrang? [See Interactive_Report.html]
     //  * Hoe meten wij urgentie? -> ("voorrang wz" == "sociaal-medisch urgent") || ("voorrangskenmerk" == "Voorrang")?
 
-    public Household(int age, int income, int totalHouseholdCount, int childrenCount, LabelType labelType, PersonalityType personalityType, int registrationTime, boolean priority) {
-        this.age = age;
+    public Household(int age, int income, HouseholdType householdType, int totalHouseholdCount, int childrenCount,
+                     LabelType labelType, PersonalityType personalityType, int registrationTime,
+                     boolean priority) throws InvalidHouseholdException {
+        if (age >= 18) {
+            this.age = age;
+        } else { throw new InvalidHouseholdException("Error: Household age is below legal age.");}
+
         this.income = income;
-        this.totalHouseholdCount = totalHouseholdCount;
-        this.childrenCount = childrenCount;
+        this.householdType = householdType;
+        if (totalHouseholdCount > childrenCount) {
+            this.totalHouseholdCount = totalHouseholdCount;
+            this.childrenCount = childrenCount;
+        } else { throw new InvalidHouseholdException("Error: Household contains no adults.");}
+
         this.labelType = labelType;
         this.personalityType = personalityType;
         this.registrationTime = new RegistrationTime(registrationTime);
@@ -40,4 +49,11 @@ public class Household extends HousingMarketVertex {
     public RegistrationTime getRegistrationTime() {
         return this.registrationTime;
     }
+
+    public class InvalidHouseholdException extends Exception {
+        public InvalidHouseholdException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
+
 }

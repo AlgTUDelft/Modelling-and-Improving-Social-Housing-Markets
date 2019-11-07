@@ -66,14 +66,41 @@ public class MatchingEvaluator {
         // TODO: finish; rooms and meters.
     }
 
-    public void evaluateDistributionOverSize() {
+    public void evaluateAccessibilityFit() {
         // TODO: finish
     }
 
-    public void evaluateDistributionOverRoomCount() {
+    public void evaluateDistributionOverHouseSize() {
         // TODO: finish
     }
 
+    public void evaluateDistributionOverHouseRoomCount() {
+        // TODO: finish
+    }
+
+    public void evaluateDistributionOverHouseRent() {
+        // TODO: finish
+    }
+
+    public void evaluateDistributionOverHouseholdType() {
+        // TODO: finish
+    }
+
+    public void evaluateDistributionOverHouseholdAge() {
+        // TODO: finish
+    }
+
+    public void evaluateDistributionOverHouseholdIncome() {
+        // TODO: finish
+    }
+
+    public void evaluateDistributionOverPriority() {
+        // TODO: finish
+    }
+
+    public void evaluateDistributionOverRegistrationTime() {
+        // TODO: finish
+    }
 
 
     public class InvalidMatchingException extends Exception {
