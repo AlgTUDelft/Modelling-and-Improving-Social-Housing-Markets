@@ -45,9 +45,16 @@ public class Household extends HousingMarketVertex {
         return this.income;
     }
 
+    public int getTotalHouseholdCount() {
+        return this.totalHouseholdCount;
+    }
 
     public RegistrationTime getRegistrationTime() {
         return this.registrationTime;
+    }
+
+    public RegistrationTimeType getRegistrationTimeType() {
+        return this.registrationTime.getRegistrationTimeType();
     }
 
     public class InvalidHouseholdException extends Exception {

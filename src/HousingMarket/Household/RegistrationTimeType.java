@@ -1,0 +1,4 @@
+package HousingMarket.Household;
+
+public enum RegistrationTimeType {UNKNOWN, SIX_MONTHS_OR_LESS, SIX_TO_TWELVE_MONTHS, ONE_TO_FIVE_YEARS,
+    FIVE_TO_TEN_YEARS, TEN_TO_FIFTEEN_YEARS, FIFTEEN_YEARS_OR_MORE}

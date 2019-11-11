@@ -1,31 +1,51 @@
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
+import HousingMarket.Household.RegistrationTimeType;
 
-import java.util.HashSet;
 
+//    Takes Matching and evaluates based on several criteria.
 public class MatchingEvaluator {
 
     private Matching matching;
 
-//    Takes Matching and evaluates based on several criteria.
     public MatchingEvaluator(Matching matching) {
         this.matching = matching;
     }
 
 
-    public float evaluateHouselessHouseholds() throws InvalidMatchingException {
+    public void evaluateIndividualFinancialFit() {
+        // TODO: finish individual
+    }
+
+    public float evaluateIndividualRoomFit(House house, Household household) {
+        float fit;
+        if (house.getRoomCount() <= household.getTotalHouseholdCount() &&
+                household.getTotalHouseholdCount() <= house.getRoomCount() + 1) {
+            fit = 100;
+        }
+        else if (house.getRoomCount() < household.getTotalHouseholdCount()) {
+            fit = 0;}
+        else { fit = (house.getRoomCount() + 1)/household.getTotalHouseholdCount() * 100; }
+        return fit;
+    }
+
+    public void evaluateIndividualSizeFit(House house, Household household) {
+
+    }
+
+    public float evaluateOverallHouselessHouseholds() throws InvalidMatchingException {
         float householdsCount = this.matching.getHouseholds().size();
 
         int houselessHouseholdsCount = 0;
         try {
             for (Household household: this.matching.getHouseholds()
-                 ) {
-                    if (this.matching.getHouseFromHousehold(household) == null) {
-                        houselessHouseholdsCount++;
-                    }
-                    else continue;
+            ) {
+                if (this.matching.getHouseFromHousehold(household) == null) {
+                    houselessHouseholdsCount++;
                 }
-            } catch (Matching.HouseholdLinkedToHouseholdException
+                else continue;
+            }
+        } catch (Matching.HouseholdLinkedToHouseholdException
                 | Matching.HouseholdLinkedToMultipleException e) {
             throw new InvalidMatchingException(e.getMessage());
         }
@@ -35,7 +55,7 @@ public class MatchingEvaluator {
         return result;
     }
 
-    public float evaluateHouseholdlessHouses() throws InvalidMatchingException {
+    public float evaluateOverallHouseholdlessHouses() throws InvalidMatchingException {
         float housesCount;
         try {
             housesCount = this.matching.getHouses().size();
@@ -62,15 +82,23 @@ public class MatchingEvaluator {
         return result;
     }
 
-    public void evaluateFinancialFit() {
-        // TODO: finish
+    public void evaluateOverallSizeFit() throws Matching.HouseholdLinkedToHouseholdException,
+            Matching.HouseholdLinkedToMultipleException {
+
+        for (Household household : this.matching.getHouseholds()) {
+            House house = matching.getHouseFromHousehold(household);
+            float fit = evaluateIndividualSizeFit(house, household);
+
+            // TODO: finish overall
+        }
+
     }
 
-    public void evaluateSizeFit() {
-        // TODO: finish; rooms and meters.
+    public void evaluateOverallFinancialFit() {
+        // TODO: finish overall
     }
 
-    public float evaluateAccessibilityFit()
+    public float evaluateOverallAccessibilityFit()
             throws Matching.HouseholdLinkedToHouseholdException,
             Matching.HouseholdLinkedToMultipleException {
         float householdsAbove65WithHouses = 0;
@@ -97,37 +125,45 @@ public class MatchingEvaluator {
         return result;
     }
 
-    public void evaluateDistributionOverHouseSize() {
+    public void evaluateOverallRegistrationTime() {
+//        Hashmap<RegistrationTimeType, ArrayList<>>
+//        for (RegistrationTimeType type:
+//             RegistrationTimeType.values()
+//             ) {
+//
+//        }
+        // TODO: finish.
+        //  * (Run, for each RegistrationTimeType, all other base-level evaluators.)
+    }
+
+    public void evaluateOverallHouseSize() {
         // TODO: finish
     }
 
-    public void evaluateDistributionOverHouseRoomCount() {
+    public void evaluateOverallHouseRoomCount() {
         // TODO: finish
     }
 
-    public void evaluateDistributionOverHouseRent() {
+    public void evaluateOverallHouseRent() {
         // TODO: finish
     }
 
-    public void evaluateDistributionOverHouseholdType() {
+    public void evaluateOverallHouseholdType() {
         // TODO: finish
     }
 
-    public void evaluateDistributionOverHouseholdAge() {
+    public void evaluateOverallHouseholdAge() {
         // TODO: finish
     }
 
-    public void evaluateDistributionOverHouseholdIncome() {
+    public void evaluateOverallHouseholdIncome() {
         // TODO: finish
     }
 
-    public void evaluateDistributionOverPriority() {
+    public void evaluateOverallPriority() {
         // TODO: finish
     }
 
-    public void evaluateDistributionOverRegistrationTime() {
-        // TODO: finish
-    }
 
     public void evaluateTotal() {
         // TODO: finish last.
