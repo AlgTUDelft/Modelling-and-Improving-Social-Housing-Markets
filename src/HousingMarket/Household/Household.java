@@ -18,7 +18,7 @@ public class Household extends HousingMarketVertex {
 
 
     public Household(String municipality, String postalCode, String label,
-                     int income, int age, HouseholdType householdType, int totalHouseholdCount, int childrenCount,
+                     int income, int age, HouseholdType householdType, int totalHouseholdCount,
                      boolean priority) throws InvalidHouseholdException {
         if (age >= 18) {
             this.age = age;

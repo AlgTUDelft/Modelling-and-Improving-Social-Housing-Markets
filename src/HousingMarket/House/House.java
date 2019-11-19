@@ -13,13 +13,14 @@ public class House extends HousingMarketVertex {
     private boolean accessibility;
 
 
-    public House(int rent, int roomCount, boolean accessibility,
-                 String municipality, String label) {
+    public House(String municipality, String label,
+                 int rent, int roomCount, boolean accessibility) {
+
+        this.municipality = municipality;
+        this.label = label;
         this.rent = rent;
         this.roomCount = roomCount;
         this.accessibility = accessibility;
-        this.municipality = municipality;
-        this.label = label;
 
     }
 

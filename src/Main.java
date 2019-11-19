@@ -34,10 +34,20 @@ public class Main {
 //    }
 
     public static void test2() {
+        Matching matching;
         try {
             HousingMarket housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            Matching matching = dataProcessor.csv_to_data("../../../Olivier Data [On Laptop]//test.csv");
+            try {
+                matching = dataProcessor.csv_to_data("../../../Olivier Data [On Laptop]//test.csv");
+                System.out.println("Done!");
+            } catch (Matching.HouseAlreadyMatchedException e) {
+                System.err.println(e.getMessage());
+            } catch (Household.InvalidHouseholdException e) {
+                System.err.println(e.getMessage());
+            } catch (Matching.HouseholdAlreadyMatchedException e) {
+                System.err.println(e.getMessage());
+            }
         } catch (HousingMarket.FreeSpaceException e) {
             System.err.println(e.getMessage());
         }
