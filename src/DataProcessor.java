@@ -1,27 +1,42 @@
-package DataProcessing;
+import HousingMarket.HousingMarket;
 
 import java.io.*;
 
 // Adapted from: https://www.mkyong.com/java/how-to-read-and-parse-csv-file-in-java/
 
 
-public class Main {
+public class DataProcessor {
 
-    public static void main(String[] args) {
-        String csvFileName = "../../../Olivier Data [On Laptop]//dbo_V_verhuringen dd 11 jan 17.csv";
+    private Matching matching;
+
+    public DataProcessor(HousingMarket housingMarket) {
+        this.matching = new Matching(housingMarket);
+    }
+
+    public Matching csv_to_data(String csvFileName) {
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ";";
+
+        String[] columnNames;
+
+        boolean firstLine = true;
 
         try {
 
             br = new BufferedReader(new FileReader(csvFileName));
             while ((line = br.readLine()) != null) {
 
-                // use comma as separator
-                String[] row = line.split(cvsSplitBy);
+                if (firstLine) {
+                    columnNames = line.split(cvsSplitBy);
+                    firstLine = false;
+                }
+                else {
+                    // use comma as separator
+                    String[] row = line.split(cvsSplitBy);
 
-                System.out.println(line);
+                }
+
 
             }
 
@@ -38,6 +53,7 @@ public class Main {
                 }
             }
         }
+        return this.matching;
     }
 }
 

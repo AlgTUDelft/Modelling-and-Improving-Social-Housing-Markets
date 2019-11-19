@@ -4,39 +4,35 @@ import HousingMarket.HousingMarketVertex;
 
 public class House extends HousingMarketVertex {
 
-    private boolean multiFamilyHome;
+    //private boolean multiFamilyHome;
+    private String municipality;
+    private String label;
     private int rent;
     private int roomCount;
-    private int size;
+    // accessibility <- Groundfloor OR (high floor plus elevator)
     private boolean accessibility;
-    private int constructionYear;
 
 
-    public House(boolean multiFamilyHome, int rent, int roomCount,
-                       int size, boolean accessibility, int constructionYear) {
-        this.multiFamilyHome = multiFamilyHome;
+    public House(int rent, int roomCount, boolean accessibility,
+                 String municipality, String label) {
         this.rent = rent;
         this.roomCount = roomCount;
-        this.size = size;
         this.accessibility = accessibility;
-        this.constructionYear = constructionYear;
+        this.municipality = municipality;
+        this.label = label;
 
     }
 
-    public boolean getMultiFamilyHome() {
-        return this.multiFamilyHome;
-    }
+    public String getMunicipality() { return this.municipality; }
+
+    public String getLabel() { return this.label; }
 
     public int getRent() { return this.rent; }
-
-    public int getSize() { return this.size; }
-
-    public boolean getAccessibility() { return this.accessibility; }
-
-    public int getConstructionYear() { return this.constructionYear; }
 
     public int getRoomCount() {
         return this.roomCount;
     }
+
+    public boolean getAccessibility() { return this.accessibility; }
 
 }

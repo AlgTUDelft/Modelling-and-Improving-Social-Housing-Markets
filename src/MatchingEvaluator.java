@@ -85,12 +85,12 @@ public class MatchingEvaluator {
     public void evaluateOverallSizeFit() throws Matching.HouseholdLinkedToHouseholdException,
             Matching.HouseholdLinkedToMultipleException {
 
-        for (Household household : this.matching.getHouseholds()) {
-            House house = matching.getHouseFromHousehold(household);
-            float fit = evaluateIndividualSizeFit(house, household);
-
-            // TODO: finish overall
-        }
+//        for (Household household : this.matching.getHouseholds()) {
+//            House house = matching.getHouseFromHousehold(household);
+//            float fit = evaluateIndividualSizeFit(house, household);
+//
+//            // TODO: finish overall
+//        }
 
     }
 

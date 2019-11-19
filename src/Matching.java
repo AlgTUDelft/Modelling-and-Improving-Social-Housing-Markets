@@ -25,9 +25,21 @@ public class Matching {
         this.matchingGraph.addVertex(house);
     }
 
+    public void addHouses(House... houses) {
+        for (House house : houses) {
+            this.addHouse(house);
+        }
+    }
+
     public void addHousehold(Household household) {
         this.households.add(household);
         this.matchingGraph.addVertex(household);
+    }
+
+    public void addHouseholds(Household... households) {
+        for (Household household : households) {
+            this.addHousehold(household);
+        }
     }
 
     public void removeHouse(House house) {
