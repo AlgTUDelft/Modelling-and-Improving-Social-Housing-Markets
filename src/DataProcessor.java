@@ -4,6 +4,7 @@ import HousingMarket.Household.HouseholdType;
 import HousingMarket.HousingMarket;
 
 import java.io.*;
+import java.util.Random;
 
 // Adapted from: https://www.mkyong.com/java/how-to-read-and-parse-csv-file-in-java/
 
@@ -45,7 +46,7 @@ public class DataProcessor {
                     int rent = Integer.parseInt(row[2]);
                     int roomCount = Integer.parseInt(row[4].substring(0,1));
                     boolean accessibility;
-                    if (row[5] == "Begane grond" || row[6] == "Ja") {
+                    if (row[5].equals("Begane grond") || row[6].equals("Ja")) {
                         accessibility = true;
                     } else { accessibility = false; }
 
@@ -88,7 +89,10 @@ public class DataProcessor {
                                 income, age, householdType, totalHouseholdCount, priority);
                         this.matching.addHouse(house);
                         this.matching.addHousehold(household);
-                        this.matching.connect(house,household);
+                        // With 90% chance, connect these houses.
+                        if ( new Random().nextDouble() <= 0.90) {
+                            this.matching.connect(house, household);
+                        }
                     } catch (Household.InvalidHouseholdException e) {
                         e.printStackTrace();
                     } catch (Matching.HouseAlreadyMatchedException e) {

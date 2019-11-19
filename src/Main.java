@@ -40,6 +40,11 @@ public class Main {
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
             try {
                 matching = dataProcessor.csv_to_data("../../../Olivier Data [On Laptop]//test.csv");
+
+                MatchingEvaluator matchingEvaluator= new MatchingEvaluator(matching);
+                matchingEvaluator.evaluateOverallHouseholdlessHouses();
+                matchingEvaluator.evaluateOverallHouselessHouseholds();
+                matchingEvaluator.evaluateOverallAccessibilityFit();
                 System.out.println("Done!");
             } catch (Matching.HouseAlreadyMatchedException e) {
                 System.err.println(e.getMessage());
@@ -47,6 +52,12 @@ public class Main {
                 System.err.println(e.getMessage());
             } catch (Matching.HouseholdAlreadyMatchedException e) {
                 System.err.println(e.getMessage());
+            } catch (Matching.HouseholdLinkedToMultipleException e) {
+                e.printStackTrace();
+            } catch (Matching.HouseholdLinkedToHouseholdException e) {
+                e.printStackTrace();
+            } catch (MatchingEvaluator.InvalidMatchingException e) {
+                e.printStackTrace();
             }
         } catch (HousingMarket.FreeSpaceException e) {
             System.err.println(e.getMessage());
