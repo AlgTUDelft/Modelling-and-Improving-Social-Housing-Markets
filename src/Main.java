@@ -45,6 +45,12 @@ public class Main {
                 matchingEvaluator.evaluateOverallHouseholdlessHouses();
                 matchingEvaluator.evaluateOverallHouselessHouseholds();
                 matchingEvaluator.evaluateOverallAccessibilityFit();
+                for (Household household : matching.getHouseholds()) {
+                    House house = matching.getHouseFromHousehold(household);
+                    if (house != null) {
+                        matchingEvaluator.evaluateTotalIndividualFit(house, household);
+                    }
+                }
                 System.out.println("Done!");
             } catch (Matching.HouseAlreadyMatchedException e) {
                 System.err.println(e.getMessage());
@@ -57,6 +63,8 @@ public class Main {
             } catch (Matching.HouseholdLinkedToHouseholdException e) {
                 e.printStackTrace();
             } catch (MatchingEvaluator.InvalidMatchingException e) {
+                e.printStackTrace();
+            } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
                 e.printStackTrace();
             }
         } catch (HousingMarket.FreeSpaceException e) {

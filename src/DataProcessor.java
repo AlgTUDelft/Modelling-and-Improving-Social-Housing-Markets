@@ -57,6 +57,10 @@ public class DataProcessor {
                     String postalCode = row[8];
                     String householdLabel = row[9];
                     int income = Integer.parseInt(row[10]);
+                    // TODO: Incorporate year. (Probably move this functionality elsewhere.)
+                    if (income > 42436) {
+                        continue;
+                    }
                     int age = Integer.parseInt(row[12]);
                     HouseholdType householdType;
                     switch(row[14]) {

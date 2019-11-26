@@ -24,13 +24,13 @@ public class MatchingEvaluator {
         int income = household.getIncome();
         float monthlyRent = house.getMonthlyRent();
         if (hhCount == 1) {
-            if (income < 22700) {
-                if (monthlyRent < 607.46) {
+            if (income <= 22700) {
+                if (monthlyRent <= 607.46) {
                     fit = 1;
                 } else { fit = 0; }
             }
-            else if (income < 42436) {
-                if (monthlyRent < 720.42) {
+            else if (income <= 42436) {
+                if (monthlyRent <= 720.42) {
                     fit = 1;
                 } else { fit = 0; }
             }
@@ -38,26 +38,26 @@ public class MatchingEvaluator {
                 throw new HouseholdIncomeTooHighException("Maximum income is 42436, household's income is " + income);
             }
         } else if (hhCount == 2) {
-            if (income < 30825) {
-                if (monthlyRent < 607.46) {
+            if (income <= 30825) {
+                if (monthlyRent <= 607.46) {
                     fit = 1;
                 } else { fit = 0; }
             }
-            else if (income < 42436) {
-                if (monthlyRent < 720.42) {
+            else if (income <= 42436) {
+                if (monthlyRent <= 720.42) {
                     fit = 1;
                 } else { fit = 0; }
             } else {
                 throw new HouseholdIncomeTooHighException("Maximum income is 42436, household's income is " + income);
             }
         } else {
-            if (income < 30825) {
-                if (monthlyRent < 651.03) {
+            if (income <= 30825) {
+                if (monthlyRent <= 651.03) {
                     fit = 1;
                 } else { fit = 0; }
             }
-            else if (income < 42436) {
-                if (monthlyRent < 720.42) {
+            else if (income <= 42436) {
+                if (monthlyRent <= 720.42) {
                     fit = 1;
                 } else { fit = 0; }
             } else {
@@ -79,14 +79,26 @@ public class MatchingEvaluator {
         return fit;
     }
 
+    public float evaluateIndividualAccessibilityFit(House house, Household household) {
+        float fit = 0;
+        if (household.getAge() >= 65) {
+            if (house.getAccessibility()) {
+                fit = 1;
+            }
+        } else { fit = 1; }
+        return fit;
+    }
 
     public float evaluateTotalIndividualFit(House house, Household household)
     throws HouseholdIncomeTooHighException {
         float financialIndividualFit = evaluateIndividualFinancialFit(house, household);
         float roomIndividualFit = evaluateIndividualRoomFit(house, household);
+        float accessibilityIndividualFit = evaluateIndividualAccessibilityFit(house, household);
 
         // TODO: _totalFit_ calculation method open to revision.
-        float totalIndividualFit = Math.min(financialIndividualFit, roomIndividualFit);
+        float totalIndividualFit = Math.min(Math.min(
+                financialIndividualFit, roomIndividualFit),
+                accessibilityIndividualFit);
         return totalIndividualFit;
     }
 
@@ -139,26 +151,22 @@ public class MatchingEvaluator {
         return result;
     }
 
-    public void evaluateOverallFinancialFit() {
-        // TODO: finish overall
-    }
-
     public float evaluateOverallAccessibilityFit()
             throws Matching.HouseholdLinkedToHouseholdException,
             Matching.HouseholdLinkedToMultipleException {
         float householdsAbove65WithHouses = 0;
         float householdsAbove65WithHousesAndAccessibility = 0;
-        for (Household household : this.matching.getHouseholds()
-             ) {
+        for (Household household : this.matching.getHouseholds()) {
+            House house = matching.getHouseFromHousehold(household);
+            if (house != null) {
                 if (household.getAge() >= 65) {
-                    House house = matching.getHouseFromHousehold(household);
-                    if (house != null) {
-                        householdsAbove65WithHouses++;
-                        if (house.getAccessibility()) {
-                            householdsAbove65WithHousesAndAccessibility++;
-                        }
+                    float individualFit = evaluateIndividualAccessibilityFit(house, household);
+                    householdsAbove65WithHouses++;
+                    if (Float.compare(individualFit, 1) == 0) {
+                        householdsAbove65WithHousesAndAccessibility++;
                     }
                 }
+            }
         }
         float result = 0;
         if (householdsAbove65WithHouses > 0) {
@@ -168,6 +176,10 @@ public class MatchingEvaluator {
             System.out.println("Matching does not contain households above the age of 65 that own houses.");
         }
         return result;
+    }
+
+    public void evaluateOverallFinancialFit() {
+        // TODO: finish overall
     }
 
     public void evaluateOverallRegistrationTime() {
