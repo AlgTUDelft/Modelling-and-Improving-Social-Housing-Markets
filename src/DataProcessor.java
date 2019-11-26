@@ -63,29 +63,22 @@ public class DataProcessor {
                     }
                     int age = Integer.parseInt(row[12]);
                     HouseholdType householdType;
-                    switch(row[14]) {
-                        case "1-persoons":
-                            householdType = HouseholdType.ONE;
-                            break;
-                        case "2-persoons":
-                            householdType = HouseholdType.TWO;
-                            break;
-                        case "hh-1 kind":
-                            householdType = HouseholdType.HH1;
-                            break;
-                        case "hh-2 kind":
-                            householdType = HouseholdType.HH2;
-                            break;
-                        case "hh-3 of meer kind":
-                            householdType = HouseholdType.HH3PLUS;
-                            break;
-                        default:
-                            householdType = HouseholdType.OTHER;
-                            break;
+                    if(row[14].equals("1-persoons")) {
+                        householdType = HouseholdType.ONE;
+                    } else if (row[14].equals("2-persoons")) {
+                        householdType = HouseholdType.TWO;
+                    } else if (row[14].equals("hh-1 kind")) {
+                        householdType = HouseholdType.HH1;
+                    } else if (row[14].equals("hh-2 kind")) {
+                        householdType = HouseholdType.HH2;
+                    } else if (row[14].equals("hh-3 of meer kind")) {
+                        householdType = HouseholdType.HH3PLUS;
+                    } else {
+                        householdType = HouseholdType.OTHER;
                     }
                     int totalHouseholdCount = Integer.parseInt(row[15]);
                     boolean priority = false;
-                    if (row[16] == "sociaal-medisch urgent") {
+                    if (row[16].equals("sociaal-medisch urgent")) {
                         priority = true;
                     }
 

@@ -42,16 +42,13 @@ public class Main {
                 matching = dataProcessor.csv_to_data("../../../Olivier Data [On Laptop]//test.csv");
 
                 MatchingEvaluator matchingEvaluator= new MatchingEvaluator(matching);
+
+                matchingEvaluator.evaluateAverageIndividualTotalFit();
                 matchingEvaluator.evaluateOverallHouseholdlessHouses();
                 matchingEvaluator.evaluateOverallHouselessHouseholds();
                 matchingEvaluator.evaluateOverallAccessibilityFit();
-                for (Household household : matching.getHouseholds()) {
-                    House house = matching.getHouseFromHousehold(household);
-                    if (house != null) {
-                        matchingEvaluator.evaluateTotalIndividualFit(house, household);
-                    }
-                }
-                System.out.println("Done!");
+                matchingEvaluator.evaluateOverallPriority();
+
             } catch (Matching.HouseAlreadyMatchedException e) {
                 System.err.println(e.getMessage());
             } catch (Household.InvalidHouseholdException e) {

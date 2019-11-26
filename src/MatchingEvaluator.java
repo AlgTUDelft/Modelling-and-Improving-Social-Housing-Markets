@@ -2,6 +2,9 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.Household.RegistrationTimeType;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 
 //    Takes Matching and evaluates based on several criteria.
 public class MatchingEvaluator {
@@ -89,17 +92,17 @@ public class MatchingEvaluator {
         return fit;
     }
 
-    public float evaluateTotalIndividualFit(House house, Household household)
+    public float evaluateIndividualTotalFit(House house, Household household)
     throws HouseholdIncomeTooHighException {
         float financialIndividualFit = evaluateIndividualFinancialFit(house, household);
         float roomIndividualFit = evaluateIndividualRoomFit(house, household);
         float accessibilityIndividualFit = evaluateIndividualAccessibilityFit(house, household);
 
-        // TODO: _totalFit_ calculation method open to revision.
-        float totalIndividualFit = Math.min(Math.min(
+        // TODO: _individualTotalFit_ calculation method open to revision.
+        float individualTotalFit = Math.min(Math.min(
                 financialIndividualFit, roomIndividualFit),
                 accessibilityIndividualFit);
-        return totalIndividualFit;
+        return individualTotalFit;
     }
 
     public float evaluateOverallHouselessHouseholds() throws InvalidMatchingException {
@@ -178,8 +181,58 @@ public class MatchingEvaluator {
         return result;
     }
 
-    public void evaluateOverallFinancialFit() {
-        // TODO: finish overall
+    public void evaluateOverallFinancialFit(
+    ) {
+        // TODO: finish. (Measure mixing in different neighborhoods.)
+    }
+
+    public float evaluateAverageIndividualTotalFit()
+            throws Matching.HouseholdLinkedToMultipleException,
+            Matching.HouseholdLinkedToHouseholdException,
+            HouseholdIncomeTooHighException {
+        float sum = 0;
+        float amt = 0;
+        for (Household household : matching.getHouseholds()) {
+            House house = matching.getHouseFromHousehold(household);
+            float fit = 0;
+            if (house != null) {
+                fit = evaluateIndividualTotalFit(house, household);
+            }
+            sum+= fit;
+            amt++;
+        }
+        float result = sum/amt;
+        System.out.println("Average individual total fit is: " + result);
+        return result;
+    }
+
+    public float evaluateOverallPriority()
+            throws Matching.HouseholdLinkedToMultipleException,
+            Matching.HouseholdLinkedToHouseholdException,
+            HouseholdIncomeTooHighException {
+
+        float sum = 0;
+        float amt = 0;
+        for (Household household : matching.getHouseholds()) {
+            if (household.getPriority()) {
+                House house = matching.getHouseFromHousehold(household);
+                if (house != null) {
+                    sum+= evaluateIndividualTotalFit(house, household);
+                    amt++;
+                }
+                else {
+                    // Fit-value of houseless household is 0,
+                    // so 0 is implicitly 'added' to _sum_.
+                    amt++;
+                }
+            }
+        }
+        float result = 0;
+        if (amt > 0) {
+            result = sum / amt;
+            System.out.println("Average total fit of households with priority is: " + result);
+        } else { System.out.println("No households with priority present."); }
+        return result;
     }
 
     public void evaluateOverallRegistrationTime() {
@@ -200,9 +253,6 @@ public class MatchingEvaluator {
         // TODO: finish
     }
 
-    public void evaluateOverallPriority() {
-        // TODO: finish
-    }
 
 
     public void evaluateTotal() {
