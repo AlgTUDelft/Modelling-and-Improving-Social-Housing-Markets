@@ -43,11 +43,9 @@ public class Main {
 
                 MatchingEvaluator matchingEvaluator= new MatchingEvaluator(matching);
 
-                matchingEvaluator.evaluateAverageIndividualTotalFit();
                 matchingEvaluator.evaluateOverallHouseholdlessHouses();
                 matchingEvaluator.evaluateOverallHouselessHouseholds();
-                matchingEvaluator.evaluateOverallAccessibilityFit();
-                matchingEvaluator.evaluateOverallPriority();
+                matchingEvaluator.evaluateTotal();
 
             } catch (Matching.HouseAlreadyMatchedException e) {
                 System.err.println(e.getMessage());
@@ -90,12 +88,4 @@ public class Main {
 //        matching.connect(house3, household5);
 //
 //    }
-
-    // TODO:
-    //  * Check which data you might want to include [See Evernote] [HTML -- DONE]
-    //  * Create new possible fits
-    //  * Create new goals to test for
-    //  * Create test example
-    //  * Evaluate test example
-    //  * Finish MatchingEvaluator class
 }

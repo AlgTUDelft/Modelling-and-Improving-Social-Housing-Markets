@@ -98,7 +98,7 @@ public class MatchingEvaluator {
         float roomIndividualFit = evaluateIndividualRoomFit(house, household);
         float accessibilityIndividualFit = evaluateIndividualAccessibilityFit(house, household);
 
-        // TODO: _individualTotalFit_ calculation method open to revision.
+        // TODO: _individualTotalFit_ calculation method open to revision and addition; currently based on nothing.
         float individualTotalFit = Math.min(Math.min(
                 financialIndividualFit, roomIndividualFit),
                 accessibilityIndividualFit);
@@ -181,11 +181,6 @@ public class MatchingEvaluator {
         return result;
     }
 
-    public void evaluateOverallFinancialFit(
-    ) {
-        // TODO: finish. (Measure mixing in different neighborhoods.)
-    }
-
     public float evaluateAverageIndividualTotalFit()
             throws Matching.HouseholdLinkedToMultipleException,
             Matching.HouseholdLinkedToHouseholdException,
@@ -206,7 +201,7 @@ public class MatchingEvaluator {
         return result;
     }
 
-    public float evaluateOverallPriority()
+    public float evaluateAveragePriority()
             throws Matching.HouseholdLinkedToMultipleException,
             Matching.HouseholdLinkedToHouseholdException,
             HouseholdIncomeTooHighException {
@@ -235,28 +230,37 @@ public class MatchingEvaluator {
         return result;
     }
 
-    public void evaluateOverallRegistrationTime() {
-//        Hashmap<RegistrationTimeType, ArrayList<>>
-//        for (RegistrationTimeType type:
-//             RegistrationTimeType.values()
-//             ) {
-//
-//        }
-        // TODO: finish.
-    }
-
     public void evaluateOverallHouseholdType() {
-        // TODO: finish
+        // TODO: finish evaluator.
     }
 
     public void evaluateOverallHouseholdIncome() {
-        // TODO: finish
+        // TODO: finish evaluator. (Measure mixing in different neighborhoods.)
     }
 
+    public float evaluateTotal() throws HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
+        // TODO: _overallTotalFit_ calculation method open to revision and addition; currently based on nothing.
+        float averageIndividualTotalFit = evaluateAverageIndividualTotalFit();
+        float averagePriorityFit = evaluateAveragePriority();
+        float overallAccessibilityFit = evaluateOverallAccessibilityFit();
 
+        // Describes the marginal extra importance we allot to the fit of households with priority.
+        // TODO: _marginalPriorityBonus_ and _marginalElderlyBonus_ values open to revision;
+        //  currently based on nothing.
+        double marginalPriorityBonus = 0.3;
+        double marginalElderlyBonus = 0.1;
+        // The following calculation
+        float weightedTotalFit = (float) (averageIndividualTotalFit * matching.getHouseholds().size()
+                    + averagePriorityFit * matching.getHouseholdsWithPriority().size() * marginalPriorityBonus
+                    + overallAccessibilityFit * matching.getElderlyHouseholds().size() * marginalElderlyBonus)
+                / (float) (matching.getHouseholds().size()
+                    + matching.getHouseholdsWithPriority().size() * marginalPriorityBonus
+                    + matching.getElderlyHouseholds().size() * marginalElderlyBonus);
 
-    public void evaluateTotal() {
-        // TODO: finish last.
+        // TODO: Integrate houseless households and householdless houses metrics into total.
+
+        System.out.println("Weighted total matching quality is: " + weightedTotalFit);
+        return weightedTotalFit;
     }
 
     public class InvalidMatchingException extends Exception {

@@ -12,6 +12,8 @@ public class Matching {
     private SimpleGraph<HousingMarketVertex, DefaultEdge> matchingGraph;
     private HashSet<House> houses = new HashSet<House>();
     private HashSet<Household> households = new HashSet<Household>();
+    private HashSet<Household> householdsWithPriority = new HashSet<Household>();
+    private HashSet<Household> elderlyHouseholds = new HashSet<Household>();
 
     private HousingMarket housingMarket;
 
@@ -33,6 +35,12 @@ public class Matching {
 
     public void addHousehold(Household household) {
         this.households.add(household);
+        if (household.getPriority()) {
+            this.householdsWithPriority.add(household);
+        }
+        if (household.getAge() >= 65) {
+            this.elderlyHouseholds.add(household);
+        }
         this.matchingGraph.addVertex(household);
     }
 
@@ -49,6 +57,8 @@ public class Matching {
 
     public void removeHousehold(Household household) {
         this.households.remove(household);
+        this.householdsWithPriority.remove(household);
+        this.elderlyHouseholds.remove(household);
         this.matchingGraph.removeVertex(household);
     }
 
@@ -73,6 +83,14 @@ public class Matching {
 
     public HashSet<Household> getHouseholds() {
         return this.households;
+    }
+
+    public HashSet<Household> getHouseholdsWithPriority() {
+        return this.householdsWithPriority;
+    }
+
+    public HashSet<Household> getElderlyHouseholds() {
+        return this.elderlyHouseholds;
     }
 
     public Household getHouseholdFromHouse(House house)
