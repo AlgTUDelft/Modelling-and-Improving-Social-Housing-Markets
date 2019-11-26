@@ -1,3 +1,5 @@
+package Matching;
+
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
@@ -14,6 +16,9 @@ public class Matching {
     private HashSet<Household> households = new HashSet<Household>();
     private HashSet<Household> householdsWithPriority = new HashSet<Household>();
     private HashSet<Household> elderlyHouseholds = new HashSet<Household>();
+    private HashSet<House> householdlessHouses = new HashSet<House>();
+    private HashSet<Household> houselessHouseholds = new HashSet<Household>();
+
 
     private HousingMarket housingMarket;
 
@@ -24,6 +29,7 @@ public class Matching {
 
     public void addHouse(House house) {
         this.houses.add(house);
+        this.householdlessHouses.add(house);
         this.matchingGraph.addVertex(house);
     }
 
@@ -35,6 +41,7 @@ public class Matching {
 
     public void addHousehold(Household household) {
         this.households.add(household);
+        this.houselessHouseholds.add(household);
         if (household.getPriority()) {
             this.householdsWithPriority.add(household);
         }
@@ -52,6 +59,7 @@ public class Matching {
 
     public void removeHouse(House house) {
         this.houses.remove(house);
+        this.householdlessHouses.remove(house);
         this.matchingGraph.removeVertex(house);
     }
 
@@ -59,6 +67,7 @@ public class Matching {
         this.households.remove(household);
         this.householdsWithPriority.remove(household);
         this.elderlyHouseholds.remove(household);
+        this.houselessHouseholds.remove(household);
         this.matchingGraph.removeVertex(household);
     }
 
@@ -70,11 +79,15 @@ public class Matching {
             throw new HouseholdAlreadyMatchedException("Error: Household " + household.toString() + " is already matched!");
         } else {
             this.matchingGraph.addEdge(house, household);
+            this.householdlessHouses.remove(house);
+            this.houselessHouseholds.remove(household);
         }
     }
 
     public void disconnect(House house, Household household) {
         this.matchingGraph.removeEdge(house, household);
+        this.householdlessHouses.add(house);
+        this.houselessHouseholds.add(household);
     }
 
     public HashSet<House> getHouses() {
@@ -91,6 +104,14 @@ public class Matching {
 
     public HashSet<Household> getElderlyHouseholds() {
         return this.elderlyHouseholds;
+    }
+
+    public HashSet<House> getHouseholdlessHouses() {
+        return this.householdlessHouses;
+    }
+
+    public HashSet<Household> getHouselessHouseholds() {
+        return this.houselessHouseholds;
     }
 
     public Household getHouseholdFromHouse(House house)

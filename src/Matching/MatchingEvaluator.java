@@ -1,12 +1,10 @@
+package Matching;
+
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
-import HousingMarket.Household.RegistrationTimeType;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
 
 
-//    Takes Matching and evaluates based on several criteria.
+//    Takes Matching.Matching and evaluates based on several criteria.
 public class MatchingEvaluator {
 
     private Matching matching;
@@ -132,7 +130,7 @@ public class MatchingEvaluator {
         try {
             housesCount = this.matching.getHouses().size();
         } catch (NullPointerException e) {
-            throw new InvalidMatchingException("Error: Matching is null.");
+            throw new InvalidMatchingException("Error: Matching.Matching is null.");
         }
 
         int householdlessHousesCount = 0;
@@ -176,7 +174,7 @@ public class MatchingEvaluator {
             result = householdsAbove65WithHousesAndAccessibility / householdsAbove65WithHouses;
             System.out.println(result * 100 + "% of households above the age of 65 that own houses, own houses that are accessible.");
         } else {
-            System.out.println("Matching does not contain households above the age of 65 that own houses.");
+            System.out.println("Matching.Matching does not contain households above the age of 65 that own houses.");
         }
         return result;
     }

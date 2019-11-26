@@ -1,11 +1,7 @@
-import HousingMarket.House.House;
 import HousingMarket.Household.Household;
-import HousingMarket.Household.LabelType;
-import HousingMarket.Household.PersonalityType;
-import HousingMarket.Household.HouseholdType;
 import HousingMarket.HousingMarket;
-
-import java.util.ArrayList;
+import Matching.Matching;
+import Matching.MatchingEvaluator;
 
 public class Main {
 
@@ -16,19 +12,19 @@ public class Main {
 //    public static void test1() {
 //        try {
 //            HousingMarket housingMarket = new HousingMarket(2018, 25.0);
-//            Matching matching = new Matching(housingMarket);
+//            Matching.Matching matching = new Matching.Matching(housingMarket);
 //            seedTestMatching(matching);
-//            MatchingEvaluator matchingEvaluator= new MatchingEvaluator(matching);
+//            Matching.MatchingEvaluator matchingEvaluator= new Matching.MatchingEvaluator(matching);
 //            matchingEvaluator.evaluateOverallHouseholdlessHouses();
 //            matchingEvaluator.evaluateOverallHouselessHouseholds();
 //            matchingEvaluator.evaluateOverallAccessibilityFit();
-//        } catch (MatchingEvaluator.InvalidMatchingException
+//        } catch (Matching.MatchingEvaluator.InvalidMatchingException
 //                | HousingMarket.FreeSpaceException
 //                | Household.InvalidHouseholdException
-//                | Matching.HouseholdAlreadyMatchedException
-//                | Matching.HouseAlreadyMatchedException
-//                | Matching.HouseholdLinkedToMultipleException
-//                | Matching.HouseholdLinkedToHouseholdException e) {
+//                | Matching.Matching.HouseholdAlreadyMatchedException
+//                | Matching.Matching.HouseAlreadyMatchedException
+//                | Matching.Matching.HouseholdLinkedToMultipleException
+//                | Matching.Matching.HouseholdLinkedToHouseholdException e) {
 //            System.err.println(e.getMessage());
 //        }
 //    }
@@ -67,10 +63,10 @@ public class Main {
         }
     }
 
-//    public static void seedTestMatching(Matching matching)
+//    public static void seedTestMatching(Matching.Matching matching)
 //            throws Household.InvalidHouseholdException,
-//            Matching.HouseholdAlreadyMatchedException,
-//            Matching.HouseAlreadyMatchedException {
+//            Matching.Matching.HouseholdAlreadyMatchedException,
+//            Matching.Matching.HouseAlreadyMatchedException {
 //
 //        House house1 = new House(false, 500,3,50, false, 2011);
 //        House house2 = new House(false, 600, 4, 60, true, 2016);

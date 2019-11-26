@@ -2,6 +2,7 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.Household.HouseholdType;
 import HousingMarket.HousingMarket;
+import Matching.Matching;
 
 import java.io.*;
 import java.util.Random;
