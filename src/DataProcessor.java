@@ -46,7 +46,8 @@ public class DataProcessor {
                     int rent = Integer.parseInt(row[2]);
                     int roomCount = Integer.parseInt(row[4].substring(0,1));
                     boolean accessibility;
-                    if (row[5].equals("Begane grond") || row[6].equals("Ja")) {
+                    if (row[1].equals("senioren woning") || row[1].equals("seniorenwoning")
+                            || row[1].equals("Miva-woning") || row[5].equals("Begane grond") || row[6].equals("Ja")) {
                         accessibility = true;
                     } else { accessibility = false; }
 

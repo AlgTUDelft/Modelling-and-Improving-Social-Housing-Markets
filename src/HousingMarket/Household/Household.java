@@ -7,6 +7,7 @@ public class Household extends HousingMarketVertex {
     private String municipality;
     private String postalCode;
     private String label;
+    // _income_: Income per year.
     private int income;
     private int age;
     private HouseholdType householdType;

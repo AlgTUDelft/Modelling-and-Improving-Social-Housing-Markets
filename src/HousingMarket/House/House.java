@@ -28,7 +28,9 @@ public class House extends HousingMarketVertex {
 
     public String getLabel() { return this.label; }
 
-    public int getRent() { return this.rent; }
+    public int getMonthlyRent() { return this.rent; }
+
+    public int getYearlyRent() { return this.rent * 12; }
 
     public int getRoomCount() {
         return this.roomCount;

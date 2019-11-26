@@ -13,15 +13,65 @@ public class MatchingEvaluator {
     }
 
 
-    public void evaluateIndividualFinancialFit() {
-        // TODO: finish individual
+    public float evaluateIndividualFinancialFit(House house, Household household)
+    throws HouseholdIncomeTooHighException {
+        // TODO: Incorporate year.
+        int year = this.matching.getHousingMarket().getYear(); // Unused
+        float fit = 0;
+
+        // Below numbers are valid for 2019. Taken from: "Inkomensgrenzen per 1-1-2019".
+        int hhCount = household.getTotalHouseholdCount();
+        int income = household.getIncome();
+        float monthlyRent = house.getMonthlyRent();
+        if (hhCount == 1) {
+            if (income < 22700) {
+                if (monthlyRent < 607.46) {
+                    fit = 1;
+                } else { fit = 0; }
+            }
+            else if (income < 42436) {
+                if (monthlyRent < 720.42) {
+                    fit = 1;
+                } else { fit = 0; }
+            }
+            else {
+                throw new HouseholdIncomeTooHighException("Maximum income is 42436, household's income is " + income);
+            }
+        } else if (hhCount == 2) {
+            if (income < 30825) {
+                if (monthlyRent < 607.46) {
+                    fit = 1;
+                } else { fit = 0; }
+            }
+            else if (income < 42436) {
+                if (monthlyRent < 720.42) {
+                    fit = 1;
+                } else { fit = 0; }
+            } else {
+                throw new HouseholdIncomeTooHighException("Maximum income is 42436, household's income is " + income);
+            }
+        } else {
+            if (income < 30825) {
+                if (monthlyRent < 651.03) {
+                    fit = 1;
+                } else { fit = 0; }
+            }
+            else if (income < 42436) {
+                if (monthlyRent < 720.42) {
+                    fit = 1;
+                } else { fit = 0; }
+            } else {
+                throw new HouseholdIncomeTooHighException("Maximum income is 42436, household's income is " + income);
+            }
+        }
+        return fit;
     }
 
     public float evaluateIndividualRoomFit(House house, Household household) {
         float fit;
         if (house.getRoomCount() <= household.getTotalHouseholdCount() &&
                 household.getTotalHouseholdCount() <= house.getRoomCount() + 1) {
-            fit = 100;
+            fit = 1;
         }
         else if (house.getRoomCount() < household.getTotalHouseholdCount()) {
             fit = 0;}
@@ -29,8 +79,15 @@ public class MatchingEvaluator {
         return fit;
     }
 
-    public void evaluateIndividualSizeFit(House house, Household household) {
 
+    public float evaluateTotalIndividualFit(House house, Household household)
+    throws HouseholdIncomeTooHighException {
+        float financialIndividualFit = evaluateIndividualFinancialFit(house, household);
+        float roomIndividualFit = evaluateIndividualRoomFit(house, household);
+
+        // TODO: _totalFit_ calculation method open to revision.
+        float totalIndividualFit = Math.min(financialIndividualFit, roomIndividualFit);
+        return totalIndividualFit;
     }
 
     public float evaluateOverallHouselessHouseholds() throws InvalidMatchingException {
@@ -82,18 +139,6 @@ public class MatchingEvaluator {
         return result;
     }
 
-    public void evaluateOverallSizeFit() throws Matching.HouseholdLinkedToHouseholdException,
-            Matching.HouseholdLinkedToMultipleException {
-
-//        for (Household household : this.matching.getHouseholds()) {
-//            House house = matching.getHouseFromHousehold(household);
-//            float fit = evaluateIndividualSizeFit(house, household);
-//
-//            // TODO: finish overall
-//        }
-
-    }
-
     public void evaluateOverallFinancialFit() {
         // TODO: finish overall
     }
@@ -133,26 +178,9 @@ public class MatchingEvaluator {
 //
 //        }
         // TODO: finish.
-        //  * (Run, for each RegistrationTimeType, all other base-level evaluators.)
-    }
-
-    public void evaluateOverallHouseSize() {
-        // TODO: finish
-    }
-
-    public void evaluateOverallHouseRoomCount() {
-        // TODO: finish
-    }
-
-    public void evaluateOverallHouseRent() {
-        // TODO: finish
     }
 
     public void evaluateOverallHouseholdType() {
-        // TODO: finish
-    }
-
-    public void evaluateOverallHouseholdAge() {
         // TODO: finish
     }
 
@@ -173,5 +201,9 @@ public class MatchingEvaluator {
         public InvalidMatchingException(String errorMessage) {
             super(errorMessage);
         }
+    }
+
+    public class HouseholdIncomeTooHighException extends Exception {
+        public HouseholdIncomeTooHighException(String errorMessage) { super(errorMessage); }
     }
 }

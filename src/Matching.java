@@ -108,6 +108,10 @@ public class Matching {
         else return null;
     }
 
+    public HousingMarket getHousingMarket() {
+        return this.housingMarket;
+    }
+
 
     public class HouseLinkedToHouseException extends Exception {
         public HouseLinkedToHouseException(String errorMessage) {
