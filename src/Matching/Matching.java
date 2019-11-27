@@ -8,15 +8,17 @@ import HousingMarket.HousingMarketVertex;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
 public class Matching implements Serializable {
     private SimpleGraph<HousingMarketVertex, DefaultEdge> matchingGraph;
-    private AtomicLong nextHouseID = new AtomicLong(0);
-    private AtomicLong nextHouseholdID = new AtomicLong(0);
+    private int nextHouseID = 0;
+    private int nextHouseholdID = 0;
     private ArrayList<House> houses = new ArrayList<House>();
     private ArrayList<Household> households = new ArrayList<Household>();
     private ArrayList<Household> householdsWithPriority = new ArrayList<Household>();
@@ -33,8 +35,8 @@ public class Matching implements Serializable {
     }
 
     public void addHouse(House house) {
-        long newLong = nextHouseID.getAndIncrement();
-        house.setID(new AtomicLong(newLong));
+        int newInt = getAndIncrementHouseID();
+        house.setID(newInt);
         this.houses.add(house);
         this.householdlessHouses.add(house);
         this.matchingGraph.addVertex(house);
@@ -47,8 +49,8 @@ public class Matching implements Serializable {
     }
 
     public void addHousehold(Household household) {
-        long newLong = nextHouseholdID.getAndIncrement();
-        household.setID(new AtomicLong(newLong));
+        int newInt = getAndIncrementHouseholdID();
+        household.setID(newInt);
         this.households.add(household);
         this.houselessHouseholds.add(household);
         if (household.getPriority()) {
@@ -80,6 +82,18 @@ public class Matching implements Serializable {
         this.matchingGraph.removeVertex(household);
     }
 
+    private int getAndIncrementHouseID() {
+        int result = this.nextHouseID;
+        this.nextHouseID++;
+        return result;
+    }
+
+    private int getAndIncrementHouseholdID() {
+        int result = this.nextHouseholdID;
+        this.nextHouseholdID++;
+        return result;
+    }
+
     public void connect(House house, Household household)
             throws HouseAlreadyMatchedException, HouseholdAlreadyMatchedException {
         if (!this.matchingGraph.edgesOf(house).isEmpty()) {
@@ -99,12 +113,22 @@ public class Matching implements Serializable {
         this.houselessHouseholds.add(household);
     }
 
-    public House getHouse(Integer index) {
-        return this.houses.get(index);
+    public House getHouse(int id) {
+        Optional<House> result = this.houses.stream()
+                .filter(h -> h.getID() == id)
+                .findFirst();
+        if (result.isPresent()) {
+            return result.get();
+        } else { return null; }
     }
 
-    public Household getHousehold(Integer index) {
-        return this.households.get(index);
+    public Household getHousehold(int id) {
+        Optional<Household> result = this.households.stream()
+                .filter(h -> h.getID() == id)
+                .findFirst();
+        if (result.isPresent()) {
+            return result.get();
+        } else { return null; }
     }
 
     public ArrayList<House> getHouses() {

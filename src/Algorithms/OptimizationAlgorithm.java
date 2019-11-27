@@ -1,7 +1,7 @@
 package Algorithms;
 
 import HousingMarket.House.House;
-import HousingMarket.HouseAndHouseholdLong;
+import HousingMarket.HouseAndHouseholdIDs;
 import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
@@ -80,15 +80,15 @@ public class OptimizationAlgorithm {
 
         int L;
         int M;
-        int side;
+        SourcesSide side;
         // create enumeration of all possibilities - recursively!
-        ArrayList<AtomicLong> sources = new ArrayList<AtomicLong>();
-        HashSet<AtomicLong> unclaimedTargets = new HashSet<AtomicLong>();
+        ArrayList<Integer> sources = new ArrayList<Integer>();
+        HashSet<Integer> unclaimedTargets = new HashSet<Integer>();
 
         if (houses.size() <= households.size()) {
             L = houses.size();
             M = households.size();
-            side = 0; //0 denoting the houses-side.
+            side = SourcesSide.HOUSES;
             for (House house : houses) {
                 sources.add(house.getID());
             }
@@ -99,7 +99,7 @@ public class OptimizationAlgorithm {
         else {
             L = households.size();
             M = houses.size();
-            side = 1; //1 denoting the households-side.
+            side = SourcesSide.HOUSEHOLDS;
             for (Household household : households) {
                 sources.add(household.getID());
             }
@@ -108,59 +108,65 @@ public class OptimizationAlgorithm {
             }
         }
 
-        TreeNode<HouseAndHouseholdLong> possibilitiesRoot = new TreeNode<HouseAndHouseholdLong>(
-                new HouseAndHouseholdLong(new AtomicLong(-1),new AtomicLong(-1)));
+        TreeNode<HouseAndHouseholdIDs> emptyPossibilitiesRoot = new TreeNode<HouseAndHouseholdIDs>(
+                new HouseAndHouseholdIDs(-1, -1));
 
-        for (AtomicLong t : unclaimedTargets) {
-            HashSet<AtomicLong> newUnclaimedTargets = new HashSet<AtomicLong>(unclaimedTargets);
-            newUnclaimedTargets.remove(t);
-            TreeNode<HouseAndHouseholdLong> node = recursivelyEnumeratePossibilities(0, t, sources,
-                    newUnclaimedTargets, side);
-            possibilitiesRoot.addChild(node);
+        TreeNode<HouseAndHouseholdIDs> filledPossibilitiesRoot
+                = recursivelyEnumeratePossibilities(emptyPossibilitiesRoot,unclaimedTargets,sources, side);
+
+
+
+        // try each possibility
+        // edit: remove currentIndex, it's no longer needed.
+        Matching bestMatching = recursivelyTryPossibilities(matching, filledPossibilitiesRoot, sources);
+        float newResult = new MatchingEvaluator(bestMatching).evaluateTotal(true);
+        System.out.print("\n");
+
+        // compare scores
+        if (newResult < oldResult) {
+            // TODO: We got here once...
+            System.err.println("Error! The best-found matching was worse than the given one.");
         }
-
-        System.out.println("Testing");
-//        // try each possibility
-//        // edit: remove currentIndex, it's no longer needed.
-//        Matching bestMatching = recursivelyTryPossibilities(matching, 0, possibilities, 0, side);
-//        float newResult = new MatchingEvaluator(bestMatching).evaluateTotal(true);
-//        System.out.print("\n");
-//
-//        // compare scores
-//        if (newResult < oldResult) {
-//            System.err.println("Error! The best-found matching was worse than the given one.");
-//        }
-//        String text = (side == 0) ? " houses" : " households";
-//        float percentage = (side == 0) ? (float) L/matching.getHouses().size() : (float) L/matching.getHouseholds().size();
-//        System.out.println("Old score was: " + oldResult + ". New score is: " + newResult + ".\n" +
-//                "Thus the given matching was improved by " + (newResult - oldResult)/oldResult * 100 + "%.\n" +
-//                "Note that there were " + L + " (= " + percentage * 100 + "%) " + text + " that we could rewire.");
-//        return newResult;
-        return (float) 0.0;
+        String text = (side == SourcesSide.HOUSES) ? " houses" : " households";
+        float percentage = (side == SourcesSide.HOUSES) ? (float) L/matching.getHouses().size() : (float) L/matching.getHouseholds().size();
+        System.out.println("Old score was: " + oldResult + ". New score is: " + newResult + ".\n" +
+                "Thus the given matching was improved by " + (newResult - oldResult)/oldResult * 100 + "%.\n" +
+                "Note that there were " + L + " (= " + percentage * 100 + "%) " + text + " that we could rewire.");
+        return newResult;
 
     }
 
+    private TreeNode<HouseAndHouseholdIDs> recursivelyEnumeratePossibilities(TreeNode<HouseAndHouseholdIDs> root,
+                                                                             HashSet<Integer> unclaimedTargets,
+                                                                             ArrayList<Integer> sources, SourcesSide side) {
+        for (int t : unclaimedTargets) {
+            HashSet<Integer> newUnclaimedTargets = new HashSet<Integer>(unclaimedTargets);
+            newUnclaimedTargets.remove(t);
+            TreeNode<HouseAndHouseholdIDs> node = auxiliaryRecursivelyEnumeratePossibilities(0, t, sources,
+                    newUnclaimedTargets, side);
+            root.addChild(node);
+        }
+        return root;
+    }
 
-    private TreeNode<HouseAndHouseholdLong> recursivelyEnumeratePossibilities(int currentSourceIndex, AtomicLong currentTarget,
-                                                                ArrayList<AtomicLong> sources, HashSet<AtomicLong> unclaimedTargets, int side) {
-        HouseAndHouseholdLong current;
-        if (side == 0) {
-            current = new HouseAndHouseholdLong(sources.get(currentSourceIndex), currentTarget);
-        } else { current = new HouseAndHouseholdLong(currentTarget, sources.get(currentSourceIndex)); }
-        TreeNode<HouseAndHouseholdLong> currentNode = new TreeNode<HouseAndHouseholdLong>(current);
+    private TreeNode<HouseAndHouseholdIDs> auxiliaryRecursivelyEnumeratePossibilities(int currentSourceIndex, int currentTarget,
+                                                                                      ArrayList<Integer> sources, HashSet<Integer> unclaimedTargets, SourcesSide side) {
+        HouseAndHouseholdIDs current;
+        if (side == SourcesSide.HOUSES) {
+            current = new HouseAndHouseholdIDs(sources.get(currentSourceIndex), currentTarget);
+        } else { // side = SourcesSide.HOUSEHOLDS.
+            current = new HouseAndHouseholdIDs(currentTarget, sources.get(currentSourceIndex)); }
+
+        TreeNode<HouseAndHouseholdIDs> currentNode = new TreeNode<HouseAndHouseholdIDs>(current);
 
         if(currentSourceIndex == sources.size() - 1) {
             return currentNode;
-//            for (AtomicLong finalChoice : unclaimedTargets) {
-//                TreeNode<HouseAndHouseholdLong> leafNode = new TreeNode<HouseAndHouseholdLong>(finalChoice);
-//                currentNode.addChild(leafNode);
-//            }
         }
         else if(currentSourceIndex < sources.size() - 1) {
-            for (AtomicLong newChoice : unclaimedTargets) {
-                HashSet<AtomicLong> newUnclaimedTargets = new HashSet<AtomicLong>(unclaimedTargets);
+            for (int newChoice : unclaimedTargets) {
+                HashSet<Integer> newUnclaimedTargets = new HashSet<Integer>(unclaimedTargets);
                 newUnclaimedTargets.remove(newChoice);
-                TreeNode<HouseAndHouseholdLong> child = recursivelyEnumeratePossibilities(currentSourceIndex+1,
+                TreeNode<HouseAndHouseholdIDs> child = auxiliaryRecursivelyEnumeratePossibilities(currentSourceIndex+1,
                         newChoice, sources, newUnclaimedTargets, side);
                 currentNode.addChild(child);
             }
@@ -169,9 +175,56 @@ public class OptimizationAlgorithm {
         return currentNode;
     }
 
+    private Matching recursivelyTryPossibilities(Matching matching, TreeNode<HouseAndHouseholdIDs> root, ArrayList<Integer> sources)
+            throws MatchingEvaluator.HouseholdIncomeTooHighException,
+            Matching.HouseholdLinkedToMultipleException,
+            Matching.HouseholdLinkedToHouseholdException,
+            Matching.HouseAlreadyMatchedException,
+            Matching.HouseholdAlreadyMatchedException {
+        float highScore = (float) 0.0;
+        Matching currentMatching = (Matching) deepClone(matching);
+        Matching bestMatching = (Matching) deepClone(matching);
+        for (TreeNode<HouseAndHouseholdIDs> child : root.getChildren()) {
+            Matching bestChildMatching = auxiliaryRecursivelyTryPossibilities(currentMatching, highScore, child,
+                    sources);
+            float childScore = new MatchingEvaluator(bestChildMatching).evaluateTotal(false);
+            if (childScore > highScore) {
+                highScore = childScore;
+                bestMatching = bestChildMatching;
+            }
+        }
+        return bestMatching;
+    }
 
-//    private Matching recursivelyTryPossibilities(Matching matching, float highScore, TreeNode<Integer> currentNode,
-//                                                 Integer currentIndex, Integer side)
+    private Matching auxiliaryRecursivelyTryPossibilities(Matching matching, float highScore, TreeNode<HouseAndHouseholdIDs> currentNode,
+                                                          ArrayList<Integer> sources)
+            throws Matching.HouseholdAlreadyMatchedException,
+            Matching.HouseAlreadyMatchedException,
+            MatchingEvaluator.HouseholdIncomeTooHighException,
+            Matching.HouseholdLinkedToMultipleException,
+            Matching.HouseholdLinkedToHouseholdException {
+        HouseAndHouseholdIDs data = currentNode.getData();
+        Matching modifiedMatching = (Matching) deepClone(matching);
+        modifiedMatching.connect(modifiedMatching.getHouse(data.getHouseID()), modifiedMatching.getHousehold(data.getHouseholdID()));
+        Matching bestMatching = modifiedMatching;
+        if (currentNode.hasChildren()) {
+            for (TreeNode<HouseAndHouseholdIDs> child : currentNode.getChildren()) {
+                Matching bestChildMatching = auxiliaryRecursivelyTryPossibilities(modifiedMatching, highScore, child,
+                        sources);
+                float childScore = new MatchingEvaluator(bestChildMatching).evaluateTotal(false);
+                if (childScore > highScore) {
+                    highScore = childScore;
+                    bestMatching = bestChildMatching;
+                }
+            }
+        }
+        return bestMatching;
+    }
+
+
+
+//    private Matching auxiliaryRecursivelyTryPossibilities2(Matching matching, float highScore, TreeNode<HouseAndHouseholdLong> currentNode,
+//                                                 ArrayList<AtomicLong> sources, SourcesSide side)
 //            throws Matching.HouseholdAlreadyMatchedException,
 //            Matching.HouseAlreadyMatchedException,
 //            Matching.HouseholdLinkedToMultipleException,

@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class House extends HousingMarketVertex implements Serializable {
 
-    private AtomicLong id;
+    private int id;
     //private boolean multiFamilyHome;
     private String municipality;
     private String label;
@@ -28,11 +28,11 @@ public class House extends HousingMarketVertex implements Serializable {
 
     }
 
-    public AtomicLong getID() {
+    public int getID() {
         return this.id;
     }
 
-    public void setID(AtomicLong id) {
+    public void setID(int id) {
         this.id = id;
     }
 
