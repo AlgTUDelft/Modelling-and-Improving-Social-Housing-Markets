@@ -3,7 +3,7 @@ package Algorithms;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import Matching.Matching;
-import Matching.MatchingEvaluator;
+import TreeNode.TreeNode;
 
 import java.util.HashSet;
 
@@ -57,22 +57,60 @@ public class OptimizeAllAlgorithm {
         // We can enumerate over each of these by looking at the side with the fewest vertices,
         // and create an iterative tree of choices.
 
+        int L;
+        int M;
+        int side;
+
         if (houses.size() <= households.size()) {
-            int L = houses.size();
-            int M = households.size();
-            int side = 0; //0 denoting the houses-side.
+            L = houses.size();
+            M = households.size();
+            side = 0; //0 denoting the houses-side.
         }
         else {
-            int L = households.size();
-            int M = houses.size();
-            int side = 1; //1 denoting the households-side.
+            L = households.size();
+            M = houses.size();
+            side = 1; //1 denoting the households-side.
         }
 
-        // create enumeration of all possibilities
+        // create enumeration of all possibilities - recursively!
 
+        HashSet<Integer> unclaimedNumbers = new HashSet<Integer>();
+        int index = 1;
+        while (index <= M) {
+            unclaimedNumbers.add(index);
+            index++;
+        }
+        TreeNode<Integer> possibilities = recursivelyEnumeratePossibilities(1, L, unclaimedNumbers);
+
+        System.out.println("Got here!");
         // run each possibility
 
         // compare scores
 
+        return (float) 0.0;
+
+    }
+
+    private TreeNode<Integer> recursivelyEnumeratePossibilities(int current, int total, HashSet<Integer> unclaimedNumbers) {
+        TreeNode<Integer> currentNode = new TreeNode<Integer>(current);
+        if(current == total) {
+            for (Integer finalChoice : unclaimedNumbers) {
+                TreeNode<Integer> leafNode = new TreeNode<Integer>(finalChoice);
+                currentNode.addChild(leafNode);
+//            Iterator<Integer> iterator = unclaimedNumbers.iterator();
+//            if (iterator.hasNext()) {
+//                int finalInteger = iterator.next();
+            }
+        }
+        if(current < total) {
+            for (Integer currentChoice : unclaimedNumbers) {
+                HashSet<Integer> newUnclaimedNumbers = unclaimedNumbers;
+                newUnclaimedNumbers.add(current);
+                TreeNode<Integer> child = recursivelyEnumeratePossibilities(current+1, total, newUnclaimedNumbers);
+                currentNode.addChild(child);
+            }
+        }
+
+        return currentNode;
     }
 }

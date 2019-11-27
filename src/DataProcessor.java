@@ -18,7 +18,7 @@ public class DataProcessor {
         this.matching = new Matching(housingMarket);
     }
 
-    public Matching csv_to_data(String csvFileName)
+    public Matching csv_to_matching(String csvFileName)
             throws Household.InvalidHouseholdException,
             Matching.HouseAlreadyMatchedException,
             Matching.HouseholdAlreadyMatchedException {
