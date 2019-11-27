@@ -3,6 +3,7 @@ package Algorithms;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import Matching.Matching;
+import Matching.MatchingEvaluator;
 import TreeNode.TreeNode;
 
 import java.util.HashSet;
@@ -18,7 +19,8 @@ public class OptimizeAllAlgorithm {
             throws Matching.HouseholdLinkedToHouseholdException,
             Matching.HouseholdLinkedToMultipleException,
             Matching.HouseLinkedToHouseException,
-            Matching.HouseLinkedToMultipleException {
+            Matching.HouseLinkedToMultipleException,
+            MatchingEvaluator.HouseholdIncomeTooHighException {
         return optimizeAll(this.matching.getHouseholdlessHouses(),
                 this.matching.getHouselessHouseholds());
 
@@ -27,10 +29,18 @@ public class OptimizeAllAlgorithm {
             throws Matching.HouseholdLinkedToMultipleException,
             Matching.HouseholdLinkedToHouseholdException,
             Matching.HouseLinkedToMultipleException,
-            Matching.HouseLinkedToHouseException {
-        // TODO: Optimize such that the not the summed individual total score is used,
+            Matching.HouseLinkedToHouseException,
+            MatchingEvaluator.HouseholdIncomeTooHighException {
+        // TODO: Optimize such that not the summed individual total score is used,
         //  but the actual weighted total.
 
+        MatchingEvaluator evaluator = new MatchingEvaluator(matching);
+        float oldResult = evaluator.evaluateTotal();
+
+        if (houses.size() == 0 || households.size() == 0) {
+            System.out.println("Either there were no houseless households, or no householdless houses. Algorithm made no changes.");
+            return oldResult;
+        }
         // Dissolve connections.
         for (House house : houses) {
             Household household = matching.getHouseholdFromHouse(house);
@@ -75,15 +85,15 @@ public class OptimizeAllAlgorithm {
         // create enumeration of all possibilities - recursively!
 
         HashSet<Integer> unclaimedNumbers = new HashSet<Integer>();
-        int index = 1;
-        while (index <= M) {
-            unclaimedNumbers.add(index);
+        int index = 0;
+        while (index < M) {
             index++;
+            unclaimedNumbers.add(index);
         }
-        TreeNode<Integer> possibilities = recursivelyEnumeratePossibilities(0, L, unclaimedNumbers);
+        TreeNode<Integer> possibilities = recursivelyEnumeratePossibilities(0, L, 0, unclaimedNumbers);
 
-        System.out.println("Got here!");
         // run each possibility
+        
 
         // compare scores
 
@@ -91,8 +101,8 @@ public class OptimizeAllAlgorithm {
 
     }
 
-    private TreeNode<Integer> recursivelyEnumeratePossibilities(int currentIndex, int total, HashSet<Integer> unclaimedNumbers) {
-        TreeNode<Integer> currentNode = new TreeNode<Integer>(currentIndex);
+    private TreeNode<Integer> recursivelyEnumeratePossibilities(int currentIndex, int total, int currentChoice, HashSet<Integer> unclaimedNumbers) {
+        TreeNode<Integer> currentNode = new TreeNode<Integer>(currentChoice);
         if(currentIndex == total) {
             for (Integer finalChoice : unclaimedNumbers) {
                 TreeNode<Integer> leafNode = new TreeNode<Integer>(finalChoice);
@@ -100,10 +110,10 @@ public class OptimizeAllAlgorithm {
             }
         }
         else if(currentIndex < total) {
-            for (Integer currentChoice : unclaimedNumbers) {
+            for (Integer newChoice : unclaimedNumbers) {
                 HashSet<Integer> newUnclaimedNumbers = new HashSet<Integer>(unclaimedNumbers);
-                newUnclaimedNumbers.remove(currentChoice);
-                TreeNode<Integer> child = recursivelyEnumeratePossibilities(currentIndex+1, total, newUnclaimedNumbers);
+                newUnclaimedNumbers.remove(newChoice);
+                TreeNode<Integer> child = recursivelyEnumeratePossibilities(currentIndex+1, total, newChoice, newUnclaimedNumbers);
                 currentNode.addChild(child);
             }
         }

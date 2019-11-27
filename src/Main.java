@@ -71,6 +71,8 @@ public class Main {
             e.printStackTrace();
         } catch (Matching.HouseholdLinkedToHouseholdException e) {
             e.printStackTrace();
+        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+            e.printStackTrace();
         }
     }
 }
