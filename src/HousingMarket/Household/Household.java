@@ -3,9 +3,11 @@ package HousingMarket.Household;
 import HousingMarket.HousingMarketVertex;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Household extends HousingMarketVertex implements Serializable {
 
+    private AtomicLong id;
     private String municipality;
     private String postalCode;
     private String label;
@@ -34,6 +36,14 @@ public class Household extends HousingMarketVertex implements Serializable {
         this.householdType = householdType;
         this.totalHouseholdCount = totalHouseholdCount;
         this.priority = priority;
+    }
+
+    public AtomicLong getID() {
+        return this.id;
+    }
+
+    public void setID(AtomicLong id) {
+        this.id = id;
     }
 
     public String getMunicipality() {

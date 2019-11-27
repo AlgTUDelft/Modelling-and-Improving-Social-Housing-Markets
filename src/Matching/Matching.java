@@ -8,12 +8,15 @@ import HousingMarket.HousingMarketVertex;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
 public class Matching implements Serializable {
     private SimpleGraph<HousingMarketVertex, DefaultEdge> matchingGraph;
+    private AtomicLong nextHouseID = new AtomicLong(0);
+    private AtomicLong nextHouseholdID = new AtomicLong(0);
     private ArrayList<House> houses = new ArrayList<House>();
     private ArrayList<Household> households = new ArrayList<Household>();
     private ArrayList<Household> householdsWithPriority = new ArrayList<Household>();
@@ -30,6 +33,8 @@ public class Matching implements Serializable {
     }
 
     public void addHouse(House house) {
+        long newLong = nextHouseID.getAndIncrement();
+        house.setID(new AtomicLong(newLong));
         this.houses.add(house);
         this.householdlessHouses.add(house);
         this.matchingGraph.addVertex(house);
@@ -42,6 +47,8 @@ public class Matching implements Serializable {
     }
 
     public void addHousehold(Household household) {
+        long newLong = nextHouseholdID.getAndIncrement();
+        household.setID(new AtomicLong(newLong));
         this.households.add(household);
         this.houselessHouseholds.add(household);
         if (household.getPriority()) {
@@ -96,17 +103,10 @@ public class Matching implements Serializable {
         return this.houses.get(index);
     }
 
-    public House getHouseholdlessHouse(Integer index) {
-        return this.householdlessHouses.get(index);
-    }
-
     public Household getHousehold(Integer index) {
         return this.households.get(index);
     }
 
-    public Household getHouselessHousehold(Integer index) {
-        return this.houselessHouseholds.get(index);
-    }
     public ArrayList<House> getHouses() {
         return this.houses;
     }

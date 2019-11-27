@@ -49,7 +49,7 @@ public class Main {
         try {
             HousingMarket housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            matching = dataProcessor.csv_to_matching("../../../Olivier Data [On Laptop]//test (small).csv", 0.96);
+            matching = dataProcessor.csv_to_matching("../../../Olivier Data [On Laptop]//test (small).csv", 0.95);
 
             MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
             OptimizationAlgorithm alg = new OptimizationAlgorithm(matching);

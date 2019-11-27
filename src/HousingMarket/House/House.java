@@ -3,9 +3,11 @@ package HousingMarket.House;
 import HousingMarket.HousingMarketVertex;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class House extends HousingMarketVertex implements Serializable {
 
+    private AtomicLong id;
     //private boolean multiFamilyHome;
     private String municipality;
     private String label;
@@ -24,6 +26,14 @@ public class House extends HousingMarketVertex implements Serializable {
         this.roomCount = roomCount;
         this.accessibility = accessibility;
 
+    }
+
+    public AtomicLong getID() {
+        return this.id;
+    }
+
+    public void setID(AtomicLong id) {
+        this.id = id;
     }
 
     public String getMunicipality() { return this.municipality; }
