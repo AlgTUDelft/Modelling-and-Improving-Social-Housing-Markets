@@ -1,12 +1,13 @@
 package TreeNode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TreeNode<T> {
 
     private T data;
     private TreeNode<T> parent;
-    private List<TreeNode<T>> children;
+    private List<TreeNode<T>> children = new ArrayList<TreeNode<T>>();
 
     public TreeNode(T data) {
         this.data = data;
@@ -17,8 +18,8 @@ public class TreeNode<T> {
     }
 
     public void addChild(TreeNode<T> child) {
-        this.children.add(child);
         child.setParent(this);
+        this.children.add(child);
     }
 
     public List<TreeNode<T>> getChildren() {

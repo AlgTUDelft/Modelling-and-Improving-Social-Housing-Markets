@@ -88,8 +88,8 @@ public class DataProcessor {
                                 income, age, householdType, totalHouseholdCount, priority);
                         this.matching.addHouse(house);
                         this.matching.addHousehold(household);
-                        // With 90% chance, connect these houses.
-                        if ( new Random().nextDouble() <= 0.90) {
+                        // With 98% chance, connect these houses.
+                        if ( new Random().nextDouble() <= 0.997) {
                             this.matching.connect(house, household);
                         }
                     } catch (Household.InvalidHouseholdException e) {

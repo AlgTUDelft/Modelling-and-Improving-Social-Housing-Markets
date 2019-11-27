@@ -15,19 +15,19 @@ public class OptimizeAllAlgorithm {
     }
 
     public float optimizeAvailables()
-            throws Matching.Matching.HouseholdLinkedToHouseholdException,
-            Matching.Matching.HouseholdLinkedToMultipleException,
-            Matching.Matching.HouseLinkedToHouseException,
-            Matching.Matching.HouseLinkedToMultipleException {
+            throws Matching.HouseholdLinkedToHouseholdException,
+            Matching.HouseholdLinkedToMultipleException,
+            Matching.HouseLinkedToHouseException,
+            Matching.HouseLinkedToMultipleException {
         return optimizeAll(this.matching.getHouseholdlessHouses(),
                 this.matching.getHouselessHouseholds());
 
     }
     public float optimizeAll(HashSet<House> houses, HashSet<Household> households)
-            throws Matching.Matching.HouseholdLinkedToMultipleException,
-            Matching.Matching.HouseholdLinkedToHouseholdException,
-            Matching.Matching.HouseLinkedToMultipleException,
-            Matching.Matching.HouseLinkedToHouseException {
+            throws Matching.HouseholdLinkedToMultipleException,
+            Matching.HouseholdLinkedToHouseholdException,
+            Matching.HouseLinkedToMultipleException,
+            Matching.HouseLinkedToHouseException {
         // TODO: Optimize such that the not the summed individual total score is used,
         //  but the actual weighted total.
 
@@ -80,7 +80,7 @@ public class OptimizeAllAlgorithm {
             unclaimedNumbers.add(index);
             index++;
         }
-        TreeNode<Integer> possibilities = recursivelyEnumeratePossibilities(1, L, unclaimedNumbers);
+        TreeNode<Integer> possibilities = recursivelyEnumeratePossibilities(0, L, unclaimedNumbers);
 
         System.out.println("Got here!");
         // run each possibility
@@ -91,22 +91,19 @@ public class OptimizeAllAlgorithm {
 
     }
 
-    private TreeNode<Integer> recursivelyEnumeratePossibilities(int current, int total, HashSet<Integer> unclaimedNumbers) {
-        TreeNode<Integer> currentNode = new TreeNode<Integer>(current);
-        if(current == total) {
+    private TreeNode<Integer> recursivelyEnumeratePossibilities(int currentIndex, int total, HashSet<Integer> unclaimedNumbers) {
+        TreeNode<Integer> currentNode = new TreeNode<Integer>(currentIndex);
+        if(currentIndex == total) {
             for (Integer finalChoice : unclaimedNumbers) {
                 TreeNode<Integer> leafNode = new TreeNode<Integer>(finalChoice);
                 currentNode.addChild(leafNode);
-//            Iterator<Integer> iterator = unclaimedNumbers.iterator();
-//            if (iterator.hasNext()) {
-//                int finalInteger = iterator.next();
             }
         }
-        if(current < total) {
+        else if(currentIndex < total) {
             for (Integer currentChoice : unclaimedNumbers) {
-                HashSet<Integer> newUnclaimedNumbers = unclaimedNumbers;
-                newUnclaimedNumbers.add(current);
-                TreeNode<Integer> child = recursivelyEnumeratePossibilities(current+1, total, newUnclaimedNumbers);
+                HashSet<Integer> newUnclaimedNumbers = new HashSet<Integer>(unclaimedNumbers);
+                newUnclaimedNumbers.remove(currentChoice);
+                TreeNode<Integer> child = recursivelyEnumeratePossibilities(currentIndex+1, total, newUnclaimedNumbers);
                 currentNode.addChild(child);
             }
         }
