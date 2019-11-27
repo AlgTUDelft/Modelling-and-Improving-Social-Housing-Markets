@@ -1,4 +1,4 @@
-import Algorithms.OptimizeAllAlgorithm;
+import Algorithms.OptimizationAlgorithm;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.Matching;
@@ -22,7 +22,7 @@ public class Main {
 
                 matchingEvaluator.evaluateOverallHouseholdlessHouses();
                 matchingEvaluator.evaluateOverallHouselessHouseholds();
-                matchingEvaluator.evaluateTotal();
+                matchingEvaluator.evaluateTotal(true);
 
             } catch (Matching.HouseAlreadyMatchedException e) {
                 System.err.println(e.getMessage());
@@ -52,7 +52,7 @@ public class Main {
             matching = dataProcessor.csv_to_matching("../../../Olivier Data [On Laptop]//test.csv");
 
             MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
-            OptimizeAllAlgorithm alg = new OptimizeAllAlgorithm(matching);
+            OptimizationAlgorithm alg = new OptimizationAlgorithm(matching);
             alg.optimizeAvailables();
 
         } catch (Household.InvalidHouseholdException e) {

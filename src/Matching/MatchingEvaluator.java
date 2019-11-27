@@ -152,7 +152,7 @@ public class MatchingEvaluator {
         return result;
     }
 
-    public float evaluateOverallAccessibilityFit()
+    public float evaluateOverallAccessibilityFit(boolean printOutput)
             throws Matching.HouseholdLinkedToHouseholdException,
             Matching.HouseholdLinkedToMultipleException {
         float householdsAbove65WithHouses = 0;
@@ -172,14 +172,16 @@ public class MatchingEvaluator {
         float result = 0;
         if (householdsAbove65WithHouses > 0) {
             result = householdsAbove65WithHousesAndAccessibility / householdsAbove65WithHouses;
-            System.out.println(result * 100 + "% of households above the age of 65 that own houses, own houses that are accessible.");
-        } else {
-            System.out.println("Matching.Matching does not contain households above the age of 65 that own houses.");
+            if(printOutput) {
+                System.out.println(result * 100 + "% of households above the age of 65 that own houses, own houses that are accessible.");
+            }
+        } else if(printOutput) {
+            System.out.println("Matching does not contain households above the age of 65 that own houses.");
         }
         return result;
     }
 
-    public float evaluateAverageIndividualTotalFit()
+    public float evaluateAverageIndividualTotalFit(boolean printOutput)
             throws Matching.HouseholdLinkedToMultipleException,
             Matching.HouseholdLinkedToHouseholdException,
             HouseholdIncomeTooHighException {
@@ -195,11 +197,13 @@ public class MatchingEvaluator {
             amt++;
         }
         float result = sum/amt;
-        System.out.println("Average individual total fit is: " + result);
+        if(printOutput) {
+            System.out.println("Average individual total fit is: " + result);
+        }
         return result;
     }
 
-    public float evaluateAveragePriority()
+    public float evaluateAveragePriority(boolean printOutput)
             throws Matching.HouseholdLinkedToMultipleException,
             Matching.HouseholdLinkedToHouseholdException,
             HouseholdIncomeTooHighException {
@@ -223,8 +227,10 @@ public class MatchingEvaluator {
         float result = 0;
         if (amt > 0) {
             result = sum / amt;
-            System.out.println("Average total fit of households with priority is: " + result);
-        } else { System.out.println("No households with priority present."); }
+            if(printOutput) {
+                System.out.println("Average total fit of households with priority is: " + result);
+            }
+        } else if(printOutput) { System.out.println("No households with priority present."); }
         return result;
     }
 
@@ -236,11 +242,11 @@ public class MatchingEvaluator {
         // TODO: finish evaluator. (Measure mixing in different neighborhoods.)
     }
 
-    public float evaluateTotal() throws HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
+    public float evaluateTotal(boolean printOutput) throws HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         // TODO: _overallTotalFit_ calculation method open to revision and addition; currently based on nothing.
-        float averageIndividualTotalFit = evaluateAverageIndividualTotalFit();
-        float averagePriorityFit = evaluateAveragePriority();
-        float overallAccessibilityFit = evaluateOverallAccessibilityFit();
+        float averageIndividualTotalFit = evaluateAverageIndividualTotalFit(printOutput);
+        float averagePriorityFit = evaluateAveragePriority(printOutput);
+        float overallAccessibilityFit = evaluateOverallAccessibilityFit(printOutput);
 
         // Describes the marginal extra importance we allot to the fit of households with priority.
         // TODO: _marginalPriorityBonus_ and _marginalElderlyBonus_ values open to revision;
@@ -257,7 +263,9 @@ public class MatchingEvaluator {
 
         // TODO: Integrate houseless households and householdless houses metrics into total.
 
-        System.out.println("Weighted total matching quality is: " + weightedTotalFit);
+        if(printOutput) {
+            System.out.println("Weighted total matching quality is: " + weightedTotalFit);
+        }
         return weightedTotalFit;
     }
 

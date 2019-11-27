@@ -1,6 +1,8 @@
 package HousingMarket;
 
-public class HousingMarket {
+import java.io.Serializable;
+
+public class HousingMarket implements Serializable {
 
     private int year;
     private double freeSpace;

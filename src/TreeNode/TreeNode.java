@@ -33,4 +33,8 @@ public class TreeNode<T> {
     public void setParent(TreeNode<T> parent) {
         this.parent = parent;
     }
+
+    public boolean hasChildren() {
+        return !this.children.isEmpty();
+    }
 }

@@ -5,19 +5,21 @@ import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import HousingMarket.HousingMarketVertex;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
-public class Matching {
+public class Matching implements Serializable {
     private SimpleGraph<HousingMarketVertex, DefaultEdge> matchingGraph;
-    private HashSet<House> houses = new HashSet<House>();
-    private HashSet<Household> households = new HashSet<Household>();
-    private HashSet<Household> householdsWithPriority = new HashSet<Household>();
-    private HashSet<Household> elderlyHouseholds = new HashSet<Household>();
-    private HashSet<House> householdlessHouses = new HashSet<House>();
-    private HashSet<Household> houselessHouseholds = new HashSet<Household>();
+    private ArrayList<House> houses = new ArrayList<House>();
+    private ArrayList<Household> households = new ArrayList<Household>();
+    private ArrayList<Household> householdsWithPriority = new ArrayList<Household>();
+    private ArrayList<Household> elderlyHouseholds = new ArrayList<Household>();
+    private ArrayList<House> householdlessHouses = new ArrayList<House>();
+    private ArrayList<Household> houselessHouseholds = new ArrayList<Household>();
 
 
     private HousingMarket housingMarket;
@@ -90,27 +92,42 @@ public class Matching {
         this.houselessHouseholds.add(household);
     }
 
-    public HashSet<House> getHouses() {
+    public House getHouse(Integer index) {
+        return this.houses.get(index);
+    }
+
+    public House getHouseholdlessHouse(Integer index) {
+        return this.householdlessHouses.get(index);
+    }
+
+    public Household getHousehold(Integer index) {
+        return this.households.get(index);
+    }
+
+    public Household getHouselessHousehold(Integer index) {
+        return this.houselessHouseholds.get(index);
+    }
+    public ArrayList<House> getHouses() {
         return this.houses;
     }
 
-    public HashSet<Household> getHouseholds() {
+    public ArrayList<Household> getHouseholds() {
         return this.households;
     }
 
-    public HashSet<Household> getHouseholdsWithPriority() {
+    public ArrayList<Household> getHouseholdsWithPriority() {
         return this.householdsWithPriority;
     }
 
-    public HashSet<Household> getElderlyHouseholds() {
+    public ArrayList<Household> getElderlyHouseholds() {
         return this.elderlyHouseholds;
     }
 
-    public HashSet<House> getHouseholdlessHouses() {
+    public ArrayList<House> getHouseholdlessHouses() {
         return this.householdlessHouses;
     }
 
-    public HashSet<Household> getHouselessHouseholds() {
+    public ArrayList<Household> getHouselessHouseholds() {
         return this.houselessHouseholds;
     }
 

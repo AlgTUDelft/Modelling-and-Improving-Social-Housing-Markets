@@ -2,7 +2,9 @@ package HousingMarket.House;
 
 import HousingMarket.HousingMarketVertex;
 
-public class House extends HousingMarketVertex {
+import java.io.Serializable;
+
+public class House extends HousingMarketVertex implements Serializable {
 
     //private boolean multiFamilyHome;
     private String municipality;
