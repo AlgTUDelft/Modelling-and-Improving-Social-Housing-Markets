@@ -18,7 +18,7 @@ public class DataProcessor {
         this.matching = new Matching(housingMarket);
     }
 
-    public Matching csv_to_matching(String csvFileName)
+    public Matching csv_to_matching(String csvFileName, double connectionProb)
             throws Household.InvalidHouseholdException,
             Matching.HouseAlreadyMatchedException,
             Matching.HouseholdAlreadyMatchedException {
@@ -89,7 +89,7 @@ public class DataProcessor {
                         this.matching.addHouse(house);
                         this.matching.addHousehold(household);
                         // With 98% chance, connect these houses.
-                        if ( new Random().nextDouble() <= 0.997) {
+                        if ( new Random().nextDouble() <= connectionProb) {
                             this.matching.connect(house, household);
                         }
                     } catch (Household.InvalidHouseholdException e) {

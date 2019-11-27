@@ -109,8 +109,11 @@ public class OptimizationAlgorithm {
         if (newResult < oldResult) {
             System.err.println("Error! The best-found matching was worse than the given one.");
         }
-        System.out.println("Old score was: " + oldResult + ". New score is: " + newResult + ". " +
-                "Thus the given matching was improved by " + (newResult - oldResult)/oldResult * 100 + "%.");
+        String text = (side == 0) ? " houses" : " households";
+        float percentage = (side == 0) ? (float) L/matching.getHouses().size() : (float) L/matching.getHouseholds().size();
+        System.out.println("Old score was: " + oldResult + ". New score is: " + newResult + ".\n" +
+                "Thus the given matching was improved by " + (newResult - oldResult)/oldResult * 100 + "%.\n" +
+                "Note that here we had " + L + " (= " + percentage * 100 + "%) " + text + " that we could rewire.");
         return newResult;
 
     }
@@ -166,7 +169,7 @@ public class OptimizationAlgorithm {
             }
         }
         else {
-            Matching bestCurrentMatching = matching;
+            Matching bestCurrentMatching = (Matching) deepClone(matching);
             float highestScoreFound = highScore;
             for (TreeNode<Integer> child : currentNode.getChildren()) {
                 Matching bestFoundMatching = recursivelyTryPossibilities(matching, highScore, child, currentIndex+1, side);
