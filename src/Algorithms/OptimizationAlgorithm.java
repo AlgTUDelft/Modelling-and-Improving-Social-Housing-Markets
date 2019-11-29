@@ -13,7 +13,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class OptimizationAlgorithm {
     private Matching matching;
@@ -22,7 +21,7 @@ public class OptimizationAlgorithm {
         this.matching = matching;
     }
 
-    public float optimizeAvailables()
+    public Result optimizeAvailables()
             throws Matching.HouseholdLinkedToHouseholdException,
             Matching.HouseholdLinkedToMultipleException,
             Matching.HouseLinkedToHouseException,
@@ -34,7 +33,7 @@ public class OptimizationAlgorithm {
                 this.matching.getHouselessHouseholds());
 
     }
-    public float optimizeAll(ArrayList<House> houses, ArrayList<Household> households)
+    public Result optimizeAll(ArrayList<House> houses, ArrayList<Household> households)
             throws Matching.HouseholdLinkedToMultipleException,
             Matching.HouseholdLinkedToHouseholdException,
             Matching.HouseLinkedToMultipleException,
@@ -42,15 +41,14 @@ public class OptimizationAlgorithm {
             MatchingEvaluator.HouseholdIncomeTooHighException,
             Matching.HouseAlreadyMatchedException,
             Matching.HouseholdAlreadyMatchedException {
-        // TODO: Optimize such that not the summed individual total score is used,
-        //  but the actual weighted total.
 
         MatchingEvaluator evaluator = new MatchingEvaluator(matching);
         float oldResult = evaluator.evaluateTotal(true);
         System.out.print("\n");
         if (houses.size() == 0 || households.size() == 0) {
             System.out.println("Either there were no houseless households, or no householdless houses. Algorithm made no changes.");
-            return oldResult;
+            Result result = new Result(-1, -1, 0, 0, 0);
+            return result;
         }
         // Dissolve connections.
         for (House house : houses) {
@@ -117,7 +115,6 @@ public class OptimizationAlgorithm {
 
 
         // try each possibility
-        // edit: remove currentIndex, it's no longer needed.
         Matching bestMatching = recursivelyTryPossibilities(matching, filledPossibilitiesRoot, sources);
         float newResult = new MatchingEvaluator(bestMatching).evaluateTotal(true);
         System.out.print("\n");
@@ -132,7 +129,8 @@ public class OptimizationAlgorithm {
         System.out.println("Old score was: " + oldResult + ". New score is: " + newResult + ".\n" +
                 "Thus the given matching was improved by " + (newResult - oldResult)/oldResult * 100 + "%.\n" +
                 "Note that there were " + L + " (= " + percentage * 100 + "%) " + text + " that we could rewire.");
-        return newResult;
+        Result result = new Result(oldResult, newResult, (newResult - oldResult)/oldResult * 100, L, percentage*100);
+        return result;
 
     }
 

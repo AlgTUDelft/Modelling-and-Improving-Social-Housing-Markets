@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class HousingMarket implements Serializable {
 
+    // TODO: Integrate HousingMarket parameters into model.
     private int year;
     private double freeSpace;
 

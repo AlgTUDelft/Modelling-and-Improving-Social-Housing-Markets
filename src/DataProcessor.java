@@ -1,3 +1,4 @@
+import Algorithms.Result;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.Household.HouseholdType;
@@ -5,6 +6,7 @@ import HousingMarket.HousingMarket;
 import Matching.Matching;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Random;
 
 // Adapted from: https://www.mkyong.com/java/how-to-read-and-parse-csv-file-in-java/
@@ -18,7 +20,7 @@ public class DataProcessor {
         this.matching = new Matching(housingMarket);
     }
 
-    public Matching csv_to_matching(String csvFileName, double connectionProb)
+    public Matching csvToMatching(String csvFileName, double connectionProb)
             throws Household.InvalidHouseholdException,
             Matching.HouseAlreadyMatchedException,
             Matching.HouseholdAlreadyMatchedException {
@@ -88,7 +90,7 @@ public class DataProcessor {
                                 income, age, householdType, totalHouseholdCount, priority);
                         this.matching.addHouse(house);
                         this.matching.addHousehold(household);
-                        // With 98% chance, connect these houses.
+                        // With _connectionProb_ chance, connect these houses.
                         if ( new Random().nextDouble() <= connectionProb) {
                             this.matching.connect(house, household);
                         }
@@ -119,5 +121,6 @@ public class DataProcessor {
         }
         return this.matching;
     }
+
 }
 

@@ -76,7 +76,8 @@ public class MatchingEvaluator {
         }
         else if (house.getRoomCount() < household.getTotalHouseholdCount()) {
             fit = 0;}
-        else { fit = (house.getRoomCount() + 1)/household.getTotalHouseholdCount() * 100; }
+        // TODO: de-binarize individualroomfit.
+        else { fit = 0; }
         return fit;
     }
 
