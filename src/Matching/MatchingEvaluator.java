@@ -101,6 +101,7 @@ public class MatchingEvaluator {
         float individualTotalFit = Math.min(Math.min(
                 financialIndividualFit, roomIndividualFit),
                 accessibilityIndividualFit);
+//        float individualTotalFit = (financialIndividualFit + roomIndividualFit + accessibilityIndividualFit)/3;
         return individualTotalFit;
     }
 
@@ -262,7 +263,7 @@ public class MatchingEvaluator {
                     + matching.getHouseholdsWithPriority().size() * marginalPriorityBonus
                     + matching.getElderlyHouseholds().size() * marginalElderlyBonus);
 
-        // TODO: Integrate houseless households and householdless houses metrics into total.
+        // TODO: Integrate houseless households and householdless houses metrics into total?
 
         if(printOutput) {
             System.out.println("Weighted total matching quality is: " + weightedTotalFit);

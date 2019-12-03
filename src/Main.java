@@ -89,11 +89,12 @@ public class Main {
                 Matching matching;
                 HousingMarket housingMarket = new HousingMarket(2017, 100);
                 DataProcessor dataProcessor = new DataProcessor(housingMarket);
-                matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test (small).csv", 0.98);
+                matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test (small).csv", 1);
 
                 MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
                 OptimizationAlgorithm alg = new OptimizationAlgorithm(matching);
-                Result result = alg.optimizeAvailables();
+//                Result result = alg.optimizeAvailables();
+                Result result = alg.optimizeN((int) Math.floor(i/25) + 1); // 1 through 4.
                 results.add(result);
             }
 
