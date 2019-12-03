@@ -82,20 +82,21 @@ public class Main {
     }
 
     public static void test3() {
-        String filename = "100run.csv";
+        String filename = "1000run.csv";
         ArrayList<Result> results = new ArrayList<Result>();
         try {
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 1000; i++) {
                 Matching matching;
                 HousingMarket housingMarket = new HousingMarket(2017, 100);
                 DataProcessor dataProcessor = new DataProcessor(housingMarket);
-                matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test (small).csv", 1);
+                matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test.csv", 1);
 
                 MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
                 OptimizationAlgorithm alg = new OptimizationAlgorithm(matching);
 //                Result result = alg.optimizeAvailables();
-                Result result = alg.optimizeN((int) Math.floor(i/25) + 1); // 1 through 4.
+                Result result = alg.optimizeN((int) Math.floor(i/250) + 1); // 1 through 4.
                 results.add(result);
+                System.out.println("Done with sample: " + Integer.toString(i) + ".");
             }
 
             ResultProcessor resultProcessor = new ResultProcessor(results);

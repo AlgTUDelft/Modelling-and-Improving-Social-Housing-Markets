@@ -155,6 +155,7 @@ public class Matching implements Serializable {
         return this.houselessHouseholds;
     }
 
+    // TODO: Change this function and its corollary to accept not objects, but IDs.
     public Household getHouseholdFromHouse(House house)
             throws HouseLinkedToHouseException,HouseLinkedToMultipleException {
         if (this.matchingGraph.edgesOf(house).size() == 1) {
