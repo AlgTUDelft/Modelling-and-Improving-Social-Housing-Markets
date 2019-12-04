@@ -116,6 +116,15 @@ public class Matching implements Serializable {
         this.houselessHouseholds.add(household);
     }
 
+    public void dissolve() throws HouseLinkedToMultipleException, HouseLinkedToHouseException {
+        for (House house : this.getHouses()) {
+            Household household = this.getHouseholdFromHouse(house.getID());
+            if (household != null) {
+                disconnect(house.getID(), household.getID());
+            }
+        }
+    }
+
     public House getHouse(int id) {
         Optional<House> result = this.houses.stream()
                 .filter(h -> h.getID() == id)

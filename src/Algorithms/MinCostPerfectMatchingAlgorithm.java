@@ -10,7 +10,18 @@ public class MinCostPerfectMatchingAlgorithm {
         this.matching = matching;
     }
 
-    public float FindMinCostPerfectMatching() {
+    public float FindMinCostPerfectMatching()
+            throws Matching.HouseLinkedToMultipleException,
+            Matching.HouseLinkedToHouseException {
+        if (this.matching.getHouses().size() != this.matching.getHouseholds().size()) {
+            System.err.println("Error: Matching must contain as many houses as households.");
+            return (float) 0.0;
+        }
+        this.matching.dissolve();
+
+
+
+
         return (float) 0.0;
     }
 }

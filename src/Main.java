@@ -5,6 +5,7 @@ import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
+import Matching.ResidualGraph;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.ArrayList;
 public class Main {
 
     public static void main(String[] args) {
-        test3();
+        test4();
     }
 
     public static void test1() {
@@ -123,5 +124,27 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void test4() {
+        Matching matching;
+        HousingMarket housingMarket = null;
+        try {
+            housingMarket = new HousingMarket(2017, 100);
+            DataProcessor dataProcessor = new DataProcessor(housingMarket);
+            matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test.csv", 1);
+
+            ResidualGraph residualGraph = new ResidualGraph(matching);
+
+        } catch (HousingMarket.FreeSpaceException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseAlreadyMatchedException e) {
+            e.printStackTrace();
+        } catch (Household.InvalidHouseholdException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdAlreadyMatchedException e) {
+            e.printStackTrace();
+        }
+
     }
 }
