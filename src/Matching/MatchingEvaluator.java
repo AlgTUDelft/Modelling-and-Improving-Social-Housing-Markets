@@ -112,7 +112,7 @@ public class MatchingEvaluator {
         try {
             for (Household household: this.matching.getHouseholds()
             ) {
-                if (this.matching.getHouseFromHousehold(household) == null) {
+                if (this.matching.getHouseFromHousehold(household.getID()) == null) {
                     houselessHouseholdsCount++;
                 }
                 else continue;
@@ -139,7 +139,7 @@ public class MatchingEvaluator {
         try {
             for (House house: this.matching.getHouses()
             ) {
-                if (this.matching.getHouseholdFromHouse(house) == null) {
+                if (this.matching.getHouseholdFromHouse(house.getID()) == null) {
                     householdlessHousesCount++;
                 }
                 else continue;
@@ -160,7 +160,7 @@ public class MatchingEvaluator {
         float householdsAbove65WithHouses = 0;
         float householdsAbove65WithHousesAndAccessibility = 0;
         for (Household household : this.matching.getHouseholds()) {
-            House house = matching.getHouseFromHousehold(household);
+            House house = matching.getHouseFromHousehold(household.getID());
             if (house != null) {
                 if (household.getAge() >= 65) {
                     float individualFit = evaluateIndividualAccessibilityFit(house, household);
@@ -190,7 +190,7 @@ public class MatchingEvaluator {
         float sum = 0;
         float amt = 0;
         for (Household household : matching.getHouseholds()) {
-            House house = matching.getHouseFromHousehold(household);
+            House house = matching.getHouseFromHousehold(household.getID());
             float fit = 0;
             if (house != null) {
                 fit = evaluateIndividualTotalFit(house, household);
@@ -214,7 +214,7 @@ public class MatchingEvaluator {
         float amt = 0;
         for (Household household : matching.getHouseholds()) {
             if (household.getPriority()) {
-                House house = matching.getHouseFromHousehold(household);
+                House house = matching.getHouseFromHousehold(household.getID());
                 if (house != null) {
                     sum+= evaluateIndividualTotalFit(house, household);
                     amt++;

@@ -68,13 +68,15 @@ public class Matching implements Serializable {
         }
     }
 
-    public void removeHouse(House house) {
+    public void removeHouse(int ID) {
+        House house = this.getHouse(ID);
         this.houses.remove(house);
         this.householdlessHouses.remove(house);
         this.matchingGraph.removeVertex(house);
     }
 
-    public void removeHousehold(Household household) {
+    public void removeHousehold(int ID) {
+        Household household = this.getHousehold(ID);
         this.households.remove(household);
         this.householdsWithPriority.remove(household);
         this.elderlyHouseholds.remove(household);
@@ -94,8 +96,10 @@ public class Matching implements Serializable {
         return result;
     }
 
-    public void connect(House house, Household household)
+    public void connect(int houseID, int householdID)
             throws HouseAlreadyMatchedException, HouseholdAlreadyMatchedException {
+        House house = this.getHouse(houseID);
+        Household household = this.getHousehold(householdID);
         if (!this.matchingGraph.edgesOf(house).isEmpty()) {
             throw new HouseAlreadyMatchedException("Error: House " + house.toString() + " is already matched!");
         } else if (!this.matchingGraph.edgesOf(household).isEmpty()) {
@@ -107,7 +111,9 @@ public class Matching implements Serializable {
         }
     }
 
-    public void disconnect(House house, Household household) {
+    public void disconnect(int houseID, int householdID) {
+        House house = this.getHouse(houseID);
+        Household household = this.getHousehold(householdID);
         this.matchingGraph.removeEdge(house, household);
         this.householdlessHouses.add(house);
         this.houselessHouseholds.add(household);
@@ -155,9 +161,9 @@ public class Matching implements Serializable {
         return this.houselessHouseholds;
     }
 
-    // TODO: Change this function and its corollary to accept not objects, but IDs.
-    public Household getHouseholdFromHouse(House house)
+    public Household getHouseholdFromHouse(int houseID)
             throws HouseLinkedToHouseException,HouseLinkedToMultipleException {
+        House house = this.getHouse(houseID);
         if (this.matchingGraph.edgesOf(house).size() == 1) {
             DefaultEdge edge = this.matchingGraph.edgesOf(house).iterator().next();
             HousingMarketVertex household = this.matchingGraph.getEdgeTarget(edge);
@@ -173,8 +179,9 @@ public class Matching implements Serializable {
     }
 
 
-    public House getHouseFromHousehold(Household household)
+    public House getHouseFromHousehold(int householdID)
             throws HouseholdLinkedToHouseholdException,HouseholdLinkedToMultipleException {
+        Household household = this.getHousehold(householdID);
         if (this.matchingGraph.edgesOf(household).size() == 1) {
             DefaultEdge edge = this.matchingGraph.edgesOf(household).iterator().next();
             HousingMarketVertex house = this.matchingGraph.getEdgeSource(edge);

@@ -38,7 +38,7 @@ public class OptimizationAlgorithm {
         for (int i = 0; i < n; i++) {
             House house = houses.get(i);
             housesToOptimize.add(house);
-            Household household = matching.getHouseholdFromHouse(matching.getHouse(house.getID()));
+            Household household = matching.getHouseholdFromHouse(house.getID());
             householdsToOptimize.add(household);
         }
         return optimizeAll(housesToOptimize, householdsToOptimize, false);
@@ -77,15 +77,15 @@ public class OptimizationAlgorithm {
         }
         // Dissolve connections.
         for (House house : houses) {
-            Household household = matching.getHouseholdFromHouse(matching.getHouse(house.getID()));
+            Household household = matching.getHouseholdFromHouse(house.getID());
             if (household != null) {
-                matching.disconnect(house, matching.getHousehold(household.getID()));
+                matching.disconnect(house.getID(), household.getID());
             }
         }
         for (Household household : households) {
-            House house = matching.getHouseFromHousehold(matching.getHousehold(household.getID()));
+            House house = matching.getHouseFromHousehold(household.getID());
             if (house != null) {
-                matching.disconnect(matching.getHouse(house.getID()), household);
+                matching.disconnect(house.getID(), household.getID());
             }
         }
 
@@ -244,7 +244,7 @@ public class OptimizationAlgorithm {
 
         HouseAndHouseholdPair data = currentNode.getData();
         Matching modifiedMatching = (Matching) deepClone(matching);
-        modifiedMatching.connect(modifiedMatching.getHouse(data.getHouseID()), modifiedMatching.getHousehold(data.getHouseholdID()));
+        modifiedMatching.connect(data.getHouseID(), data.getHouseholdID());
         Matching bestMatching = modifiedMatching;
         if (currentNode.hasChildren()) {
             for (TreeNode<HouseAndHouseholdPair> child : currentNode.getChildren()) {

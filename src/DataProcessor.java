@@ -92,7 +92,7 @@ public class DataProcessor {
                         this.matching.addHousehold(household);
                         // With _connectionProb_ chance, connect these houses.
                         if ( new Random().nextDouble() <= connectionProb) {
-                            this.matching.connect(house, household);
+                            this.matching.connect(house.getID(), household.getID());
                         }
                     } catch (Household.InvalidHouseholdException e) {
                         e.printStackTrace();
