@@ -3,7 +3,6 @@ package HousingMarket.Household;
 import HousingMarket.HousingMarketVertex;
 
 import java.io.Serializable;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class Household extends HousingMarketVertex implements Serializable {
 

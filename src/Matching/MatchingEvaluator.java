@@ -14,8 +14,10 @@ public class MatchingEvaluator {
     }
 
 
-    public float evaluateIndividualFinancialFit(House house, Household household)
+    public float evaluateIndividualFinancialFit(int houseID, int householdID)
     throws HouseholdIncomeTooHighException {
+        House house = this.matching.getHouse(houseID);
+        Household household = this.matching.getHousehold(householdID);
         // TODO: Incorporate year.
         int year = this.matching.getHousingMarket().getYear(); // Unused
         float fit = 0;
@@ -68,7 +70,9 @@ public class MatchingEvaluator {
         return fit;
     }
 
-    public float evaluateIndividualRoomFit(House house, Household household) {
+    public float evaluateIndividualRoomFit(int houseID, int householdID) {
+        House house = this.matching.getHouse(houseID);
+        Household household = this.matching.getHousehold(householdID);
         float fit;
         if (house.getRoomCount() <= household.getTotalHouseholdCount() &&
                 household.getTotalHouseholdCount() <= house.getRoomCount() + 1) {
@@ -81,7 +85,9 @@ public class MatchingEvaluator {
         return fit;
     }
 
-    public float evaluateIndividualAccessibilityFit(House house, Household household) {
+    public float evaluateIndividualAccessibilityFit(int houseID, int householdID) {
+        House house = this.matching.getHouse(houseID);
+        Household household = this.matching.getHousehold(householdID);
         float fit = 0;
         if (household.getAge() >= 65) {
             if (house.getAccessibility()) {
@@ -91,11 +97,11 @@ public class MatchingEvaluator {
         return fit;
     }
 
-    public float evaluateIndividualTotalFit(House house, Household household)
+    public float evaluateIndividualTotalFit(int houseID, int householdID)
     throws HouseholdIncomeTooHighException {
-        float financialIndividualFit = evaluateIndividualFinancialFit(house, household);
-        float roomIndividualFit = evaluateIndividualRoomFit(house, household);
-        float accessibilityIndividualFit = evaluateIndividualAccessibilityFit(house, household);
+        float financialIndividualFit = evaluateIndividualFinancialFit(houseID, householdID);
+        float roomIndividualFit = evaluateIndividualRoomFit(houseID, householdID);
+        float accessibilityIndividualFit = evaluateIndividualAccessibilityFit(houseID, householdID);
 
         // TODO: _individualTotalFit_ calculation method open to revision and addition; currently based on nothing.
         float individualTotalFit = Math.min(Math.min(
@@ -163,7 +169,7 @@ public class MatchingEvaluator {
             House house = matching.getHouseFromHousehold(household.getID());
             if (house != null) {
                 if (household.getAge() >= 65) {
-                    float individualFit = evaluateIndividualAccessibilityFit(house, household);
+                    float individualFit = evaluateIndividualAccessibilityFit(house.getID(), household.getID());
                     householdsAbove65WithHouses++;
                     if (Float.compare(individualFit, 1) == 0) {
                         householdsAbove65WithHousesAndAccessibility++;
@@ -193,7 +199,7 @@ public class MatchingEvaluator {
             House house = matching.getHouseFromHousehold(household.getID());
             float fit = 0;
             if (house != null) {
-                fit = evaluateIndividualTotalFit(house, household);
+                fit = evaluateIndividualTotalFit(house.getID(), household.getID());
             }
             sum+= fit;
             amt++;
@@ -216,7 +222,7 @@ public class MatchingEvaluator {
             if (household.getPriority()) {
                 House house = matching.getHouseFromHousehold(household.getID());
                 if (house != null) {
-                    sum+= evaluateIndividualTotalFit(house, household);
+                    sum+= evaluateIndividualTotalFit(house.getID(), household.getID());
                     amt++;
                 }
                 else {
