@@ -144,6 +144,12 @@ public class Main {
             e.printStackTrace();
         } catch (Matching.HouseholdAlreadyMatchedException e) {
             e.printStackTrace();
+        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseLinkedToMultipleException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseLinkedToHouseException e) {
+            e.printStackTrace();
         }
 
     }

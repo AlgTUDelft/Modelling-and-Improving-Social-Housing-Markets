@@ -14,8 +14,7 @@ import org.jgrapht.graph.SimpleGraph;
 
 public class Matching implements Serializable {
     private SimpleGraph<HousingMarketVertex, DefaultEdge> matchingGraph;
-    private int nextHouseID = 0;
-    private int nextHouseholdID = 0;
+    private int nextID = 0;
     private ArrayList<House> houses = new ArrayList<House>();
     private ArrayList<Household> households = new ArrayList<Household>();
     private ArrayList<Household> householdsWithPriority = new ArrayList<Household>();
@@ -32,7 +31,7 @@ public class Matching implements Serializable {
     }
 
     public void addHouse(House house) {
-        int newInt = getAndIncrementHouseID();
+        int newInt = getAndIncrementID();
         house.setID(newInt);
         this.houses.add(house);
         this.householdlessHouses.add(house);
@@ -46,7 +45,7 @@ public class Matching implements Serializable {
     }
 
     public void addHousehold(Household household) {
-        int newInt = getAndIncrementHouseholdID();
+        int newInt = getAndIncrementID();
         household.setID(newInt);
         this.households.add(household);
         this.houselessHouseholds.add(household);
@@ -81,15 +80,10 @@ public class Matching implements Serializable {
         this.matchingGraph.removeVertex(household);
     }
 
-    private int getAndIncrementHouseID() {
-        int result = this.nextHouseID;
-        this.nextHouseID++;
-        return result;
-    }
 
-    private int getAndIncrementHouseholdID() {
-        int result = this.nextHouseholdID;
-        this.nextHouseholdID++;
+    private int getAndIncrementID() {
+        int result = this.nextID;
+        this.nextID++;
         return result;
     }
 
@@ -202,7 +196,15 @@ public class Matching implements Serializable {
         else return null;
     }
 
-    public HousingMarket getHousingMarket() {
+    public boolean hasEdge(int houseID, int householdID) throws HouseLinkedToMultipleException, HouseLinkedToHouseException {
+        if (this.getHouseholdFromHouse(houseID).getID() == householdID) {
+            return true;
+        }
+        else { return false; }
+    }
+
+
+        public HousingMarket getHousingMarket() {
         return this.housingMarket;
     }
 
