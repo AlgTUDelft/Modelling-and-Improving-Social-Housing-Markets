@@ -1,5 +1,6 @@
-package Algorithms;
+package Algorithms.OptimizationAlgorithm;
 
+import Algorithms.Miscellaneous.Result;
 import HousingMarket.House.House;
 import HousingMarket.HouseAndHouseholdPair;
 import HousingMarket.Household.Household;

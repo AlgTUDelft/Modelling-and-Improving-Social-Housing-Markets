@@ -1,7 +1,9 @@
-package Matching;
+package Algorithms.MinCostPerfectMatchingAlgorithm;
 
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
+import Matching.Matching;
+import Matching.MatchingEvaluator;
 import org.apache.commons.math3.geometry.spherical.twod.Vertex;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -21,7 +23,7 @@ public class ResidualGraph {
     public ResidualGraph(Matching matching)
             throws Matching.HouseLinkedToMultipleException,
             Matching.HouseLinkedToHouseException,
-            MatchingEvaluator.HouseholdIncomeTooHighException {
+            Matching.MatchingEvaluator.HouseholdIncomeTooHighException {
         this.residualGraph = new SimpleDirectedWeightedGraph(DefaultWeightedEdge.class);
         residualGraph.addVertex(sourceID);
         residualGraph.addVertex(sinkID);
@@ -60,6 +62,8 @@ public class ResidualGraph {
                 }
             }
         }
+
+        System.out.println("test");
 
     }
 

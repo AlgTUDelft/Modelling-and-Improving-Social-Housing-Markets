@@ -119,6 +119,10 @@ public class Matching implements Serializable {
         }
     }
 
+    public int countEdges() {
+        return this.matchingGraph.edgeSet().size();
+    }
+
     public House getHouse(int id) {
         Optional<House> result = this.houses.stream()
                 .filter(h -> h.getID() == id)
@@ -203,9 +207,12 @@ public class Matching implements Serializable {
         else { return false; }
     }
 
-
-        public HousingMarket getHousingMarket() {
+    public HousingMarket getHousingMarket() {
         return this.housingMarket;
+    }
+
+    public SimpleGraph<HousingMarketVertex, DefaultEdge> getMatchingGraph() {
+        return this.matchingGraph;
     }
 
 

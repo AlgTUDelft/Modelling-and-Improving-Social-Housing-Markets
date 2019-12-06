@@ -1,4 +1,4 @@
-package Algorithms;
+package Algorithms.Miscellaneous;
 
 public class Result {
     private float oldScore;

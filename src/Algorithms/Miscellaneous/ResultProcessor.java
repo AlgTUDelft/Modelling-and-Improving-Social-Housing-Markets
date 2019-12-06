@@ -1,4 +1,4 @@
-package Algorithms;
+package Algorithms.Miscellaneous;
 
 import java.io.*;
 import java.util.ArrayList;

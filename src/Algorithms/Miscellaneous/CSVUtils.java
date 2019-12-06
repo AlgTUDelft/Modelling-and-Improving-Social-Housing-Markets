@@ -1,4 +1,4 @@
-package Algorithms;
+package Algorithms.Miscellaneous;
 
 // Taken from: https://www.mkyong.com/java/how-to-export-data-to-csv-file-java/
 

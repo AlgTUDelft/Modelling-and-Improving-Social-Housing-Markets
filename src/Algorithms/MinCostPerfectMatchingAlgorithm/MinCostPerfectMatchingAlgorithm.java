@@ -1,4 +1,4 @@
-package Algorithms;
+package Algorithms.MinCostPerfectMatchingAlgorithm;
 
 import Matching.Matching;
 

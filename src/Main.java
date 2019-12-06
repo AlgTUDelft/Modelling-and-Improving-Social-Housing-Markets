@@ -1,11 +1,11 @@
-import Algorithms.OptimizationAlgorithm;
-import Algorithms.Result;
-import Algorithms.ResultProcessor;
+import Algorithms.OptimizationAlgorithm.OptimizationAlgorithm;
+import Algorithms.Miscellaneous.Result;
+import Algorithms.Miscellaneous.ResultProcessor;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
-import Matching.ResidualGraph;
+import Algorithms.MinCostPerfectMatchingAlgorithm.ResidualGraph;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -132,7 +132,7 @@ public class Main {
         try {
             housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test.csv", 1);
+            matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test (small).csv", 1);
 
             ResidualGraph residualGraph = new ResidualGraph(matching);
 
