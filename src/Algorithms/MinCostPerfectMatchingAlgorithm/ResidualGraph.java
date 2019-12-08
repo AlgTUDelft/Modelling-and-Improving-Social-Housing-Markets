@@ -4,14 +4,13 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
-import org.apache.commons.math3.geometry.spherical.twod.Vertex;
-import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 import java.util.ArrayList;
 
-// TODO: Finish ResidualGraph class.
+// TODO: Modify ResidualGraph class such that it can be easily modified,
+//  so that it needn't be re-created every time.
 public class ResidualGraph {
     private SimpleDirectedWeightedGraph residualGraph;
     private ArrayList<Integer> houseIDs = new ArrayList<Integer>();
@@ -31,15 +30,19 @@ public class ResidualGraph {
             int houseID = house.getID();
             houseIDs.add(houseID);
             residualGraph.addVertex(houseID);
-            DefaultWeightedEdge edge = (DefaultWeightedEdge) residualGraph.addEdge(sourceID, houseID);
-            residualGraph.setEdgeWeight(edge, 0); // TODO: Really 0?
+            if (matching.getHouseholdFromHouse(houseID) == null) {
+                DefaultWeightedEdge edge = (DefaultWeightedEdge) residualGraph.addEdge(sourceID, houseID);
+                residualGraph.setEdgeWeight(edge, 0); // TODO: Really 0?
+            }
         }
         for (Household household : matching.getHouseholds()) {
             int householdID = household.getID();
             householdIDs.add(householdID);
             residualGraph.addVertex(householdID);
-            DefaultWeightedEdge edge = (DefaultWeightedEdge) residualGraph.addEdge(householdID, sinkID);
-            residualGraph.setEdgeWeight(edge, 0); // TODO: Really 0?
+            if (matching.getHouseholdFromHouse(householdID) == null) {
+                DefaultWeightedEdge edge = (DefaultWeightedEdge) residualGraph.addEdge(householdID, sinkID);
+                residualGraph.setEdgeWeight(edge, 0); // TODO: Really 0?
+            }
         }
 
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
@@ -52,19 +55,15 @@ public class ResidualGraph {
                     DefaultWeightedEdge edge = (DefaultWeightedEdge) residualGraph.addEdge(householdID, houseID);
                     // (1-w) instead of w because we want to maximize sum(w) where w in [0,1].
                     // Thus we want to minimize 1-w.
-                    residualGraph.setEdgeWeight(edge, -(1-matchingEvaluator.evaluateIndividualTotalFit(houseID, householdID)));
-                }
-                else {
+                    residualGraph.setEdgeWeight(edge, -(1 - matchingEvaluator.evaluateIndividualTotalFit(houseID, householdID)));
+                } else {
                     DefaultWeightedEdge edge = (DefaultWeightedEdge) residualGraph.addEdge(houseID, householdID);
                     // (1-w) instead of w because we want to maximize sum(w) where w in [0,1].
                     // Thus we want to minimize 1-w.
-                    residualGraph.setEdgeWeight(edge, 1-matchingEvaluator.evaluateIndividualTotalFit(houseID, householdID));
+                    residualGraph.setEdgeWeight(edge, 1 - matchingEvaluator.evaluateIndividualTotalFit(houseID, householdID));
                 }
             }
         }
-
-        System.out.println("test");
-
     }
 
 

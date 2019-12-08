@@ -11,17 +11,20 @@ import java.util.HashMap;
 public class MatchingPrices {
 
     private Matching matching;
+    private ResidualGraph residualGraph;
     private HashMap<Integer, Float> housePrices = new HashMap<Integer, Float>();
     private HashMap<Integer, Float> householdPrices = new HashMap<Integer, Float>();
     private MatchingPrices previousPrices;
 
-    public MatchingPrices(Matching matching, MatchingPrices previousPrices) {
+    public MatchingPrices(Matching matching, ResidualGraph residualGraph, MatchingPrices previousPrices) {
         this.matching = matching;
+        this.residualGraph = residualGraph;
         previousPrices.nullifyPreviousPrices();
         this.previousPrices = previousPrices;
     }
 
     public void findPrices() throws Matching.MatchingEvaluator.HouseholdIncomeTooHighException {
+        // TODO: Adjust so that instead of matching, residualgraph is used.
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
         if (matching.countEdges() == 0) {
             for (House house : matching.getHouses()) {
@@ -29,7 +32,11 @@ public class MatchingPrices {
             }
             for (Household household : matching.getHouseholds()) {
                 float minScore = 1; // = 1 - 0;
-                for (House house : matching.getHouses()) {
+                for (House house : matching.getHouses()) { // In the current residual graph,
+                    // household gets edges from all houses.
+                    // TODO: Could replace this with an edge-weight check,
+                    //  but I shouldn't do that if I decide to have the residualGraph use
+                    //  _reduced_ edge costs as weights.
                     float candidateScore = 1 - matchingEvaluator.evaluateIndividualTotalFit(house.getID(), household.getID());
                     if (candidateScore < minScore) {
                         minScore = candidateScore;
@@ -69,23 +76,10 @@ public class MatchingPrices {
 
     //TODO: Check if these ways of calculating the shortest distance hold under the assumptions given.
     public float calculateShortestDistanceToHouse(int houseID) {
-        // Decided not to use Dijkstra's algorithm; I believe the result can be calculated more easily.
         return (float) 0.0;
     }
 
     public float calculateShortestDistanceToHousehold(int householdID, MatchingEvaluator matchingEvaluator) throws Matching.MatchingEvaluator.HouseholdIncomeTooHighException {
-        // Decided not to use Dijkstra's algorithm; I believe the result can be calculated more easily.
-        // TODO: Check if calculation method is indeed correct.
-        // I assume that in a given matching M, the distance to some household y
-        // equals 0 + minimum_dist_to_any_household + 0 + 0 = minimum_cost_of_edge_to_any_household.
-        // Actually, let me reread this whole thing...
-        float minScore = 1; // = 1 - 0;
-        for (House house : matching.getHouses()) {
-            float candidateScore = 1 - matchingEvaluator.evaluateIndividualTotalFit(house.getID(), householdID);
-            if (candidateScore < minScore) {
-                minScore = candidateScore;
-            }
-        }
-        return minScore;
+        return (float) 0.0;
     }
 }
