@@ -4,7 +4,10 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
+import org.jgrapht.GraphPath;
+import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+import org.jgrapht.graph.DefaultWeightedEdge;
 
 import java.util.HashMap;
 
@@ -16,14 +19,13 @@ public class MatchingPrices {
     private HashMap<Integer, Float> householdPrices = new HashMap<Integer, Float>();
     private MatchingPrices previousPrices;
 
-    public MatchingPrices(Matching matching, ResidualGraph residualGraph, MatchingPrices previousPrices) {
+    public MatchingPrices(Matching matching, MatchingPrices previousPrices) {
         this.matching = matching;
-        this.residualGraph = residualGraph;
         previousPrices.nullifyPreviousPrices();
         this.previousPrices = previousPrices;
     }
 
-    public void findPrices() throws Matching.MatchingEvaluator.HouseholdIncomeTooHighException {
+    public void updatePrices() throws Matching.MatchingEvaluator.HouseholdIncomeTooHighException, Matching.Matching.HouseLinkedToMultipleException, Matching.Matching.HouseLinkedToHouseException {
         // TODO: Adjust so that instead of matching, residualgraph is used.
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
         if (matching.countEdges() == 0) {
@@ -36,7 +38,7 @@ public class MatchingPrices {
                     // household gets edges from all houses.
                     // TODO: Could replace this with an edge-weight check,
                     //  but I shouldn't do that if I decide to have the residualGraph use
-                    //  _reduced_ edge costs as weights.
+                    //  _reduced_ edge costs as weights. -> Therefore, leave this as-is.
                     float candidateScore = 1 - matchingEvaluator.evaluateIndividualTotalFit(house.getID(), household.getID());
                     if (candidateScore < minScore) {
                         minScore = candidateScore;
@@ -48,19 +50,30 @@ public class MatchingPrices {
         else if (previousPrices == null) {
             System.err.println("Non-empty matching requires previous priceset!");
         } else {
+            DijkstraShortestPath<Integer, DefaultWeightedEdge> dijkstraShortestPath
+                    = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.residualGraph.getGraph());
+            ShortestPathAlgorithm.SingleSourcePaths<Integer, DefaultWeightedEdge> sourcePaths
+                    = dijkstraShortestPath.getPaths(this.residualGraph.getSourceID());
+
             for (House house : matching.getHouses()) {
-                float previousPrice = previousPrices.getHousePrice(house.getID());
-                float distInPreviousMatching = previousPrices.calculateShortestDistanceToHouse(house.getID());
-                // TODO
+                int houseID = house.getID();
+                float previousPrice = previousPrices.getHousePrice(houseID);
+                GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(houseID);
+                float distInPreviousMatching = (float) shortestPath.getWeight();
+                float newPrice = distInPreviousMatching + previousPrice;
+                this.setHousePrice(houseID, newPrice);
             }
             for (Household household : matching.getHouseholds()) {
-                float previousPrice = previousPrices.getHouseholdPrice(household.getID());
-                float distInPreviousMatching = previousPrices.calculateShortestDistanceToHousehold(household.getID(), matchingEvaluator);
-                // TODO
+                int householdID = household.getID();
+                float previousPrice = previousPrices.getHouseholdPrice(householdID);
+                GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(householdID);
+                float distInPreviousMatching = (float) shortestPath.getWeight();
+                float newPrice = distInPreviousMatching + previousPrice;
+                this.setHouseholdPrice(householdID, newPrice);
             }
         }
+        this.residualGraph = new ResidualGraph(this.matching, this);
     }
-
 
     public void nullifyPreviousPrices() {
         this.previousPrices = null;
@@ -74,12 +87,12 @@ public class MatchingPrices {
         return this.householdPrices.get(householdID);
     }
 
-    //TODO: Check if these ways of calculating the shortest distance hold under the assumptions given.
-    public float calculateShortestDistanceToHouse(int houseID) {
-        return (float) 0.0;
+
+    public void setHousePrice(int houseID, float newPrice) {
+        this.housePrices.put(houseID, newPrice);
     }
 
-    public float calculateShortestDistanceToHousehold(int householdID, MatchingEvaluator matchingEvaluator) throws Matching.MatchingEvaluator.HouseholdIncomeTooHighException {
-        return (float) 0.0;
+    public void setHouseholdPrice(int householdID, float newPrice) {
+        this.householdPrices.put(householdID, newPrice);
     }
 }
