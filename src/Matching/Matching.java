@@ -9,7 +9,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleGraph;
 
 public class Matching implements Serializable {
@@ -110,7 +112,7 @@ public class Matching implements Serializable {
         this.houselessHouseholds.add(household);
     }
 
-    public void dissolve() throws HouseLinkedToMultipleException, HouseLinkedToHouseException {
+    public void dissolveConnections() throws HouseLinkedToMultipleException, HouseLinkedToHouseException {
         for (House house : this.getHouses()) {
             Household household = this.getHouseholdFromHouse(house.getID());
             if (household != null) {
@@ -205,6 +207,19 @@ public class Matching implements Serializable {
             return true;
         }
         else { return false; }
+    }
+
+    public void augment(GraphPath<Integer, DefaultWeightedEdge> graphPath) {
+        // TODO: finish.
+    }
+
+    public boolean isMaximallyMatched() {
+        if (this.houses.size() != this.households.size()) {
+            System.err.println("|Houses| != |Households|. Therefore matching can never be perfect");
+            return false;
+        } else if (this.getMatchingGraph().edgeSet().size() == this.houses.size()) {
+            return true;
+        } else { return false; }
     }
 
     public HousingMarket getHousingMarket() {

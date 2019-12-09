@@ -1,6 +1,8 @@
 package Algorithms.MinCostPerfectMatchingAlgorithm;
 
 import Matching.Matching;
+import org.jgrapht.GraphPath;
+import org.jgrapht.graph.DefaultWeightedEdge;
 
 public class MinCostPerfectMatchingAlgorithm {
     // Adapted from "Algorithm Design" by Jon Kleinberg and Eva Tardos.
@@ -10,18 +12,28 @@ public class MinCostPerfectMatchingAlgorithm {
         this.matching = matching;
     }
 
-    public float FindMinCostPerfectMatching()
+    public Matching FindMinCostPerfectMatching()
             throws Matching.HouseLinkedToMultipleException,
-            Matching.HouseLinkedToHouseException {
+            Matching.HouseLinkedToHouseException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, BipartiteSidesUnequalSize {
         if (this.matching.getHouses().size() != this.matching.getHouseholds().size()) {
-            System.err.println("Error: Matching must contain as many houses as households.");
-            return (float) 0.0;
+            throw new BipartiteSidesUnequalSize("Error: Matching must contain as many houses as households.");
         }
-        this.matching.dissolve();
+        this.matching.dissolveConnections();
 
+        MatchingPrices matchingPrices = new MatchingPrices(this.matching, null);
+        matchingPrices.setInitialPrices();
+        // TODO: Will this go well if I Update the matching inside the while-loop?
+        while (!this.matching.isMaximallyMatched()) {
+            GraphPath<Integer, DefaultWeightedEdge> augmentingPath = matchingPrices.getResidualGraph().findAugmentingPath();
+            this.matching = matchingPrices.augmentAndUpdate(augmentingPath);
+        }
 
+        return this.matching;
+    }
 
-
-        return (float) 0.0;
+    public class BipartiteSidesUnequalSize extends Exception {
+        public BipartiteSidesUnequalSize(String errorMessage) {
+            super(errorMessage);
+        }
     }
 }

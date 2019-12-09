@@ -25,8 +25,7 @@ public class MatchingPrices {
         this.previousPrices = previousPrices;
     }
 
-    public void updatePrices() throws Matching.MatchingEvaluator.HouseholdIncomeTooHighException, Matching.Matching.HouseLinkedToMultipleException, Matching.Matching.HouseLinkedToHouseException {
-        // TODO: Adjust so that instead of matching, residualgraph is used.
+    public void setInitialPrices() throws Matching.MatchingEvaluator.HouseholdIncomeTooHighException, Matching.Matching.HouseLinkedToMultipleException, Matching.Matching.HouseLinkedToHouseException {
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
         if (matching.countEdges() == 0) {
             for (House house : matching.getHouses()) {
@@ -47,8 +46,16 @@ public class MatchingPrices {
                 householdPrices.put(household.getID(), 1-minScore);
             }
         }
-        else if (previousPrices == null) {
-            System.err.println("Non-empty matching requires previous priceset!");
+        else {
+            System.err.println("Cannot initialize prices for a non-empty matching.");
+        }
+        this.residualGraph = new ResidualGraph(this.matching, this);
+    }
+
+    public void updatePrices() {
+        // This process indeed does not require the new matching M' and indeed depends on the old matching.
+        if (previousPrices == null) {
+            System.err.println("Updating the prices of a non-empty matching requires a previous priceset!");
         } else {
             DijkstraShortestPath<Integer, DefaultWeightedEdge> dijkstraShortestPath
                     = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.residualGraph.getGraph());
@@ -72,7 +79,17 @@ public class MatchingPrices {
                 this.setHouseholdPrice(householdID, newPrice);
             }
         }
-        this.residualGraph = new ResidualGraph(this.matching, this);
+        this.residualGraph.updateReducedEdgeWeightsAndPrices(this);
+    }
+
+    public Matching augmentAndUpdate(GraphPath<Integer, DefaultWeightedEdge> augmentingPath) {
+        this.updatePrices(); // Doing this first so that the updating process still has access to the un-augmented matching...
+        this.matching = residualGraph.augmentAndUpdate(augmentingPath); // ...Because this modifies the matching.
+        return this.matching;
+    }
+
+    public ResidualGraph getResidualGraph() {
+        return this.residualGraph;
     }
 
     public void nullifyPreviousPrices() {

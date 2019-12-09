@@ -14,13 +14,13 @@ import java.util.ArrayList;
 
 public class ResidualGraph {
     private SimpleDirectedWeightedGraph residualGraph;
+    private Matching matching;
+    private MatchingPrices matchingPrices;
     private ArrayList<Integer> houseIDs = new ArrayList<Integer>();
     private ArrayList<Integer> householdIDs = new ArrayList<Integer>();
     // Strings to differentiate them from normal vertices, which are identified through integers.
     private Integer sourceID = -2;
     private Integer sinkID = -1;
-    private Matching matching;
-    private MatchingPrices matchingPrices;
 
     public ResidualGraph(Matching matching, MatchingPrices matchingPrices)
             throws Matching.HouseLinkedToMultipleException,
@@ -132,6 +132,7 @@ public class ResidualGraph {
             GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(householdID);
             float weightOfShortestPath = (float) shortestPath.getWeight();
             float priceOfHousehold = this.matchingPrices.getHouseholdPrice(householdID);
+            // TODO: Indeed including the priceOfHousehold?
             float candidateTotalWeight = weightOfShortestPath + priceOfHousehold;
             if (candidateTotalWeight < minimumWeightFound) {
                 minimumWeightFound = candidateTotalWeight;
@@ -141,12 +142,24 @@ public class ResidualGraph {
         return bestPathFound;
     }
 
-    public void updateGraphAfterAugmenting() {
+    public Matching augmentAndUpdate(GraphPath<Integer, DefaultWeightedEdge> augmentingPath) {
+        this.matching.augment(augmentingPath);
+        this.updateGraphAfterAugmenting(augmentingPath);
+        return this.matching;
+    }
+
+    public void updateGraphAfterAugmenting(GraphPath<Integer, DefaultWeightedEdge> augmentingPath) {
         // TODO: finish.
+        //  * Remove corresponding edges from source and to sink. (Source edge is included in path, sink is not.)
+        //  * Correct old edges' directions, multiply corrected edges' weights by -1.
     }
 
     public SimpleDirectedWeightedGraph getGraph() {
         return this.residualGraph;
+    }
+
+    public Matching getMatching() {
+        return this.matching;
     }
 
     public int getSourceID() {
