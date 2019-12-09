@@ -40,7 +40,8 @@ public class MatchingPrices {
                     // TODO: Could replace this with an edge-weight check,
                     //  but I shouldn't do that if I decide to have the residualGraph use
                     //  _reduced_ edge costs as weights. -> Therefore, leave this as-is.
-                    float candidateScore = 1 - matchingEvaluator.evaluateIndividualTotalFit(house.getID(), household.getID());
+                    float matchScore = matchingEvaluator.evaluateIndividualTotalFit(house.getID(), household.getID());
+                    float candidateScore = 1 - matchScore;
                     if (candidateScore < minScore) {
                         minScore = candidateScore;
                     }

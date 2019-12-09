@@ -204,7 +204,9 @@ public class Matching implements Serializable {
     }
 
     public boolean hasEdge(int houseID, int householdID) throws HouseLinkedToMultipleException, HouseLinkedToHouseException {
-        if (this.getHouseholdFromHouse(houseID).getID() == householdID) {
+        Household connectedHousehold = this.getHouseholdFromHouse(houseID);
+        if (connectedHousehold == null) { return false; }
+        else if (connectedHousehold.getID() == householdID) {
             return true;
         }
         else { return false; }
