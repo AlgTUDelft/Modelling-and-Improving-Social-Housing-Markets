@@ -27,7 +27,7 @@ public class MatchingPrices {
         this.matching = matching;
     }
 
-    public void setInitialPrices() throws Matching.MatchingEvaluator.HouseholdIncomeTooHighException, Matching.Matching.HouseLinkedToMultipleException, Matching.Matching.HouseLinkedToHouseException {
+    public void setInitialPrices() throws MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
         if (matching.countEdges() == 0) {
             for (House house : matching.getHouses()) {
@@ -86,7 +86,7 @@ public class MatchingPrices {
     }
 
     // Augments the matching and furthermore updates both the matchingPrices (_this_) and the residualGraph.
-    public Matching augmentMatchingAndUpdateAll(GraphPath<Integer, DefaultWeightedEdge> augmentingPath) throws Matching.Matching.HouseAlreadyMatchedException, Matching.Matching.HouseholdAlreadyMatchedException, Matching.Matching.IDNotPresentException, Matching.Matching.HouseLinkedToHouseException, Matching.Matching.HouseLinkedToMultipleException {
+    public Matching augmentMatchingAndUpdateAll(GraphPath<Integer, DefaultWeightedEdge> augmentingPath) throws Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.IDNotPresentException, Matching.HouseLinkedToHouseException, Matching.HouseLinkedToMultipleException, ResidualGraph.PathEdgeNotInResidualGraphException {
         this.updatePrices(); // Doing this first so that the updating process still has access to the un-augmented matching...
         this.matching = residualGraph.augmentMatchingAndUpdateResidualGraph(augmentingPath, this); // ...Because this modifies the matching.
         return this.matching;

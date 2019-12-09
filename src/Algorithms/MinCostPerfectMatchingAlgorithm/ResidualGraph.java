@@ -27,7 +27,7 @@ public class ResidualGraph {
     public ResidualGraph(Matching matching, MatchingPrices matchingPrices)
             throws Matching.HouseLinkedToMultipleException,
             Matching.HouseLinkedToHouseException,
-            Matching.MatchingEvaluator.HouseholdIncomeTooHighException {
+            MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         this.residualGraph = new SimpleDirectedWeightedGraph(DefaultWeightedEdge.class);
         this.matching = matching;
         residualGraph.addVertex(sourceID);
@@ -45,7 +45,7 @@ public class ResidualGraph {
             int householdID = household.getID();
             householdIDs.add(householdID);
             residualGraph.addVertex(householdID);
-            if (matching.getHouseholdFromHouse(householdID) == null) {
+            if (matching.getHouseFromHousehold(householdID) == null) {
                 DefaultWeightedEdge edge = (DefaultWeightedEdge) residualGraph.addEdge(householdID, sinkID);
                 residualGraph.setEdgeWeight(edge, 0);
             }
@@ -106,7 +106,7 @@ public class ResidualGraph {
         return bestPathFound;
     }
 
-    public Matching augmentMatchingAndUpdateResidualGraph(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, MatchingPrices matchingPrices) throws Matching.Matching.HouseAlreadyMatchedException, Matching.Matching.HouseholdAlreadyMatchedException, Matching.Matching.IDNotPresentException, Matching.Matching.HouseLinkedToHouseException, Matching.Matching.HouseLinkedToMultipleException, PathEdgeNotInResidualGraphException {
+    public Matching augmentMatchingAndUpdateResidualGraph(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, MatchingPrices matchingPrices) throws Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.IDNotPresentException, Matching.HouseLinkedToHouseException, Matching.HouseLinkedToMultipleException, PathEdgeNotInResidualGraphException {
         this.matching.augment(augmentingPath);
         this.updateGraphAfterAugmenting(augmentingPath, matchingPrices);
         return this.matching;
@@ -114,13 +114,6 @@ public class ResidualGraph {
 
     // Doesn't update reduced edge weights or _this.matchingPrices_.
     public void updateGraphAfterAugmenting(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, MatchingPrices newMatchingPrices) throws PathEdgeNotInResidualGraphException {
-        // TODO: finish.
-        //  * Correct for each edge in path, the edge's directions, and multiply its weight by -1.
-        // TODO: Wait, can we really multiply the entire weight by -1? -> Wait, um, shit.
-        //  Reduced edge costs may not be negative; that's the whole point. Only nonreduced edge costs may be negative.
-        //  OK, so what we have to do is to use the new matchingPrices.
-        //  -> Wait, no, we don't; we use the newMatchingPrices in the update function.
-        //  Right now we should update the edge weights according to the old matching prices.
         List<DefaultWeightedEdge> edgeList = augmentingPath.getEdgeList();
         Graph<Integer, DefaultWeightedEdge> pathGraph = augmentingPath.getGraph();
         for (DefaultWeightedEdge edge : edgeList) {
@@ -128,17 +121,31 @@ public class ResidualGraph {
                 int source = pathGraph.getEdgeSource(edge);
                 int target = pathGraph.getEdgeTarget(edge);
                 DefaultWeightedEdge oldEdge = (DefaultWeightedEdge) this.residualGraph.getEdge(source, target);
+
+                // Only the old non-reduced edge weight should be multiplied by -1 if the edge direction is changed.
+                // What, then, does the new reduced edge weight become? Surprisingly, it is equal to the
+                // old reduced edge weight, multiplied by -1.
+                //
+                // Explanation of calculation:
+                // oldReducedEdgeWeight = p(source) + nonReducedEdgeWeight - p(target)
+                // newReducedEdgeWeight = p(target) + (-nonReducedEdgeWeight) + p(source)
+                // -nonReducedEdgeWeight = - (oldReducedEdgeWeight - p(source) + p(target))
+                // -> newReducedEdgeWeight = - oldReducedEdgeWeight
+
                 if (oldEdge != null) {
                     float oldReducedEdgeWeight = (float) this.residualGraph.getEdgeWeight(oldEdge);
-                    // oldReducedEdgeWeight = p(source) + nonReducedEdgeWeight - p(target)
-                    // It must become:
-                    // TODO: Draw an example of how an edge would flip direction, flip nonreduced edge weight, and change total weight.
-
+                    float newReducedEdgeWeight = -oldReducedEdgeWeight;
+                    this.residualGraph.removeEdge(source, target);
+                    DefaultWeightedEdge newEdge = (DefaultWeightedEdge) this.residualGraph.addEdge(target, source);
+                    this.residualGraph.setEdgeWeight(newEdge, newReducedEdgeWeight);
                 } else {
                     oldEdge = (DefaultWeightedEdge) this.residualGraph.getEdge(target, source);
                     if (oldEdge != null) {
                         float oldReducedEdgeWeight = (float) this.residualGraph.getEdgeWeight(oldEdge);
-
+                        float newReducedEdgeWeight = -oldReducedEdgeWeight;
+                        this.residualGraph.removeEdge(target, source);
+                        DefaultWeightedEdge newEdge = (DefaultWeightedEdge) this.residualGraph.addEdge(source, target);
+                        this.residualGraph.setEdgeWeight(newEdge, newReducedEdgeWeight);
                     } else {
                         throw new PathEdgeNotInResidualGraphException("An edge from the augmenting path could not be found in the residual graph.");
                     }

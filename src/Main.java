@@ -1,3 +1,4 @@
+import Algorithms.MinCostPerfectMatchingAlgorithm.MinCostPerfectMatchingAlgorithm;
 import Algorithms.OptimizationAlgorithm.OptimizationAlgorithm;
 import Algorithms.Miscellaneous.Result;
 import Algorithms.Miscellaneous.ResultProcessor;
@@ -134,7 +135,15 @@ public class Main {
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
             matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test (small).csv", 1);
 
-            ResidualGraph residualGraph = new ResidualGraph(matching);
+            MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
+            oldMatchingEvaluator.evaluateTotal(true);
+
+            MinCostPerfectMatchingAlgorithm minCostPerfectMatchingAlgorithm
+                    = new MinCostPerfectMatchingAlgorithm(matching);
+
+            Matching minCostPerfectMatching = minCostPerfectMatchingAlgorithm.findMinCostPerfectMatching();
+            MatchingEvaluator newMatchingEvaluator = new MatchingEvaluator(minCostPerfectMatching);
+            newMatchingEvaluator.evaluateTotal(true);
 
         } catch (HousingMarket.FreeSpaceException e) {
             e.printStackTrace();
@@ -149,6 +158,16 @@ public class Main {
         } catch (Matching.HouseLinkedToMultipleException e) {
             e.printStackTrace();
         } catch (Matching.HouseLinkedToHouseException e) {
+            e.printStackTrace();
+        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSize bipartiteSidesUnequalSize) {
+            bipartiteSidesUnequalSize.printStackTrace();
+        } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
+            e.printStackTrace();
+        } catch (Matching.IDNotPresentException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdLinkedToMultipleException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdLinkedToHouseholdException e) {
             e.printStackTrace();
         }
 

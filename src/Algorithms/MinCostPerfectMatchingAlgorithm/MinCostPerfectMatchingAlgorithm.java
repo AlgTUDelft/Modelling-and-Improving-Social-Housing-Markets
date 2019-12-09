@@ -1,6 +1,7 @@
 package Algorithms.MinCostPerfectMatchingAlgorithm;
 
 import Matching.Matching;
+import Matching.MatchingEvaluator;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
@@ -12,9 +13,9 @@ public class MinCostPerfectMatchingAlgorithm {
         this.matching = matching;
     }
 
-    public Matching FindMinCostPerfectMatching()
+    public Matching findMinCostPerfectMatching()
             throws Matching.HouseLinkedToMultipleException,
-            Matching.HouseLinkedToHouseException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, BipartiteSidesUnequalSize, Matching.Matching.IDNotPresentException, Matching.Matching.HouseAlreadyMatchedException, Matching.Matching.HouseholdAlreadyMatchedException {
+            Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, BipartiteSidesUnequalSize, Matching.IDNotPresentException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, ResidualGraph.PathEdgeNotInResidualGraphException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         if (this.matching.getHouses().size() != this.matching.getHouseholds().size()) {
             throw new BipartiteSidesUnequalSize("Error: Matching must contain as many houses as households.");
         }
