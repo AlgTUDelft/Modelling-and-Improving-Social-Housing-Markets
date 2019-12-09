@@ -9,6 +9,10 @@ import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
 public class MatchingPrices {
@@ -17,12 +21,10 @@ public class MatchingPrices {
     private ResidualGraph residualGraph;
     private HashMap<Integer, Float> housePrices = new HashMap<Integer, Float>();
     private HashMap<Integer, Float> householdPrices = new HashMap<Integer, Float>();
-    private MatchingPrices previousPrices;
+    private MatchingPrices previousPrices = null;
 
-    public MatchingPrices(Matching matching, MatchingPrices previousPrices) {
+    public MatchingPrices(Matching matching) {
         this.matching = matching;
-        previousPrices.nullifyPreviousPrices();
-        this.previousPrices = previousPrices;
     }
 
     public void setInitialPrices() throws Matching.MatchingEvaluator.HouseholdIncomeTooHighException, Matching.Matching.HouseLinkedToMultipleException, Matching.Matching.HouseLinkedToHouseException {
@@ -57,6 +59,7 @@ public class MatchingPrices {
         if (previousPrices == null) {
             System.err.println("Updating the prices of a non-empty matching requires a previous priceset!");
         } else {
+            MatchingPrices currentPrices = (MatchingPrices) deepClone(this);
             DijkstraShortestPath<Integer, DefaultWeightedEdge> dijkstraShortestPath
                     = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.residualGraph.getGraph());
             ShortestPathAlgorithm.SingleSourcePaths<Integer, DefaultWeightedEdge> sourcePaths
@@ -78,13 +81,14 @@ public class MatchingPrices {
                 float newPrice = distInPreviousMatching + previousPrice;
                 this.setHouseholdPrice(householdID, newPrice);
             }
+            previousPrices = currentPrices;
         }
-        this.residualGraph.updateReducedEdgeWeightsAndPrices(this);
     }
 
-    public Matching augmentAndUpdate(GraphPath<Integer, DefaultWeightedEdge> augmentingPath) {
+    // Augments the matching and furthermore updates both the matchingPrices (_this_) and the residualGraph.
+    public Matching augmentMatchingAndUpdateAll(GraphPath<Integer, DefaultWeightedEdge> augmentingPath) throws Matching.Matching.HouseAlreadyMatchedException, Matching.Matching.HouseholdAlreadyMatchedException, Matching.Matching.IDNotPresentException, Matching.Matching.HouseLinkedToHouseException, Matching.Matching.HouseLinkedToMultipleException {
         this.updatePrices(); // Doing this first so that the updating process still has access to the un-augmented matching...
-        this.matching = residualGraph.augmentAndUpdate(augmentingPath); // ...Because this modifies the matching.
+        this.matching = residualGraph.augmentMatchingAndUpdateResidualGraph(augmentingPath, this); // ...Because this modifies the matching.
         return this.matching;
     }
 
@@ -92,9 +96,6 @@ public class MatchingPrices {
         return this.residualGraph;
     }
 
-    public void nullifyPreviousPrices() {
-        this.previousPrices = null;
-    }
 
     public float getHousePrice(int houseID) {
         return this.housePrices.get(houseID);
@@ -111,5 +112,20 @@ public class MatchingPrices {
 
     public void setHouseholdPrice(int householdID, float newPrice) {
         this.householdPrices.put(householdID, newPrice);
+    }
+
+    public static Object deepClone(Object object) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(object);
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            return ois.readObject();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

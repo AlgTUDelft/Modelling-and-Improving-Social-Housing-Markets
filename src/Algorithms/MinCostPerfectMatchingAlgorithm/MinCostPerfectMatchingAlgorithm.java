@@ -14,18 +14,18 @@ public class MinCostPerfectMatchingAlgorithm {
 
     public Matching FindMinCostPerfectMatching()
             throws Matching.HouseLinkedToMultipleException,
-            Matching.HouseLinkedToHouseException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, BipartiteSidesUnequalSize {
+            Matching.HouseLinkedToHouseException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, BipartiteSidesUnequalSize, Matching.Matching.IDNotPresentException, Matching.Matching.HouseAlreadyMatchedException, Matching.Matching.HouseholdAlreadyMatchedException {
         if (this.matching.getHouses().size() != this.matching.getHouseholds().size()) {
             throw new BipartiteSidesUnequalSize("Error: Matching must contain as many houses as households.");
         }
         this.matching.dissolveConnections();
 
-        MatchingPrices matchingPrices = new MatchingPrices(this.matching, null);
+        MatchingPrices matchingPrices = new MatchingPrices(this.matching);
         matchingPrices.setInitialPrices();
         // TODO: Will this go well if I Update the matching inside the while-loop?
         while (!this.matching.isMaximallyMatched()) {
             GraphPath<Integer, DefaultWeightedEdge> augmentingPath = matchingPrices.getResidualGraph().findAugmentingPath();
-            this.matching = matchingPrices.augmentAndUpdate(augmentingPath);
+            this.matching = matchingPrices.augmentMatchingAndUpdateAll(augmentingPath);
         }
 
         return this.matching;

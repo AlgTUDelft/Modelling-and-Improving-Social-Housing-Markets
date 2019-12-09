@@ -7,6 +7,7 @@ import HousingMarket.HousingMarketVertex;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.jgrapht.GraphPath;
@@ -209,8 +210,39 @@ public class Matching implements Serializable {
         else { return false; }
     }
 
-    public void augment(GraphPath<Integer, DefaultWeightedEdge> graphPath) {
-        // TODO: finish.
+    public boolean isHouseID(int ID) throws IDNotPresentException {
+        if (getHouse(ID) != null) {
+            return true;
+        } else if (getHousehold(ID) != null) {
+            return false;
+        } else { throw new IDNotPresentException("Requested ID belonged to neither a house nor a household."); }
+    }
+
+    public void augment(GraphPath<Integer, DefaultWeightedEdge> graphPath) throws IDNotPresentException, HouseLinkedToMultipleException, HouseLinkedToHouseException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException {
+        List<DefaultWeightedEdge> edgeList = graphPath.getEdgeList();
+
+        for (DefaultWeightedEdge edge : edgeList) {
+            // The source node, where the first edge in graphPath starts,
+            // isn't present in the regular matching. Thus we want to ignore it.
+            // Note that graphPath does not contain the final sink node.
+            if (edgeList.indexOf(edge) != 0) {
+                int sourceID = graphPath.getGraph().getEdgeSource(edge);
+                int targetID = graphPath.getGraph().getEdgeTarget(edge);
+                if (isHouseID(sourceID)) { // then targetID belongs to a household.
+                    if (this.hasEdge(sourceID, targetID)) {
+                        this.disconnect(sourceID, targetID);
+                    } else {
+                        this.connect(sourceID, targetID);
+                    }
+                } else { // then targetID belongs to a house.
+                    if (this.hasEdge(targetID, sourceID)) {
+                        this.disconnect(targetID, sourceID);
+                    } else {
+                        this.connect(targetID, sourceID);
+                    }
+                }
+            }
+        }
     }
 
     public boolean isMaximallyMatched() {
@@ -265,6 +297,10 @@ public class Matching implements Serializable {
         public HouseholdAlreadyMatchedException(String errorMessage) {
             super(errorMessage);
         }
+    }
+
+    public class IDNotPresentException extends Exception {
+        public IDNotPresentException(String errorMessage) { super(errorMessage); }
     }
 
 }
