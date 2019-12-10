@@ -21,7 +21,6 @@ public class MatchingPrices {
     private ResidualGraph residualGraph;
     private HashMap<Integer, Float> housePrices = new HashMap<Integer, Float>();
     private HashMap<Integer, Float> householdPrices = new HashMap<Integer, Float>();
-    private MatchingPrices previousPrices = null;
 
     public MatchingPrices(Matching matching) {
         this.matching = matching;
@@ -53,37 +52,30 @@ public class MatchingPrices {
             System.err.println("Cannot initialize prices for a non-empty matching.");
         }
         this.residualGraph = new ResidualGraph(this.matching, this);
-        // TODO: Set previousPrices? Remove previousPrices?
     }
 
     public void updatePrices() {
         // This process indeed does not require the new matching M' and indeed depends on the old matching.
-        if (previousPrices == null) {
-            System.err.println("Updating the prices of a non-empty matching requires a previous priceset!");
-        } else {
-            MatchingPrices currentPrices = (MatchingPrices) deepClone(this);
-            DijkstraShortestPath<Integer, DefaultWeightedEdge> dijkstraShortestPath
-                    = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.residualGraph.getGraph());
-            ShortestPathAlgorithm.SingleSourcePaths<Integer, DefaultWeightedEdge> sourcePaths
-                    = dijkstraShortestPath.getPaths(this.residualGraph.getSourceID());
+        DijkstraShortestPath<Integer, DefaultWeightedEdge> dijkstraShortestPath
+                = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.residualGraph.getGraph());
+        ShortestPathAlgorithm.SingleSourcePaths<Integer, DefaultWeightedEdge> sourcePaths
+                = dijkstraShortestPath.getPaths(this.residualGraph.getSourceID());
 
-            for (House house : matching.getHouses()) {
-                int houseID = house.getID();
-                float previousPrice = previousPrices.getHousePrice(houseID);
-                GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(houseID);
-                float distInPreviousMatching = (float) shortestPath.getWeight();
-                float newPrice = distInPreviousMatching + previousPrice;
-                this.setHousePrice(houseID, newPrice);
-            }
-            for (Household household : matching.getHouseholds()) {
-                int householdID = household.getID();
-                float previousPrice = previousPrices.getHouseholdPrice(householdID);
-                GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(householdID);
-                float distInPreviousMatching = (float) shortestPath.getWeight();
-                float newPrice = distInPreviousMatching + previousPrice;
-                this.setHouseholdPrice(householdID, newPrice);
-            }
-            previousPrices = currentPrices;
+        for (House house : matching.getHouses()) {
+            int houseID = house.getID();
+            float previousPrice = this.getHousePrice(houseID);
+            GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(houseID);
+            float distInPreviousMatching = (float) shortestPath.getWeight();
+            float newPrice = distInPreviousMatching + previousPrice;
+            this.setHousePrice(houseID, newPrice);
+        }
+        for (Household household : matching.getHouseholds()) {
+            int householdID = household.getID();
+            float previousPrice = this.getHouseholdPrice(householdID);
+            GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(householdID);
+            float distInPreviousMatching = (float) shortestPath.getWeight();
+            float newPrice = distInPreviousMatching + previousPrice;
+            this.setHouseholdPrice(householdID, newPrice);
         }
     }
 
