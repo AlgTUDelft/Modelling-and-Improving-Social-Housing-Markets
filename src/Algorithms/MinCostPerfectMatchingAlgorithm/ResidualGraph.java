@@ -31,6 +31,7 @@ public class ResidualGraph {
             MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         this.residualGraph = new SimpleDirectedWeightedGraph(DefaultWeightedEdge.class);
         this.matching = matching;
+        this.matchingPrices = matchingPrices;
         residualGraph.addVertex(sourceID);
         residualGraph.addVertex(sinkID);
         for (House house : matching.getHouses()) {
@@ -66,9 +67,6 @@ public class ResidualGraph {
                     float householdPrice = matchingPrices.getHouseholdPrice(householdID);
                     float housePrice = matchingPrices.getHousePrice(houseID);
                     float reducedEdgeWeight = householdPrice + nonReducedEdgeWeight - housePrice;
-                    if (reducedEdgeWeight < 0) {
-                        System.out.println("Got here!");
-                    }
                     residualGraph.setEdgeWeight(edge, reducedEdgeWeight);
                 } else {
                     DefaultWeightedEdge edge = (DefaultWeightedEdge) residualGraph.addEdge(houseID, householdID);
@@ -78,9 +76,6 @@ public class ResidualGraph {
                     float housePrice = matchingPrices.getHousePrice(houseID);
                     float householdPrice = matchingPrices.getHouseholdPrice(householdID);
                     float reducedEdgeWeight = housePrice + nonReducedEdgeWeight - householdPrice;
-                    if (reducedEdgeWeight < 0) {
-                        System.out.println("Got here!");
-                    }
                     residualGraph.setEdgeWeight(edge, reducedEdgeWeight);
                 }
             }
@@ -144,9 +139,6 @@ public class ResidualGraph {
                     float newReducedEdgeWeight = -oldReducedEdgeWeight;
                     this.residualGraph.removeEdge(source, target);
                     DefaultWeightedEdge newEdge = (DefaultWeightedEdge) this.residualGraph.addEdge(target, source);
-                    if (newReducedEdgeWeight < 0) {
-                        System.out.println("Got here!");
-                    }
                     this.residualGraph.setEdgeWeight(newEdge, newReducedEdgeWeight);
                 } else {
                     oldEdge = (DefaultWeightedEdge) this.residualGraph.getEdge(target, source);
@@ -155,9 +147,6 @@ public class ResidualGraph {
                         float newReducedEdgeWeight = -oldReducedEdgeWeight;
                         this.residualGraph.removeEdge(target, source);
                         DefaultWeightedEdge newEdge = (DefaultWeightedEdge) this.residualGraph.addEdge(source, target);
-                        if (newReducedEdgeWeight < 0) {
-                            System.out.println("Got here!");
-                        }
                         this.residualGraph.setEdgeWeight(newEdge, newReducedEdgeWeight);
                     } else {
                         throw new PathEdgeNotInResidualGraphException("An edge from the augmenting path could not be found in the residual graph.");
@@ -193,9 +182,6 @@ public class ResidualGraph {
                     float previousEdgeWeight = (float) residualGraph.getEdgeWeight(edge);
                     float nextEdgeWeight = previousEdgeWeight - previousHousePrice + nextHousePrice
                             + previousHouseholdPrice - nextHouseholdPrice;
-                    if (nextEdgeWeight < 0) {
-                        System.out.println("Got here!");
-                    }
                     residualGraph.setEdgeWeight(edge, nextEdgeWeight);
                 }
                 else {
@@ -211,9 +197,6 @@ public class ResidualGraph {
                         float previousEdgeWeight = (float) residualGraph.getEdgeWeight(edge);
                         float nextEdgeWeight = previousEdgeWeight - previousHouseholdPrice + nextHouseholdPrice
                                 + previousHousePrice - nextHousePrice;
-                        if (nextEdgeWeight < 0) {
-                            System.out.println("Got here!");
-                        }
                         residualGraph.setEdgeWeight(edge, nextEdgeWeight);
                     }
                 }

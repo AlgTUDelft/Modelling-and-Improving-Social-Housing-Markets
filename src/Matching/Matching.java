@@ -4,6 +4,7 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import HousingMarket.HousingMarketVertex;
+import HousingMarket.HouseAndHouseholdPair;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -221,6 +222,7 @@ public class Matching implements Serializable {
     }
 
     public void augment(GraphPath<Integer, DefaultWeightedEdge> graphPath) throws IDNotPresentException, HouseLinkedToMultipleException, HouseLinkedToHouseException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException {
+        ArrayList<HouseAndHouseholdPair> toConnect = new ArrayList<HouseAndHouseholdPair>();
         List<DefaultWeightedEdge> edgeList = graphPath.getEdgeList();
 
         for (DefaultWeightedEdge edge : edgeList) {
@@ -234,16 +236,19 @@ public class Matching implements Serializable {
                     if (this.hasEdge(sourceID, targetID)) {
                         this.disconnect(sourceID, targetID);
                     } else {
-                        this.connect(sourceID, targetID);
+                        toConnect.add(new HouseAndHouseholdPair(sourceID, targetID));
                     }
                 } else { // then targetID belongs to a house.
                     if (this.hasEdge(targetID, sourceID)) {
                         this.disconnect(targetID, sourceID);
                     } else {
-                        this.connect(targetID, sourceID);
+                        toConnect.add(new HouseAndHouseholdPair(targetID, sourceID));
                     }
                 }
             }
+        }
+        for (HouseAndHouseholdPair pair : toConnect) {
+            this.connect(pair.getHouseID(), pair.getHouseholdID());
         }
     }
 

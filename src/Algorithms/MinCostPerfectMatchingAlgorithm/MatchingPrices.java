@@ -46,13 +46,14 @@ public class MatchingPrices {
                         minScore = candidateScore;
                     }
                 }
-                householdPrices.put(household.getID(), 1-minScore);
+                householdPrices.put(household.getID(), minScore);
             }
         }
         else {
             System.err.println("Cannot initialize prices for a non-empty matching.");
         }
         this.residualGraph = new ResidualGraph(this.matching, this);
+        // TODO: Set previousPrices? Remove previousPrices?
     }
 
     public void updatePrices() {
