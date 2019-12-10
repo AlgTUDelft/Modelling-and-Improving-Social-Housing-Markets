@@ -67,6 +67,9 @@ public class ResidualGraph {
                     float householdPrice = matchingPrices.getHouseholdPrice(householdID);
                     float housePrice = matchingPrices.getHousePrice(houseID);
                     float reducedEdgeWeight = householdPrice + nonReducedEdgeWeight - housePrice;
+                    if (reducedEdgeWeight < 0) {
+                        System.out.println("Got here!");
+                    }
                     residualGraph.setEdgeWeight(edge, reducedEdgeWeight);
                 } else {
                     DefaultWeightedEdge edge = (DefaultWeightedEdge) residualGraph.addEdge(houseID, householdID);
@@ -76,6 +79,9 @@ public class ResidualGraph {
                     float housePrice = matchingPrices.getHousePrice(houseID);
                     float householdPrice = matchingPrices.getHouseholdPrice(householdID);
                     float reducedEdgeWeight = housePrice + nonReducedEdgeWeight - householdPrice;
+                    if (reducedEdgeWeight < 0) {
+                        System.out.println("Got here!");
+                    }
                     residualGraph.setEdgeWeight(edge, reducedEdgeWeight);
                 }
             }
@@ -118,7 +124,8 @@ public class ResidualGraph {
         return this.matching;
     }
 
-    // Doesn't update reduced edge weights or _this.matchingPrices_.
+    // TODO: Edge weights are updated in two locations: here, and in updateReducedEdgeWeightsAndPrices. What gives?
+    // Doesn't update _this.matchingPrices_.
     public void updateGraphAfterAugmenting(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, MatchingPrices newMatchingPrices) throws PathEdgeNotInResidualGraphException, Matching.IDNotPresentException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         List<DefaultWeightedEdge> edgeList = augmentingPath.getEdgeList();
         Graph<Integer, DefaultWeightedEdge> pathGraph = augmentingPath.getGraph();
@@ -126,8 +133,6 @@ public class ResidualGraph {
             if (edgeList.indexOf(edge) != 0) {
                 int source = pathGraph.getEdgeSource(edge);
                 int target = pathGraph.getEdgeTarget(edge);
-                DefaultWeightedEdge oldEdge = (DefaultWeightedEdge) this.residualGraph.getEdge(source, target);
-
                 // Only the old non-reduced edge weight should be multiplied by -1 if the edge direction is changed.
                 // What, then, does the new reduced edge weight become? Surprisingly, it is equal to the
                 // old reduced edge weight, multiplied by -1.
@@ -137,12 +142,15 @@ public class ResidualGraph {
                 // newReducedEdgeWeight = p(target) + (-nonReducedEdgeWeight) + p(source)
                 // -nonReducedEdgeWeight = - (oldReducedEdgeWeight - p(source) + p(target))
                 // -> newReducedEdgeWeight = - oldReducedEdgeWeight
-
+                DefaultWeightedEdge oldEdge = (DefaultWeightedEdge) this.residualGraph.getEdge(source, target);
                 if (oldEdge != null) {
                     float oldReducedEdgeWeight = (float) this.residualGraph.getEdgeWeight(oldEdge);
                     float newReducedEdgeWeight = -oldReducedEdgeWeight;
                     this.residualGraph.removeEdge(source, target);
                     DefaultWeightedEdge newEdge = (DefaultWeightedEdge) this.residualGraph.addEdge(target, source);
+                    if (newReducedEdgeWeight < 0) {
+                        System.out.println("Got here!");
+                    }
                     this.residualGraph.setEdgeWeight(newEdge, newReducedEdgeWeight);
                 } else {
                     oldEdge = (DefaultWeightedEdge) this.residualGraph.getEdge(target, source);
@@ -151,6 +159,9 @@ public class ResidualGraph {
                         float newReducedEdgeWeight = -oldReducedEdgeWeight;
                         this.residualGraph.removeEdge(target, source);
                         DefaultWeightedEdge newEdge = (DefaultWeightedEdge) this.residualGraph.addEdge(source, target);
+                        if (newReducedEdgeWeight < 0) {
+                            System.out.println("Got here!");
+                        }
                         this.residualGraph.setEdgeWeight(newEdge, newReducedEdgeWeight);
                     } else {
                         throw new PathEdgeNotInResidualGraphException("An edge from the augmenting path could not be found in the residual graph.");
@@ -165,15 +176,15 @@ public class ResidualGraph {
             if (vertex != this.getSourceID()) {
                 if (this.matching.isHouseID(vertex)) {
                     if (this.matching.getHouseholdFromHouse(vertex) == null) { // unmatched
-                        DefaultWeightedEdge edge = (DefaultWeightedEdge) this.residualGraph.addEdge(this.getSourceID(), vertex);
-                        this.residualGraph.setEdgeWeight(edge,0);
+                        this.residualGraph.addEdge(this.getSourceID(), vertex);
+                        this.residualGraph.setEdgeWeight(this.getSourceID(), vertex,0);
                     } else { // matched
                         this.residualGraph.removeEdge(this.getSourceID(), vertex);
                     }
                 } else {
                     if (this.matching.getHouseFromHousehold(vertex) == null) { //unmatched
-                        DefaultWeightedEdge edge = (DefaultWeightedEdge) this.residualGraph.addEdge(vertex, this.getSinkID());
-                        this.residualGraph.setEdgeWeight(edge, 0);
+                        this.residualGraph.addEdge(vertex, this.getSinkID());
+                        this.residualGraph.setEdgeWeight(vertex, this.getSinkID(),0);
                     } else { // matched
                         this.residualGraph.removeEdge(vertex, this.getSinkID());
                     }
@@ -181,12 +192,11 @@ public class ResidualGraph {
             }
         }
 
-
-
         updateReducedEdgeWeightsAndPrices(newMatchingPrices);
         this.matchingPrices = newMatchingPrices;
     }
 
+    // TODO: Does this method correctly assess when edges have changed direction?
     public void updateReducedEdgeWeightsAndPrices(MatchingPrices newMatchingPrices) {
         for (House house : this.matching.getHouses()) {
             for (Household household : matching.getHouseholds()) {
@@ -201,12 +211,15 @@ public class ResidualGraph {
                     float previousEdgeWeight = (float) residualGraph.getEdgeWeight(edge);
                     float nextEdgeWeight = previousEdgeWeight - previousHousePrice + nextHousePrice
                             + previousHouseholdPrice - nextHouseholdPrice;
+                    if (nextEdgeWeight < 0) {
+                        System.out.println("Got here!");
+                    }
                     residualGraph.setEdgeWeight(edge, nextEdgeWeight);
                 }
                 else {
                     edge = (DefaultWeightedEdge) residualGraph.getEdge(householdID, houseID);
                     if (edge == null) {
-                        System.err.println("Residual graph contained null edge between a house and a household.");
+                        System.err.println("Residual graph contained no edge between a house and a household.");
                         break;
                     } else {
                         float previousHousePrice = this.matchingPrices.getHousePrice(houseID);
@@ -216,12 +229,14 @@ public class ResidualGraph {
                         float previousEdgeWeight = (float) residualGraph.getEdgeWeight(edge);
                         float nextEdgeWeight = previousEdgeWeight - previousHouseholdPrice + nextHouseholdPrice
                                 + previousHousePrice - nextHousePrice;
+                        if (nextEdgeWeight < 0) {
+                            System.out.println("Got here!");
+                        }
                         residualGraph.setEdgeWeight(edge, nextEdgeWeight);
                     }
                 }
             }
         }
-
     }
 
 
