@@ -82,7 +82,7 @@ public class ResidualGraph {
         }
     }
 
-    public GraphPath<Integer, DefaultWeightedEdge> findAugmentingPath() {
+    public GraphPath<Integer, DefaultWeightedEdge> findAugmentingPath() throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         // TODO: Find a way to replace Dijkstra here with saved information from its call in this.matchingPrices.
         // TODO: Instead of finding path to household y, find a path to SINK through household y.
         DijkstraShortestPath<Integer, DefaultWeightedEdge> dijkstraShortestPath
@@ -96,14 +96,17 @@ public class ResidualGraph {
         float minimumWeightFound = householdIDs.size() + houseIDs.size();
         GraphPath<Integer, DefaultWeightedEdge> bestPathFound = null;
         for (int householdID : this.householdIDs) {
-            GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(householdID);
-            float weightOfShortestPath = (float) shortestPath.getWeight();
-            float priceOfHousehold = this.matchingPrices.getHouseholdPrice(householdID);
-            // TODO: Indeed including the priceOfHousehold?
-            float candidateTotalWeight = weightOfShortestPath + priceOfHousehold;
-            if (candidateTotalWeight < minimumWeightFound) {
-                minimumWeightFound = candidateTotalWeight;
-                bestPathFound = shortestPath;
+            // We only want to check unmatched households.
+            if (this.matching.getHouseFromHousehold(householdID) == null) {
+                GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(householdID);
+                float weightOfShortestPath = (float) shortestPath.getWeight();
+                float priceOfHousehold = this.matchingPrices.getHouseholdPrice(householdID);
+                // TODO: Indeed including the priceOfHousehold?
+                float candidateTotalWeight = weightOfShortestPath + priceOfHousehold;
+                if (candidateTotalWeight < minimumWeightFound) {
+                    minimumWeightFound = candidateTotalWeight;
+                    bestPathFound = shortestPath;
+                }
             }
         }
         return bestPathFound;
