@@ -84,6 +84,7 @@ public class ResidualGraph {
 
     public GraphPath<Integer, DefaultWeightedEdge> findAugmentingPath() {
         // TODO: Find a way to replace Dijkstra here with saved information from its call in this.matchingPrices.
+        // TODO: Instead of finding path to household y, find a path to SINK through household y.
         DijkstraShortestPath<Integer, DefaultWeightedEdge> dijkstraShortestPath
                 = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.getGraph());
         ShortestPathAlgorithm.SingleSourcePaths<Integer, DefaultWeightedEdge> sourcePaths
@@ -108,14 +109,14 @@ public class ResidualGraph {
         return bestPathFound;
     }
 
-    public Matching augmentMatchingAndUpdateResidualGraph(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, MatchingPrices matchingPrices) throws Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.IDNotPresentException, Matching.HouseLinkedToHouseException, Matching.HouseLinkedToMultipleException, PathEdgeNotInResidualGraphException {
+    public Matching augmentMatchingAndUpdateResidualGraph(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, MatchingPrices matchingPrices) throws Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.IDNotPresentException, Matching.HouseLinkedToHouseException, Matching.HouseLinkedToMultipleException, PathEdgeNotInResidualGraphException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         this.matching.augment(augmentingPath);
         this.updateGraphAfterAugmenting(augmentingPath, matchingPrices);
         return this.matching;
     }
 
     // Doesn't update reduced edge weights or _this.matchingPrices_.
-    public void updateGraphAfterAugmenting(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, MatchingPrices newMatchingPrices) throws PathEdgeNotInResidualGraphException {
+    public void updateGraphAfterAugmenting(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, MatchingPrices newMatchingPrices) throws PathEdgeNotInResidualGraphException, Matching.IDNotPresentException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         List<DefaultWeightedEdge> edgeList = augmentingPath.getEdgeList();
         Graph<Integer, DefaultWeightedEdge> pathGraph = augmentingPath.getGraph();
         for (DefaultWeightedEdge edge : edgeList) {
@@ -155,13 +156,28 @@ public class ResidualGraph {
             }
         }
 
-        // Since first house and last household in this path were previously unmatched,
-        // there is one edge between the source and the first house, and one between the last household and the sink,
-        // that must now be removed; since both the house and the household are now matched.
-        int firstTarget = augmentingPath.getGraph().getEdgeTarget(edgeList.get(0));
-        int lastSource = augmentingPath.getEndVertex();
-        this.residualGraph.removeEdge(this.getSourceID(), firstTarget);
-        this.residualGraph.removeEdge(lastSource, this.getSinkID());
+        // Newly unmatched houses and households must get edges to source and sink, respectively.
+        // Newly matched houses and households must lose these edges.
+        for (int vertex : augmentingPath.getVertexList()) {
+            if (vertex != this.getSourceID()) {
+                if (this.matching.isHouseID(vertex)) {
+                    if (this.matching.getHouseholdFromHouse(vertex) == null) { // unmatched
+                        DefaultWeightedEdge edge = (DefaultWeightedEdge) this.residualGraph.addEdge(this.getSourceID(), vertex);
+                        this.residualGraph.setEdgeWeight(edge,0);
+                    } else { // matched
+                        this.residualGraph.removeEdge(this.getSourceID(), vertex);
+                    }
+                } else {
+                    if (this.matching.getHouseFromHousehold(vertex) == null) { //unmatched
+                        DefaultWeightedEdge edge = (DefaultWeightedEdge) this.residualGraph.addEdge(vertex, this.getSinkID());
+                        this.residualGraph.setEdgeWeight(edge, 0);
+                    } else { // matched
+                        this.residualGraph.removeEdge(vertex, this.getSinkID());
+                    }
+                }
+            }
+        }
+
 
 
         updateReducedEdgeWeightsAndPrices(newMatchingPrices);

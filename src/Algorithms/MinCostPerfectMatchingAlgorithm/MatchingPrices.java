@@ -80,7 +80,7 @@ public class MatchingPrices {
     }
 
     // Augments the matching and furthermore updates both the matchingPrices (_this_) and the residualGraph.
-    public Matching augmentMatchingAndUpdateAll(GraphPath<Integer, DefaultWeightedEdge> augmentingPath) throws Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.IDNotPresentException, Matching.HouseLinkedToHouseException, Matching.HouseLinkedToMultipleException, ResidualGraph.PathEdgeNotInResidualGraphException {
+    public Matching augmentMatchingAndUpdateAll(GraphPath<Integer, DefaultWeightedEdge> augmentingPath) throws Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.IDNotPresentException, Matching.HouseLinkedToHouseException, Matching.HouseLinkedToMultipleException, ResidualGraph.PathEdgeNotInResidualGraphException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         this.updatePrices(); // Doing this first so that the updating process still has access to the un-augmented matching...
         this.matching = residualGraph.augmentMatchingAndUpdateResidualGraph(augmentingPath, this); // ...Because this modifies the matching.
         return this.matching;
