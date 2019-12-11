@@ -1,7 +1,7 @@
 import Algorithms.MinCostPerfectMatchingAlgorithm.MinCostPerfectMatchingAlgorithm;
 import Algorithms.OptimizationAlgorithm.OptimizationAlgorithm;
-import Algorithms.Miscellaneous.Result;
-import Algorithms.Miscellaneous.ResultProcessor;
+import Algorithms.OptimizationAlgorithm.OptimizationAlgorithmResult;
+import Algorithms.OptimizationAlgorithm.OptimizationAlgorithmResultProcessor;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.Matching;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class Main {
 
     public static void main(String[] args) {
-        test4();
+        test5();
     }
 
     public static void test1() {
@@ -85,7 +85,7 @@ public class Main {
 
     public static void test3() {
         String filename = "1000run.csv";
-        ArrayList<Result> results = new ArrayList<Result>();
+        ArrayList<OptimizationAlgorithmResult> optimizationAlgorithmResults = new ArrayList<OptimizationAlgorithmResult>();
         try {
             for (int i = 0; i < 1000; i++) {
                 Matching matching;
@@ -96,13 +96,13 @@ public class Main {
                 MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
                 OptimizationAlgorithm alg = new OptimizationAlgorithm(matching);
 //                Result result = alg.optimizeAvailables();
-                Result result = alg.optimizeN((int) Math.floor(i/250) + 1); // 1 through 4.
-                results.add(result);
+                OptimizationAlgorithmResult optimizationAlgorithmResult = alg.optimizeN((int) Math.floor(i/250) + 1); // 1 through 4.
+                optimizationAlgorithmResults.add(optimizationAlgorithmResult);
                 System.out.println("Done with sample: " + Integer.toString(i) + ".");
             }
 
-            ResultProcessor resultProcessor = new ResultProcessor(results);
-            resultProcessor.resultsToCSV(filename);
+            OptimizationAlgorithmResultProcessor optimizationAlgorithmResultProcessor = new OptimizationAlgorithmResultProcessor(optimizationAlgorithmResults);
+            optimizationAlgorithmResultProcessor.resultsToCSV(filename);
 
         } catch (Household.InvalidHouseholdException e) {
             e.printStackTrace();
@@ -127,13 +127,13 @@ public class Main {
         }
     }
 
-    public static void test4() {
+    public static void test4(String filename) {
         Matching matching;
         HousingMarket housingMarket = null;
         try {
             housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test (small).csv", 1);
+            matching = dataProcessor.csvToMatching(filename, 1);
 
             MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
             oldMatchingEvaluator.evaluateTotal(true);
@@ -172,6 +172,13 @@ public class Main {
         } catch (ResidualGraph.MatchingNotEmptyException e) {
             e.printStackTrace();
         }
+    }
 
+    public static void test5() {
+        test4("../../../Olivier Data [On Laptop]//test (small).csv");
+        test4("../../../Olivier Data [On Laptop]//test2 - small 1.csv");
+        test4("../../../Olivier Data [On Laptop]//test2 - small 2.csv");
+        test4("../../../Olivier Data [On Laptop]//test2 - small 3.csv");
+        test4("../../../Olivier Data [On Laptop]//test.csv");
     }
 }

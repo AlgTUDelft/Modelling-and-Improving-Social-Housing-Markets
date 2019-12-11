@@ -1,6 +1,5 @@
 package Algorithms.OptimizationAlgorithm;
 
-import Algorithms.Miscellaneous.Result;
 import HousingMarket.House.House;
 import HousingMarket.HouseAndHouseholdPair;
 import HousingMarket.Household.Household;
@@ -23,7 +22,7 @@ public class OptimizationAlgorithm {
         this.matching = matching;
     }
 
-    public Result optimizeN(int n)
+    public OptimizationAlgorithmResult optimizeN(int n)
             throws Matching.HouseLinkedToMultipleException,
             Matching.HouseLinkedToHouseException,
             Matching.HouseholdLinkedToHouseholdException,
@@ -44,7 +43,7 @@ public class OptimizationAlgorithm {
         return optimizeAll(housesToOptimize, householdsToOptimize, false);
     }
 
-    public Result optimizeAvailables()
+    public OptimizationAlgorithmResult optimizeAvailables()
             throws Matching.HouseholdLinkedToHouseholdException,
             Matching.HouseholdLinkedToMultipleException,
             Matching.HouseLinkedToHouseException,
@@ -56,7 +55,7 @@ public class OptimizationAlgorithm {
                 this.matching.getHouselessHouseholds(), true);
 
     }
-    public Result optimizeAll(ArrayList<House> houses, ArrayList<Household> households, boolean printOutput)
+    public OptimizationAlgorithmResult optimizeAll(ArrayList<House> houses, ArrayList<Household> households, boolean printOutput)
             throws Matching.HouseholdLinkedToMultipleException,
             Matching.HouseholdLinkedToHouseholdException,
             Matching.HouseLinkedToMultipleException,
@@ -72,8 +71,8 @@ public class OptimizationAlgorithm {
         }
         if (houses.size() == 0 || households.size() == 0) {
             System.out.println("Either there were no houseless households, or no householdless houses. Algorithm made no changes.");
-            Result result = new Result(-1, -1, 0, 0, 0);
-            return result;
+            OptimizationAlgorithmResult optimizationAlgorithmResult = new OptimizationAlgorithmResult(-1, -1, 0, 0, 0);
+            return optimizationAlgorithmResult;
         }
         // Dissolve connections.
         for (House house : houses) {
@@ -159,8 +158,8 @@ public class OptimizationAlgorithm {
                     "Thus the given matching was improved by " + (newResult - oldResult) / oldResult * 100 + "%.\n" +
                     "Note that there were " + L + " (= " + percentage * 100 + "%) " + text + " that we could rewire.");
         }
-        Result result = new Result(oldResult, newResult, (newResult - oldResult)/oldResult * 100, L, percentage*100);
-        return result;
+        OptimizationAlgorithmResult optimizationAlgorithmResult = new OptimizationAlgorithmResult(oldResult, newResult, (newResult - oldResult)/oldResult * 100, L, percentage*100);
+        return optimizationAlgorithmResult;
 
     }
 

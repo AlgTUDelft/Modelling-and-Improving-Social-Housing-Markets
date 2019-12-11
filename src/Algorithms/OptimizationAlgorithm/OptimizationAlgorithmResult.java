@@ -1,13 +1,13 @@
-package Algorithms.Miscellaneous;
+package Algorithms.OptimizationAlgorithm;
 
-public class Result {
+public class OptimizationAlgorithmResult {
     private float oldScore;
     private float newScore;
     private float percentageImprovement;
     private int L;
     private float LPercentage;
 
-    public Result(float oldScore, float newScore, float percentageImprovement, int L, float LPercentage) {
+    public OptimizationAlgorithmResult(float oldScore, float newScore, float percentageImprovement, int L, float LPercentage) {
         this.oldScore = oldScore;
         this.newScore = newScore;
         this.percentageImprovement = percentageImprovement;
