@@ -23,12 +23,9 @@ public class MinCostPerfectMatchingAlgorithm {
 
         MatchingPrices matchingPrices = new MatchingPrices(this.matching);
         matchingPrices.setInitialPrices();
-        int i = 0;
         while (!this.matching.isMaximallyMatched()) {
-            System.out.println(i);
             GraphPath<Integer, DefaultWeightedEdge> augmentingPath = matchingPrices.getResidualGraph().findAugmentingPath();
             this.matching = matchingPrices.augmentMatchingAndUpdateAll(augmentingPath);
-            i++;
         }
 
         return this.matching;

@@ -1,6 +1,7 @@
 package Algorithms.MinCostPerfectMatchingAlgorithm;
 
 import HousingMarket.House.House;
+import HousingMarket.HouseAndHouseholdPair;
 import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
@@ -12,6 +13,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ResidualGraph {
@@ -23,6 +25,7 @@ public class ResidualGraph {
     // HouseID and HouseholdID values are always nonnegative, so these values are free.
     private Integer sourceID = -2;
     private Integer sinkID = -1;
+    private HashMap<HouseAndHouseholdPair, Float> nonReducedEdgeWeights = new HashMap<HouseAndHouseholdPair, Float>();
 
 
     public ResidualGraph(Matching matching, MatchingPrices matchingPrices) throws
@@ -60,6 +63,7 @@ public class ResidualGraph {
                 // (1-w) instead of w because we want to maximize sum(w) where w in [0,1].
                 // Thus we want to minimize 1-w.
                 float nonReducedEdgeWeight = 1 - matchingEvaluator.evaluateIndividualTotalFit(houseID, householdID);
+                nonReducedEdgeWeights.put(new HouseAndHouseholdPair(houseID, householdID), nonReducedEdgeWeight);
                 float housePrice = matchingPrices.getHousePrice(houseID);
                 float householdPrice = matchingPrices.getHouseholdPrice(householdID);
                 float reducedEdgeWeight = housePrice + nonReducedEdgeWeight - householdPrice;
@@ -69,7 +73,6 @@ public class ResidualGraph {
     }
 
     public GraphPath<Integer, DefaultWeightedEdge> findAugmentingPath() throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
-        // TODO: Find a way to replace Dijkstra here with saved information from its call in this.matchingPrices.
         DijkstraShortestPath<Integer, DefaultWeightedEdge> dijkstraShortestPath
                 = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.getGraph());
         ShortestPathAlgorithm.SingleSourcePaths<Integer, DefaultWeightedEdge> sourcePaths
@@ -103,8 +106,6 @@ public class ResidualGraph {
         return this.matching;
     }
 
-    // TODO: Should this reverse the edge weight...?
-    // Doesn't update _this.matchingPrices_.
     public void updateGraphAfterAugmenting(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, MatchingPrices newMatchingPrices) throws PathEdgeNotInResidualGraphException, Matching.IDNotPresentException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         List<DefaultWeightedEdge> edgeList = augmentingPath.getEdgeList();
         Graph<Integer, DefaultWeightedEdge> pathGraph = augmentingPath.getGraph();
@@ -113,22 +114,26 @@ public class ResidualGraph {
                 int source = pathGraph.getEdgeSource(edge);
                 int target = pathGraph.getEdgeTarget(edge);
                 DefaultWeightedEdge oldEdge = (DefaultWeightedEdge) this.residualGraph.getEdge(source, target);
+                // Change direction;
                 if (oldEdge != null) {
-                    float oldReducedEdgeWeight = (float) this.residualGraph.getEdgeWeight(oldEdge);
                     this.residualGraph.removeEdge(source, target);
-                    DefaultWeightedEdge newEdge = (DefaultWeightedEdge) this.residualGraph.addEdge(target, source);
-                    // TODO: oldReducedEdgeWeight should probably need to be 0 here, but that's not always the case...
-                    this.residualGraph.setEdgeWeight(newEdge, oldReducedEdgeWeight);
+                    this.residualGraph.addEdge(target, source);
                 } else {
                     oldEdge = (DefaultWeightedEdge) this.residualGraph.getEdge(target, source);
                     if (oldEdge != null) {
-                        float oldReducedEdgeWeight = (float) this.residualGraph.getEdgeWeight(oldEdge);
                         this.residualGraph.removeEdge(target, source);
-                        DefaultWeightedEdge newEdge = (DefaultWeightedEdge) this.residualGraph.addEdge(source, target);
-                        this.residualGraph.setEdgeWeight(newEdge, oldReducedEdgeWeight);
+                        this.residualGraph.addEdge(source, target);
                     } else {
                         throw new PathEdgeNotInResidualGraphException("An edge from the augmenting path could not be found in the residual graph.");
                     }
+                }
+                // Reverse ReducedEdgeWeight to reflect flipping of direction.
+                if (this.matching.isHouseID(source)) {
+                    float oldNonReducedWeight = this.nonReducedEdgeWeights.get(new HouseAndHouseholdPair(source, target));
+                    this.nonReducedEdgeWeights.put(new HouseAndHouseholdPair(source, target), oldNonReducedWeight * -1);
+                } else {
+                    float oldNonReducedWeight = this.nonReducedEdgeWeights.get(new HouseAndHouseholdPair(target, source));
+                    this.nonReducedEdgeWeights.put(new HouseAndHouseholdPair(source, target), oldNonReducedWeight * -1);
                 }
             }
         }
@@ -166,13 +171,10 @@ public class ResidualGraph {
                 int householdID = household.getID();
                 DefaultWeightedEdge edge = (DefaultWeightedEdge) residualGraph.getEdge(houseID, householdID);
                 if (edge != null) {
-                    float previousHousePrice = this.matchingPrices.getHousePrice(houseID);
                     float nextHousePrice = newMatchingPrices.getHousePrice(houseID);
-                    float previousHouseholdPrice = this.matchingPrices.getHouseholdPrice(householdID);
                     float nextHouseholdPrice = newMatchingPrices.getHouseholdPrice(householdID);
-                    float previousEdgeWeight = (float) residualGraph.getEdgeWeight(edge);
-                    float nextEdgeWeight = previousEdgeWeight - previousHousePrice + nextHousePrice
-                            + previousHouseholdPrice - nextHouseholdPrice;
+                    float nextEdgeWeight = nextHousePrice +
+                            nonReducedEdgeWeights.get(new HouseAndHouseholdPair(houseID, householdID)) - nextHouseholdPrice;
                     residualGraph.setEdgeWeight(edge, nextEdgeWeight);
                 }
                 else {
@@ -181,13 +183,10 @@ public class ResidualGraph {
                         System.err.println("Residual graph contained no edge between a house and a household.");
                         break;
                     } else {
-                        float previousHousePrice = this.matchingPrices.getHousePrice(houseID);
                         float nextHousePrice = newMatchingPrices.getHousePrice(houseID);
-                        float previousHouseholdPrice = this.matchingPrices.getHouseholdPrice(householdID);
                         float nextHouseholdPrice = newMatchingPrices.getHouseholdPrice(householdID);
-                        float previousEdgeWeight = (float) residualGraph.getEdgeWeight(edge);
-                        float nextEdgeWeight = previousEdgeWeight - previousHouseholdPrice + nextHouseholdPrice
-                                + previousHousePrice - nextHousePrice;
+                        float nextEdgeWeight = nextHouseholdPrice +
+                                nonReducedEdgeWeights.get(new HouseAndHouseholdPair(houseID, householdID)) - nextHousePrice;
                         residualGraph.setEdgeWeight(edge, nextEdgeWeight);
                     }
                 }

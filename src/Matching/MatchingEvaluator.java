@@ -138,7 +138,7 @@ public class MatchingEvaluator {
         try {
             housesCount = this.matching.getHouses().size();
         } catch (NullPointerException e) {
-            throw new InvalidMatchingException("Error: Matching.Matching is null.");
+            throw new InvalidMatchingException("Error: Matching is null.");
         }
 
         int householdlessHousesCount = 0;

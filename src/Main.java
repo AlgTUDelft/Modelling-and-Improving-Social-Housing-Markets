@@ -179,6 +179,5 @@ public class Main {
         test4("../../../Olivier Data [On Laptop]//test2 - small 1.csv");
         test4("../../../Olivier Data [On Laptop]//test2 - small 2.csv");
         test4("../../../Olivier Data [On Laptop]//test2 - small 3.csv");
-        test4("../../../Olivier Data [On Laptop]//test.csv");
     }
 }
