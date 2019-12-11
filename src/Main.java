@@ -159,8 +159,8 @@ public class Main {
             e.printStackTrace();
         } catch (Matching.HouseLinkedToHouseException e) {
             e.printStackTrace();
-        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSize bipartiteSidesUnequalSize) {
-            bipartiteSidesUnequalSize.printStackTrace();
+        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSize e) {
+            e.printStackTrace();
         } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
             e.printStackTrace();
         } catch (Matching.IDNotPresentException e) {
@@ -168,6 +168,8 @@ public class Main {
         } catch (Matching.HouseholdLinkedToMultipleException e) {
             e.printStackTrace();
         } catch (Matching.HouseholdLinkedToHouseholdException e) {
+            e.printStackTrace();
+        } catch (ResidualGraph.MatchingNotEmptyException e) {
             e.printStackTrace();
         }
 

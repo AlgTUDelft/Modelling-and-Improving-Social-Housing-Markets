@@ -9,10 +9,6 @@ import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.HashMap;
 
 public class MatchingPrices {
@@ -26,7 +22,7 @@ public class MatchingPrices {
         this.matching = matching;
     }
 
-    public void setInitialPrices() throws MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
+    public void setInitialPrices() throws MatchingEvaluator.HouseholdIncomeTooHighException, ResidualGraph.MatchingNotEmptyException {
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
         if (matching.countEdges() == 0) {
             for (House house : matching.getHouses()) {
@@ -36,9 +32,6 @@ public class MatchingPrices {
                 float minScore = 1; // = 1 - 0;
                 for (House house : matching.getHouses()) { // In the current residual graph,
                     // household gets edges from all houses.
-                    // TODO: Could replace this with an edge-weight check,
-                    //  but I shouldn't do that if I decide to have the residualGraph use
-                    //  _reduced_ edge costs as weights. -> Therefore, leave this as-is.
                     float matchScore = matchingEvaluator.evaluateIndividualTotalFit(house.getID(), household.getID());
                     float candidateScore = 1 - matchScore;
                     if (candidateScore < minScore) {
@@ -55,7 +48,7 @@ public class MatchingPrices {
     }
 
     public void updatePrices() {
-        // This process indeed does not require the new matching M' and indeed depends on the old matching.
+        // This process indeed does not require the new matching M' and instead depends wholly on the old matching.
         DijkstraShortestPath<Integer, DefaultWeightedEdge> dijkstraShortestPath
                 = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.residualGraph.getGraph());
         ShortestPathAlgorithm.SingleSourcePaths<Integer, DefaultWeightedEdge> sourcePaths
@@ -106,20 +99,5 @@ public class MatchingPrices {
 
     public void setHouseholdPrice(int householdID, float newPrice) {
         this.householdPrices.put(householdID, newPrice);
-    }
-
-    public static Object deepClone(Object object) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(object);
-            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-            ObjectInputStream ois = new ObjectInputStream(bais);
-            return ois.readObject();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 }

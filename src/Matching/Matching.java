@@ -225,8 +225,6 @@ public class Matching implements Serializable {
         ArrayList<HouseAndHouseholdPair> toConnect = new ArrayList<HouseAndHouseholdPair>();
         List<DefaultWeightedEdge> edgeList = graphPath.getEdgeList();
 
-        System.out.println("Augmenting!");
-
         for (DefaultWeightedEdge edge : edgeList) {
             // The source node, where the first edge in graphPath starts,
             // isn't present in the regular matching. Thus we want to ignore it.

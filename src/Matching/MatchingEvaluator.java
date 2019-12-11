@@ -273,6 +273,7 @@ public class MatchingEvaluator {
 
         if(printOutput) {
             System.out.println("Weighted total matching quality is: " + weightedTotalFit);
+            System.out.println("");
         }
         return weightedTotalFit;
     }
