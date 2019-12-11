@@ -20,7 +20,8 @@ public class HouseAndHouseholdPair {
         else { return false; }
     }
 
-    // Using Cantor's pairing function.
+    // Uses Cantor's pairing function, which uniquely maps two integers to some outcome such that no other
+    // pair of integers is mapped by this function to that same outcome.
     @Override
     public int hashCode() {
         int result = 1/2 * (house + household) * (house + household + 1) + household;

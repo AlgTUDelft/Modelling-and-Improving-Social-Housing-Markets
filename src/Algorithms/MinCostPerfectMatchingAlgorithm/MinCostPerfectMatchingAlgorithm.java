@@ -5,8 +5,8 @@ import Matching.MatchingEvaluator;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
+// Adapted from "Algorithm Design" (Chapter 17.3) by Jon Kleinberg and Eva Tardos.
 public class MinCostPerfectMatchingAlgorithm {
-    // Adapted from "Algorithm Design" by Jon Kleinberg and Eva Tardos.
     private Matching matching;
 
     public MinCostPerfectMatchingAlgorithm(Matching matching) {

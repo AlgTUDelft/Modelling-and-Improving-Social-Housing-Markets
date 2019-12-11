@@ -221,6 +221,7 @@ public class Matching implements Serializable {
         } else { throw new IDNotPresentException("Requested ID belonged to neither a house nor a household."); }
     }
 
+    // Part of the MinCostPerfectMatchingAlgorithm.
     public void augment(GraphPath<Integer, DefaultWeightedEdge> graphPath) throws IDNotPresentException, HouseLinkedToMultipleException, HouseLinkedToHouseException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException {
         ArrayList<HouseAndHouseholdPair> toConnect = new ArrayList<HouseAndHouseholdPair>();
         List<DefaultWeightedEdge> edgeList = graphPath.getEdgeList();
@@ -254,7 +255,7 @@ public class Matching implements Serializable {
 
     public boolean isMaximallyMatched() {
         if (this.houses.size() != this.households.size()) {
-            System.err.println("|Houses| != |Households|. Therefore matching can never be perfect");
+            System.err.println("|Houses| != |Households|. Therefore matching can never be perfect.");
             return false;
         } else if (this.getMatchingGraph().edgeSet().size() == this.houses.size()) {
             return true;

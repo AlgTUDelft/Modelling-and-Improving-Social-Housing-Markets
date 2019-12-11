@@ -22,7 +22,7 @@ public class ResidualGraph {
     private MatchingPrices matchingPrices;
     private ArrayList<Integer> houseIDs = new ArrayList<Integer>();
     private ArrayList<Integer> householdIDs = new ArrayList<Integer>();
-    // HouseID and HouseholdID values are always nonnegative, so these values are free.
+    // HouseID and HouseholdID values are always non-negative, so these values are free for us to use.
     private Integer sourceID = -2;
     private Integer sinkID = -1;
     private HashMap<HouseAndHouseholdPair, Float> nonReducedEdgeWeights = new HashMap<HouseAndHouseholdPair, Float>();
@@ -61,7 +61,8 @@ public class ResidualGraph {
                 int householdID = household.getID();
                 DefaultWeightedEdge edge = (DefaultWeightedEdge) residualGraph.addEdge(houseID, householdID);
                 // (1-w) instead of w because we want to maximize sum(w) where w in [0,1].
-                // Thus we want to minimize 1-w.
+                // The algorithm, however, needs a value z such that sum(z) is minimized.
+                // Thus we choose z = 1-w.
                 float nonReducedEdgeWeight = 1 - matchingEvaluator.evaluateIndividualTotalFit(houseID, householdID);
                 nonReducedEdgeWeights.put(new HouseAndHouseholdPair(houseID, householdID), nonReducedEdgeWeight);
                 float housePrice = matchingPrices.getHousePrice(houseID);
@@ -114,7 +115,7 @@ public class ResidualGraph {
                 int source = pathGraph.getEdgeSource(edge);
                 int target = pathGraph.getEdgeTarget(edge);
                 DefaultWeightedEdge oldEdge = (DefaultWeightedEdge) this.residualGraph.getEdge(source, target);
-                // Change direction;
+                // Change direction.
                 if (oldEdge != null) {
                     this.residualGraph.removeEdge(source, target);
                     this.residualGraph.addEdge(target, source);
