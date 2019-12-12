@@ -1,7 +1,7 @@
 package Algorithms.MinCostPerfectMatchingAlgorithm;
 
 import HousingMarket.House.House;
-import HousingMarket.HouseAndHouseholdPair;
+import HousingMarket.HouseAndHouseholdIDPair;
 import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
@@ -25,7 +25,7 @@ public class ResidualGraph {
     // HouseID and HouseholdID values are always non-negative, so these values are free for us to use.
     private Integer sourceID = -2;
     private Integer sinkID = -1;
-    private HashMap<HouseAndHouseholdPair, Float> nonReducedEdgeWeights = new HashMap<HouseAndHouseholdPair, Float>();
+    private HashMap<HouseAndHouseholdIDPair, Float> nonReducedEdgeWeights = new HashMap<HouseAndHouseholdIDPair, Float>();
 
 
     public ResidualGraph(Matching matching, MatchingPrices matchingPrices) throws
@@ -64,7 +64,7 @@ public class ResidualGraph {
                 // The algorithm, however, needs a value z such that sum(z) is minimized.
                 // Thus we choose z = 1-w.
                 float nonReducedEdgeWeight = 1 - matchingEvaluator.evaluateIndividualTotalFit(houseID, householdID);
-                nonReducedEdgeWeights.put(new HouseAndHouseholdPair(houseID, householdID), nonReducedEdgeWeight);
+                nonReducedEdgeWeights.put(new HouseAndHouseholdIDPair(houseID, householdID), nonReducedEdgeWeight);
                 float housePrice = matchingPrices.getHousePrice(houseID);
                 float householdPrice = matchingPrices.getHouseholdPrice(householdID);
                 float reducedEdgeWeight = housePrice + nonReducedEdgeWeight - householdPrice;
@@ -130,11 +130,11 @@ public class ResidualGraph {
                 }
                 // Reverse ReducedEdgeWeight to reflect flipping of direction.
                 if (this.matching.isHouseID(source)) {
-                    float oldNonReducedWeight = this.nonReducedEdgeWeights.get(new HouseAndHouseholdPair(source, target));
-                    this.nonReducedEdgeWeights.put(new HouseAndHouseholdPair(source, target), oldNonReducedWeight * -1);
+                    float oldNonReducedWeight = this.nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(source, target));
+                    this.nonReducedEdgeWeights.put(new HouseAndHouseholdIDPair(source, target), oldNonReducedWeight * -1);
                 } else {
-                    float oldNonReducedWeight = this.nonReducedEdgeWeights.get(new HouseAndHouseholdPair(target, source));
-                    this.nonReducedEdgeWeights.put(new HouseAndHouseholdPair(source, target), oldNonReducedWeight * -1);
+                    float oldNonReducedWeight = this.nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(target, source));
+                    this.nonReducedEdgeWeights.put(new HouseAndHouseholdIDPair(source, target), oldNonReducedWeight * -1);
                 }
             }
         }
@@ -175,7 +175,7 @@ public class ResidualGraph {
                     float nextHousePrice = newMatchingPrices.getHousePrice(houseID);
                     float nextHouseholdPrice = newMatchingPrices.getHouseholdPrice(householdID);
                     float nextEdgeWeight = nextHousePrice +
-                            nonReducedEdgeWeights.get(new HouseAndHouseholdPair(houseID, householdID)) - nextHouseholdPrice;
+                            nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(houseID, householdID)) - nextHouseholdPrice;
                     residualGraph.setEdgeWeight(edge, nextEdgeWeight);
                 }
                 else {
@@ -187,7 +187,7 @@ public class ResidualGraph {
                         float nextHousePrice = newMatchingPrices.getHousePrice(houseID);
                         float nextHouseholdPrice = newMatchingPrices.getHouseholdPrice(householdID);
                         float nextEdgeWeight = nextHouseholdPrice +
-                                nonReducedEdgeWeights.get(new HouseAndHouseholdPair(houseID, householdID)) - nextHousePrice;
+                                nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(houseID, householdID)) - nextHousePrice;
                         residualGraph.setEdgeWeight(edge, nextEdgeWeight);
                     }
                 }

@@ -23,7 +23,7 @@ public class Main {
             HousingMarket housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
             try {
-                matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test (small).csv", 0.96);
+                matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test (small).csv", 0.96, 0, 100);
 
                 MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
 
@@ -45,6 +45,8 @@ public class Main {
                 e.printStackTrace();
             } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
                 e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         } catch (HousingMarket.FreeSpaceException e) {
             System.err.println(e.getMessage());
@@ -56,7 +58,7 @@ public class Main {
         try {
             HousingMarket housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test (small).csv", 0.95);
+            matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test (small).csv", 0.95, 0, 100);
 
             MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
             OptimizationAlgorithm alg = new OptimizationAlgorithm(matching);
@@ -80,6 +82,8 @@ public class Main {
             e.printStackTrace();
         } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -91,7 +95,7 @@ public class Main {
                 Matching matching;
                 HousingMarket housingMarket = new HousingMarket(2017, 100);
                 DataProcessor dataProcessor = new DataProcessor(housingMarket);
-                matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test.csv", 1);
+                matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test.csv", 1, 0, 100);
 
                 MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
                 OptimizationAlgorithm alg = new OptimizationAlgorithm(matching);
@@ -127,13 +131,13 @@ public class Main {
         }
     }
 
-    public static void test4(String filename) {
+    public static void test4(String filename, int startLine, int lineCount) {
         Matching matching;
         HousingMarket housingMarket = null;
         try {
             housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            matching = dataProcessor.csvToMatching(filename, 1);
+            matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
 
             MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
             oldMatchingEvaluator.evaluateTotal(true);
@@ -171,13 +175,21 @@ public class Main {
             e.printStackTrace();
         } catch (ResidualGraph.MatchingNotEmptyException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     public static void test5() {
-        test4("../../../Olivier Data [On Laptop]//test (small).csv");
-        test4("../../../Olivier Data [On Laptop]//test2 - small 1.csv");
-        test4("../../../Olivier Data [On Laptop]//test2 - small 2.csv");
-        test4("../../../Olivier Data [On Laptop]//test2 - small 3.csv");
+        test4("../../../Olivier Data [On Laptop]//test2.csv", 0, 100);
+        test4("../../../Olivier Data [On Laptop]//test2.csv", 100, 100);
+        test4("../../../Olivier Data [On Laptop]//test2.csv", 200, 100);
+        test4("../../../Olivier Data [On Laptop]//test2.csv", 300, 100);
+        test4("../../../Olivier Data [On Laptop]//test2.csv", 400, 100);
+        test4("../../../Olivier Data [On Laptop]//test2.csv", 500, 100);
+        test4("../../../Olivier Data [On Laptop]//test2.csv", 600, 100);
+        test4("../../../Olivier Data [On Laptop]//test2.csv", 700, 100);
+        test4("../../../Olivier Data [On Laptop]//test2.csv", 800, 100);
+        test4("../../../Olivier Data [On Laptop]//test2.csv", 900, 100);
     }
 }

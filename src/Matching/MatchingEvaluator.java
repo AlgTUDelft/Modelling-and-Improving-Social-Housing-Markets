@@ -4,7 +4,7 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 
 
-//    Takes Matching.Matching and evaluates based on several criteria.
+//    Takes Matching and evaluates based on several criteria.
 public class MatchingEvaluator {
 
     private Matching matching;

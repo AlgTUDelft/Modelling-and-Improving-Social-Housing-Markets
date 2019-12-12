@@ -1,7 +1,7 @@
 package Algorithms.OptimizationAlgorithm;
 
 import HousingMarket.House.House;
-import HousingMarket.HouseAndHouseholdPair;
+import HousingMarket.HouseAndHouseholdIDPair;
 import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
@@ -130,10 +130,10 @@ public class OptimizationAlgorithm {
             }
         }
 
-        TreeNode<HouseAndHouseholdPair> emptyPossibilitiesRoot = new TreeNode<HouseAndHouseholdPair>(
-                new HouseAndHouseholdPair(-1, -1));
+        TreeNode<HouseAndHouseholdIDPair> emptyPossibilitiesRoot = new TreeNode<HouseAndHouseholdIDPair>(
+                new HouseAndHouseholdIDPair(-1, -1));
 
-        TreeNode<HouseAndHouseholdPair> filledPossibilitiesRoot
+        TreeNode<HouseAndHouseholdIDPair> filledPossibilitiesRoot
                 = recursivelyEnumeratePossibilities(emptyPossibilitiesRoot,unclaimedTargets,sources, side);
 
 
@@ -163,34 +163,34 @@ public class OptimizationAlgorithm {
 
     }
 
-    private TreeNode<HouseAndHouseholdPair> recursivelyEnumeratePossibilities(TreeNode<HouseAndHouseholdPair> root,
-                                                                              HashSet<Integer> unclaimedTargets,
-                                                                              ArrayList<Integer> sources, SourcesSide side) {
+    private TreeNode<HouseAndHouseholdIDPair> recursivelyEnumeratePossibilities(TreeNode<HouseAndHouseholdIDPair> root,
+                                                                                HashSet<Integer> unclaimedTargets,
+                                                                                ArrayList<Integer> sources, SourcesSide side) {
         for (int t : unclaimedTargets) {
             HashSet<Integer> newUnclaimedTargets = new HashSet<Integer>(unclaimedTargets);
             newUnclaimedTargets.remove(t);
-            TreeNode<HouseAndHouseholdPair> node = auxiliaryRecursivelyEnumeratePossibilities(0, t, sources,
+            TreeNode<HouseAndHouseholdIDPair> node = auxiliaryRecursivelyEnumeratePossibilities(0, t, sources,
                     newUnclaimedTargets, side);
             root.addChild(node);
         }
         return root;
     }
 
-    private TreeNode<HouseAndHouseholdPair> auxiliaryRecursivelyEnumeratePossibilities(int currentSourceIndex, int currentTarget,
-                                                                                       ArrayList<Integer> sources, HashSet<Integer> unclaimedTargets, SourcesSide side) {
-        HouseAndHouseholdPair current;
+    private TreeNode<HouseAndHouseholdIDPair> auxiliaryRecursivelyEnumeratePossibilities(int currentSourceIndex, int currentTarget,
+                                                                                         ArrayList<Integer> sources, HashSet<Integer> unclaimedTargets, SourcesSide side) {
+        HouseAndHouseholdIDPair current;
         if (side == SourcesSide.HOUSES) {
-            current = new HouseAndHouseholdPair(sources.get(currentSourceIndex), currentTarget);
+            current = new HouseAndHouseholdIDPair(sources.get(currentSourceIndex), currentTarget);
         } else { // side = SourcesSide.HOUSEHOLDS.
-            current = new HouseAndHouseholdPair(currentTarget, sources.get(currentSourceIndex)); }
+            current = new HouseAndHouseholdIDPair(currentTarget, sources.get(currentSourceIndex)); }
 
-        TreeNode<HouseAndHouseholdPair> currentNode = new TreeNode<HouseAndHouseholdPair>(current);
+        TreeNode<HouseAndHouseholdIDPair> currentNode = new TreeNode<HouseAndHouseholdIDPair>(current);
 
         if(currentSourceIndex < sources.size() - 1) {
             for (int newChoice : unclaimedTargets) {
                 HashSet<Integer> newUnclaimedTargets = new HashSet<Integer>(unclaimedTargets);
                 newUnclaimedTargets.remove(newChoice);
-                TreeNode<HouseAndHouseholdPair> child = auxiliaryRecursivelyEnumeratePossibilities(currentSourceIndex+1,
+                TreeNode<HouseAndHouseholdIDPair> child = auxiliaryRecursivelyEnumeratePossibilities(currentSourceIndex+1,
                         newChoice, sources, newUnclaimedTargets, side);
                 currentNode.addChild(child);
             }
@@ -199,7 +199,7 @@ public class OptimizationAlgorithm {
         return currentNode;
     }
 
-    private Matching recursivelyTryPossibilities(Matching matching, TreeNode<HouseAndHouseholdPair> root)
+    private Matching recursivelyTryPossibilities(Matching matching, TreeNode<HouseAndHouseholdIDPair> root)
             throws MatchingEvaluator.HouseholdIncomeTooHighException,
             Matching.HouseholdLinkedToMultipleException,
             Matching.HouseholdLinkedToHouseholdException,
@@ -208,7 +208,7 @@ public class OptimizationAlgorithm {
         float highScore = (float) 0.0;
         Matching currentMatching = (Matching) deepClone(matching);
         Matching bestMatching = (Matching) deepClone(matching);
-        for (TreeNode<HouseAndHouseholdPair> child : root.getChildren()) {
+        for (TreeNode<HouseAndHouseholdIDPair> child : root.getChildren()) {
             Matching bestChildMatching = auxiliaryRecursivelyTryPossibilities(currentMatching, highScore, child);
             float childScore = new MatchingEvaluator(bestChildMatching).evaluateTotal(false);
             if (childScore > highScore) {
@@ -219,7 +219,7 @@ public class OptimizationAlgorithm {
         return bestMatching;
     }
 
-    private Matching auxiliaryRecursivelyTryPossibilities(Matching matching, float highScore, TreeNode<HouseAndHouseholdPair> currentNode)
+    private Matching auxiliaryRecursivelyTryPossibilities(Matching matching, float highScore, TreeNode<HouseAndHouseholdIDPair> currentNode)
             throws Matching.HouseholdAlreadyMatchedException,
             Matching.HouseAlreadyMatchedException,
             MatchingEvaluator.HouseholdIncomeTooHighException,
@@ -241,12 +241,12 @@ public class OptimizationAlgorithm {
         // at said child node in the tree. We then pick the best of those matchings, and return it.
         // This completes the recursion. We end up with the best matching that could be found.
 
-        HouseAndHouseholdPair data = currentNode.getData();
+        HouseAndHouseholdIDPair data = currentNode.getData();
         Matching modifiedMatching = (Matching) deepClone(matching);
         modifiedMatching.connect(data.getHouseID(), data.getHouseholdID());
         Matching bestMatching = modifiedMatching;
         if (currentNode.hasChildren()) {
-            for (TreeNode<HouseAndHouseholdPair> child : currentNode.getChildren()) {
+            for (TreeNode<HouseAndHouseholdIDPair> child : currentNode.getChildren()) {
                 Matching bestChildMatching = auxiliaryRecursivelyTryPossibilities(modifiedMatching, highScore, child);
                 float childScore = new MatchingEvaluator(bestChildMatching).evaluateTotal(false);
                 if (childScore > highScore) {

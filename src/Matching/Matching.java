@@ -4,7 +4,7 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import HousingMarket.HousingMarketVertex;
-import HousingMarket.HouseAndHouseholdPair;
+import HousingMarket.HouseAndHouseholdIDPair;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -223,7 +223,7 @@ public class Matching implements Serializable {
 
     // Part of the MinCostPerfectMatchingAlgorithm.
     public void augment(GraphPath<Integer, DefaultWeightedEdge> graphPath) throws IDNotPresentException, HouseLinkedToMultipleException, HouseLinkedToHouseException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException {
-        ArrayList<HouseAndHouseholdPair> toConnect = new ArrayList<HouseAndHouseholdPair>();
+        ArrayList<HouseAndHouseholdIDPair> toConnect = new ArrayList<HouseAndHouseholdIDPair>();
         List<DefaultWeightedEdge> edgeList = graphPath.getEdgeList();
 
         for (DefaultWeightedEdge edge : edgeList) {
@@ -237,18 +237,18 @@ public class Matching implements Serializable {
                     if (this.hasEdge(sourceID, targetID)) {
                         this.disconnect(sourceID, targetID);
                     } else {
-                        toConnect.add(new HouseAndHouseholdPair(sourceID, targetID));
+                        toConnect.add(new HouseAndHouseholdIDPair(sourceID, targetID));
                     }
                 } else { // then targetID belongs to a house.
                     if (this.hasEdge(targetID, sourceID)) {
                         this.disconnect(targetID, sourceID);
                     } else {
-                        toConnect.add(new HouseAndHouseholdPair(targetID, sourceID));
+                        toConnect.add(new HouseAndHouseholdIDPair(targetID, sourceID));
                     }
                 }
             }
         }
-        for (HouseAndHouseholdPair pair : toConnect) {
+        for (HouseAndHouseholdIDPair pair : toConnect) {
             this.connect(pair.getHouseID(), pair.getHouseholdID());
         }
     }
