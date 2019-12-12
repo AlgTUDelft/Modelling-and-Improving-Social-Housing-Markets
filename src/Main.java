@@ -188,7 +188,7 @@ public class Main {
     }
 
     public static void test5() throws IOException {
-        String filename = "1000run.csv";
+        String filename = "../10times100MinCostPerfectMatchingRun.csv";
 
         ArrayList<MinCostPerfectMatchingResult> results = new ArrayList<MinCostPerfectMatchingResult>();
         results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 0, 100));
