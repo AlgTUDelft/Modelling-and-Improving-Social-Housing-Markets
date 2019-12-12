@@ -1,4 +1,6 @@
 import Algorithms.MinCostPerfectMatchingAlgorithm.MinCostPerfectMatchingAlgorithm;
+import Algorithms.MinCostPerfectMatchingAlgorithm.MinCostPerfectMatchingResult;
+import Algorithms.MinCostPerfectMatchingAlgorithm.MinCostPerfectMatchingResultProcessor;
 import Algorithms.OptimizationAlgorithm.OptimizationAlgorithm;
 import Algorithms.OptimizationAlgorithm.OptimizationAlgorithmResult;
 import Algorithms.OptimizationAlgorithm.OptimizationAlgorithmResultProcessor;
@@ -13,7 +15,7 @@ import java.util.ArrayList;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         test5();
     }
 
@@ -131,23 +133,27 @@ public class Main {
         }
     }
 
-    public static void test4(String filename, int startLine, int lineCount) {
+    public static MinCostPerfectMatchingResult test4(String filename, int startLine, int lineCount) {
         Matching matching;
         HousingMarket housingMarket = null;
+        MinCostPerfectMatchingResult minCostPerfectMatchingResult = null;
+
         try {
             housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
             matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
 
             MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
-            oldMatchingEvaluator.evaluateTotal(true);
+            float oldResult = oldMatchingEvaluator.evaluateTotal(true);
 
             MinCostPerfectMatchingAlgorithm minCostPerfectMatchingAlgorithm
                     = new MinCostPerfectMatchingAlgorithm(matching);
 
             Matching minCostPerfectMatching = minCostPerfectMatchingAlgorithm.findMinCostPerfectMatching();
             MatchingEvaluator newMatchingEvaluator = new MatchingEvaluator(minCostPerfectMatching);
-            newMatchingEvaluator.evaluateTotal(true);
+            float newResult = newMatchingEvaluator.evaluateTotal(true);
+
+            minCostPerfectMatchingResult = new MinCostPerfectMatchingResult(oldResult, newResult, (newResult - oldResult)/oldResult * 100);
 
         } catch (HousingMarket.FreeSpaceException e) {
             e.printStackTrace();
@@ -178,18 +184,26 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return minCostPerfectMatchingResult;
     }
 
-    public static void test5() {
-        test4("../../../Olivier Data [On Laptop]//test2.csv", 0, 100);
-        test4("../../../Olivier Data [On Laptop]//test2.csv", 100, 100);
-        test4("../../../Olivier Data [On Laptop]//test2.csv", 200, 100);
-        test4("../../../Olivier Data [On Laptop]//test2.csv", 300, 100);
-        test4("../../../Olivier Data [On Laptop]//test2.csv", 400, 100);
-        test4("../../../Olivier Data [On Laptop]//test2.csv", 500, 100);
-        test4("../../../Olivier Data [On Laptop]//test2.csv", 600, 100);
-        test4("../../../Olivier Data [On Laptop]//test2.csv", 700, 100);
-        test4("../../../Olivier Data [On Laptop]//test2.csv", 800, 100);
-        test4("../../../Olivier Data [On Laptop]//test2.csv", 900, 100);
+    public static void test5() throws IOException {
+        String filename = "1000run.csv";
+
+        ArrayList<MinCostPerfectMatchingResult> results = new ArrayList<MinCostPerfectMatchingResult>();
+        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 0, 100));
+        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 100, 100));
+        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 200, 100));
+        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 300, 100));
+        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 400, 100));
+        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 500, 100));
+        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 600, 100));
+        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 700, 100));
+        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 800, 100));
+        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 900, 100));
+
+        MinCostPerfectMatchingResultProcessor minCostPerfectMatchingResultProcessor
+                = new MinCostPerfectMatchingResultProcessor(results);
+        minCostPerfectMatchingResultProcessor.resultsToCSV(filename);
     }
 }
