@@ -19,13 +19,16 @@ public class MinCostPerfectMatchingResultProcessor {
 
     public void resultsToCSV(String filename) throws IOException {
         FileWriter writer = new FileWriter(filename);
-        CSVUtils.writeLine(writer, Arrays.asList("oldScore", "newScore", "percentageImprovement"), CSV_SEPARATOR);
+        CSVUtils.writeLine(writer, Arrays.asList("oldOverallScore", "newOverallScore", "overallPercentageImprovement", "oldAverageLocalScore", "newAverageLocalScore", "averageLocalPercentageImprovement"), CSV_SEPARATOR);
 
         for (MinCostPerfectMatchingResult minCostPerfectMatchingResult : minCostPerfectMatchingAlgorithmResults) {
             List<String> list = new ArrayList<String>();
-            list.add(Float.toString(minCostPerfectMatchingResult.getOldScore()));
-            list.add(Float.toString(minCostPerfectMatchingResult.getNewScore()));
-            list.add(Float.toString(minCostPerfectMatchingResult.getPercentageImprovement()));
+            list.add(Float.toString(minCostPerfectMatchingResult.getOldOverallScore()));
+            list.add(Float.toString(minCostPerfectMatchingResult.getNewOverallScore()));
+            list.add(Float.toString(minCostPerfectMatchingResult.getOverallPercentageImprovement()));
+            list.add(Float.toString(minCostPerfectMatchingResult.getOldAverageLocalScore()));
+            list.add(Float.toString(minCostPerfectMatchingResult.getNewAverageLocalScore()));
+            list.add(Float.toString(minCostPerfectMatchingResult.getAverageLocalPercentageImprovement()));
 
             CSVUtils.writeLine(writer, list, CSV_SEPARATOR);
         }

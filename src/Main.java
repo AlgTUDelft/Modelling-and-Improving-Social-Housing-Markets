@@ -144,16 +144,21 @@ public class Main {
             matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
 
             MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
-            float oldResult = oldMatchingEvaluator.evaluateTotal(true);
+            float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
+            float oldAverageLocalResult = oldMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
 
             MinCostPerfectMatchingAlgorithm minCostPerfectMatchingAlgorithm
                     = new MinCostPerfectMatchingAlgorithm(matching);
 
             Matching minCostPerfectMatching = minCostPerfectMatchingAlgorithm.findMinCostPerfectMatching();
             MatchingEvaluator newMatchingEvaluator = new MatchingEvaluator(minCostPerfectMatching);
-            float newResult = newMatchingEvaluator.evaluateTotal(true);
+            float newOverallResult = newMatchingEvaluator.evaluateTotal(true);
+            float newAverageLocalResult = newMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
 
-            minCostPerfectMatchingResult = new MinCostPerfectMatchingResult(oldResult, newResult, (newResult - oldResult)/oldResult * 100);
+            float overallPercentageIncrease = (newOverallResult - oldOverallResult)/oldOverallResult * 100;
+            float averageLocalPercentageIncrease = (newAverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
+
+            minCostPerfectMatchingResult = new MinCostPerfectMatchingResult(oldOverallResult, newOverallResult, overallPercentageIncrease, oldAverageLocalResult, newAverageLocalResult, averageLocalPercentageIncrease);
 
         } catch (HousingMarket.FreeSpaceException e) {
             e.printStackTrace();

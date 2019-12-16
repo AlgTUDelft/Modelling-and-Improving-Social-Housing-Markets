@@ -2,25 +2,43 @@ package Algorithms.MinCostPerfectMatchingAlgorithm;
 
 public class MinCostPerfectMatchingResult {
 
-    private float oldScore;
-    private float newScore;
-    private float percentageImprovement;
+    private float oldOverallScore;
+    private float newOverallScore;
+    private float overallPercentageImprovement;
+    private float oldAverageLocalScore;
+    private float newAverageLocalScore;
+    private float averageLocalPercentageImprovement;
 
-    public MinCostPerfectMatchingResult(float oldScore, float newScore, float percentageImprovement) {
-        this.oldScore = oldScore;
-        this.newScore = newScore;
-        this.percentageImprovement = percentageImprovement;
+    public MinCostPerfectMatchingResult(float oldOverallScore, float newOverallScore, float overallPercentageImprovement, float oldAverageLocalScore, float newAverageLocalScore, float averageLocalPercentageImprovement) {
+        this.oldOverallScore = oldOverallScore;
+        this.newOverallScore = newOverallScore;
+        this.overallPercentageImprovement = overallPercentageImprovement;
+        this.oldAverageLocalScore = oldAverageLocalScore;
+        this.newAverageLocalScore = newAverageLocalScore;
+        this.averageLocalPercentageImprovement = averageLocalPercentageImprovement;
     }
 
-    public float getOldScore() {
-        return oldScore;
+    public float getOldOverallScore() {
+        return oldOverallScore;
     }
 
-    public float getNewScore() {
-        return newScore;
+    public float getNewOverallScore() {
+        return newOverallScore;
     }
 
-    public float getPercentageImprovement() {
-        return percentageImprovement;
+    public float getOverallPercentageImprovement() {
+        return overallPercentageImprovement;
+    }
+
+    public float getOldAverageLocalScore() {
+        return oldAverageLocalScore;
+    }
+
+    public float getNewAverageLocalScore() {
+        return newAverageLocalScore;
+    }
+
+    public float getAverageLocalPercentageImprovement() {
+        return averageLocalPercentageImprovement;
     }
 }
