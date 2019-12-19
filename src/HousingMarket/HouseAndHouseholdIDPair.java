@@ -20,9 +20,11 @@ public class HouseAndHouseholdIDPair {
 
     // Uses Cantor's pairing function, which uniquely maps two integers to some outcome such that no other
     // pair of integers is mapped by this function to that same outcome.
+    // Cantor's function is multiplied by 2, which doesn't invalidate the outcome's uniqueness,
+    // but which does simplify things for IntelliJ.
     @Override
     public int hashCode() {
-        int result = 1/2 * (house + household) * (house + household + 1) + household;
+        int result = (house + household) * (house + household + 1) + 2 * household;
         return result;
     }
 
