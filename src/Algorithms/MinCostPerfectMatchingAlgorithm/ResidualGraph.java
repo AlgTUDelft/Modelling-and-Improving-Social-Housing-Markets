@@ -75,36 +75,31 @@ public class ResidualGraph {
     }
 
     public GraphPath<Integer, DefaultWeightedEdge> findAugmentingPath() throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
-        DijkstraShortestPath<Integer, DefaultWeightedEdge> dijkstraShortestPath
-                = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.getGraph());
+        DijkstraShortestPath<Integer, DefaultWeightedEdge> dijkstraShortestPath;
+        dijkstraShortestPath = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.getGraph());
         ShortestPathAlgorithm.SingleSourcePaths<Integer, DefaultWeightedEdge> sourcePaths;
-        try {
-            sourcePaths = dijkstraShortestPath.getPaths(this.getSourceID());
+        sourcePaths = dijkstraShortestPath.getPaths(this.getSourceID());
 
-            // Since the maximum weight of an edge is 1, and between houses and households an augmenting path can
-            // have a weight no more than |H| + |HH| - 1 (if it zigzags across all possible nodes), all augmenting paths'
-            // weights will be lower than this.
-            float minimumWeightFound = householdIDs.size() + houseIDs.size();
-            GraphPath<Integer, DefaultWeightedEdge> bestPathFound = null;
-            for (int householdID : this.householdIDs) {
-                // We only want to check unmatched households, because the path must go directly from the household
-                // to the sink node; matched households have no edge to the sink.
-                if (this.matching.getHouseFromHousehold(householdID) == null) {
-                    GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(householdID);
-                    float weightOfShortestPath = (float) shortestPath.getWeight();
-                    float priceOfHousehold = this.matchingPrices.getHouseholdPrice(householdID);
-                    float candidateTotalWeight = weightOfShortestPath + priceOfHousehold;
-                    if (candidateTotalWeight < minimumWeightFound) {
-                        minimumWeightFound = candidateTotalWeight;
-                        bestPathFound = shortestPath;
-                    }
+        // Since the maximum weight of an edge is 1, and between houses and households an augmenting path can
+        // have a weight no more than |H| + |HH| - 1 (if it zigzags across all possible nodes), all augmenting paths'
+        // weights will be lower than this.
+        float minimumWeightFound = householdIDs.size() + houseIDs.size();
+        GraphPath<Integer, DefaultWeightedEdge> bestPathFound = null;
+        for (int householdID : this.householdIDs) {
+            // We only want to check unmatched households, because the path must go directly from the household
+            // to the sink node; matched households have no edge to the sink.
+            if (this.matching.getHouseFromHousehold(householdID) == null) {
+                GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(householdID);
+                float weightOfShortestPath = (float) shortestPath.getWeight();
+                float priceOfHousehold = this.matchingPrices.getHouseholdPrice(householdID);
+                float candidateTotalWeight = weightOfShortestPath + priceOfHousehold;
+                if (candidateTotalWeight < minimumWeightFound) {
+                    minimumWeightFound = candidateTotalWeight;
+                    bestPathFound = shortestPath;
                 }
             }
-            return bestPathFound;
-        } catch(IllegalArgumentException e) {
-            System.out.println("Got here!");
-            return null;
         }
+        return bestPathFound;
     }
 
     public Matching augmentMatchingAndUpdateResidualGraph(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, MatchingPrices matchingPrices) throws Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.IDNotPresentException, Matching.HouseLinkedToHouseException, Matching.HouseLinkedToMultipleException, PathEdgeNotInResidualGraphException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
@@ -176,9 +171,6 @@ public class ResidualGraph {
                     float oldNonReducedWeight = nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(houseID, householdID));
                     float nextEdgeWeight = nextHousePrice +
                             oldNonReducedWeight - nextHouseholdPrice;
-                    if (nextEdgeWeight < 0) {
-                        System.out.println("Got here! 1");
-                    }
                     residualGraph.setEdgeWeight(edge, nextEdgeWeight);
                 }
                 else {
@@ -192,9 +184,6 @@ public class ResidualGraph {
                         float oldNonReducedWeight = nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(houseID, householdID));
                         float nextEdgeWeight = nextHouseholdPrice +
                                 oldNonReducedWeight - nextHousePrice;
-                        if (nextEdgeWeight < 0) {
-                            System.out.println("Got here! 2");
-                        }
                         residualGraph.setEdgeWeight(edge, nextEdgeWeight);
                     }
                 }
