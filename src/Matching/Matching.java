@@ -253,6 +253,23 @@ public class Matching implements Serializable {
         }
     }
 
+    // Part of the EfficientStableMatchingAlgorithm.
+    public void effectuateStrictCycle(List<Integer> cycle, int nilValue) {
+        int edgesCount = cycle.size();
+        for (int i = 0; i<edgesCount; i++) {
+            int sourceVertex;
+            int targetVertex;
+            if (i == edgesCount-1) {
+                sourceVertex = cycle.get(i);
+                targetVertex = cycle.get(0);
+            } else {
+                sourceVertex = cycle.get(i);
+                targetVertex = cycle.get(i+1);
+            }
+            // TODO: Finish
+        }
+    }
+
     public boolean isMaximallyMatched() {
         if (this.houses.size() != this.households.size()) {
             System.err.println("|Houses| != |Households|. Therefore matching can never be perfect.");
