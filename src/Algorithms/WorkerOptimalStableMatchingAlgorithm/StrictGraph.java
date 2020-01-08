@@ -1,4 +1,4 @@
-package Algorithms.EfficientStableMatchingAlgorithm;
+package Algorithms.WorkerOptimalStableMatchingAlgorithm;
 
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
@@ -31,13 +31,13 @@ public class StrictGraph {
             householdIDs.add(householdID);
         }
 
-        // Add edges. Types here refer to the first three types noted in the paper's description of the ESMA-algorithm.
+        // Add edges. Types here refer to the first three types noted in the paper's description of the WOSMA-algorithm.
         for (Integer householdID : householdIDs) {
             float fitWithCurrentHouse;
             House currentHouse = matching.getHouseFromHousehold(householdID);
 
             if (currentHouse == null) {
-                // Add type 3 edge.
+                // Add type 3 edge. TODO: Modify to reflect WOSMA.
                 underlyingStrictGraph.addEdge(nil, householdID);
                 fitWithCurrentHouse = 0;
             } else {
@@ -69,13 +69,18 @@ public class StrictGraph {
 
     public List<Integer> findStrictCycle() {
         TarjanSimpleCycles tarjanSimpleCycles = new TarjanSimpleCycles(underlyingStrictGraph);
-        // TODO: Unchecked Assignment error here or does this go well?s
+        // TODO: Unchecked Assignment error here or does this go well?
         List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
         if (cycles.isEmpty()) {
             return null;
         } else {
             // TODO: Only return first cycle, or all? Check if this ever throws up interlocking cycles.
+            //  Or: Return the longest cycle?
             return cycles.get(0);
         }
+    }
+
+    public void update(List<Integer> cycle) {
+        // TODO: finish.
     }
 }
