@@ -37,7 +37,7 @@ public class StrictGraph {
             House currentHouse = matching.getHouseFromHousehold(householdID);
 
             if (currentHouse == null) {
-                // Add type 3 edge. TODO: Modify to reflect WOSMA.
+                // Add type 3 edge, condition 1.
                 underlyingStrictGraph.addEdge(nil, householdID);
                 fitWithCurrentHouse = 0;
             } else {
@@ -58,6 +58,20 @@ public class StrictGraph {
                             underlyingStrictGraph.addEdge(householdID, householdOfOtherHouseID);
                         }
                     }
+                }
+            }
+        }
+
+        for (Integer householdID : householdIDs) {
+            House currentHouse = matching.getHouseFromHousehold(householdID);
+            // If the household does not own a house, then the following edge will already have been added.
+            if (currentHouse != null) {
+                if (underlyingStrictGraph.incomingEdgesOf(householdID).isEmpty()) {
+                    // Add type 3 edge, condition 2.
+                    // If the above edge-additive process did not cause the current household to receive any incoming
+                    // edges, then the reduced second condition -- there is no worker who strictly desires the current
+                    // household's house -- is fulfilled, meaning the following edge should be added.
+                    underlyingStrictGraph.addEdge(nil, householdID);
                 }
             }
         }
