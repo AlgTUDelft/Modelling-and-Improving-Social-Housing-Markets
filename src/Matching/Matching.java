@@ -254,8 +254,30 @@ public class Matching implements Serializable {
     }
 
     // Part of the EfficientStableMatchingAlgorithm.
-    public void effectuateStrictCycle(List<Integer> cycle, int nilValue) {
+    public void effectuateStrictCycle(List<Integer> cycle, int nilValue) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
         int edgesCount = cycle.size();
+
+        // Disconnect all households from whatever houses they own, and keep a list of these houses.
+        ArrayList<Integer> housesList = new ArrayList<Integer>();
+        for (int i = 0; i<edgesCount; i++) {
+            int householdID = cycle.get(i);
+            if (householdID != nilValue) {
+                House house = getHouseFromHousehold(householdID);
+                if (house != null) {
+                    housesList.add(house.getID());
+                    disconnect(house.getID(), householdID);
+                } else {
+                    System.out.println("Got here! 1");
+                    housesList.add(null);
+                }
+            } else {
+                housesList.add(null);
+            }
+        }
+
+        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this);
+
+        // TODO: Insert check for presence of _nil_ so that we can differentiate between SWI-chains and SWI-cycles?
         for (int i = 0; i<edgesCount; i++) {
             int sourceVertex;
             int targetVertex;
@@ -266,7 +288,32 @@ public class Matching implements Serializable {
                 sourceVertex = cycle.get(i);
                 targetVertex = cycle.get(i+1);
             }
-            // TODO: Finish
+
+            if (sourceVertex != nilValue && targetVertex != nilValue) {
+                connect(sourceVertex, housesList.get(i));
+            } else if (sourceVertex == nilValue) {
+                continue; // Household was already previously disconnected, so no change.
+            } else { // targetVertex == nilValue, so there is an empty house that the household prefers to their own.
+                // We now choose to connect him with that house amongst the empty houses, that they prefer most,
+                // so long as they do indeed prefer it to their current house.
+                // TODO: Is that method of picking a house legit, though?
+                ArrayList<House> householdlessHouses = getHouseholdlessHouses();
+                float highestScore = matchingEvaluator.evaluateIndividualTotalFit(housesList.get(i), sourceVertex);
+                House bestHouse = null;
+                for (House house : householdlessHouses) {
+                    float candidateScore = matchingEvaluator.evaluateIndividualTotalFit(house.getID(), sourceVertex);
+                    if (candidateScore > highestScore) {
+                        highestScore = candidateScore;
+                        bestHouse = house;
+                    }
+                }
+                if (bestHouse == null) {
+                    throw new PreferredNoHouseholdlessHouseException("Cycle indicated that household would prefer some" +
+                            " other house to their current house, but no such house was found.");
+                } else {
+                    connect(sourceVertex, bestHouse.getID());
+                }
+            }
         }
     }
 
@@ -326,6 +373,10 @@ public class Matching implements Serializable {
 
     public class IDNotPresentException extends Exception {
         public IDNotPresentException(String errorMessage) { super(errorMessage); }
+    }
+
+    public class PreferredNoHouseholdlessHouseException extends Exception {
+        public PreferredNoHouseholdlessHouseException(String errorMessage) { super(errorMessage); }
     }
 
 }

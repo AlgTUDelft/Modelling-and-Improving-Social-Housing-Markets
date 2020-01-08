@@ -94,7 +94,10 @@ public class StrictGraph {
         }
     }
 
-    public void update(List<Integer> cycle) {
+    public void update(List<Integer> cycle, Matching newMatching) {
         // TODO: finish.
+
+
+        this.matching = newMatching;
     }
 }

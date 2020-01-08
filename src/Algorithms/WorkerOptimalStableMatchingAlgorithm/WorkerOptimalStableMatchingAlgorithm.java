@@ -36,12 +36,12 @@ public class WorkerOptimalStableMatchingAlgorithm {
         this.matching = matching;
     }
 
-    public Matching findWorkerOptimalStableMatching() throws Matching.Matching.HouseholdLinkedToHouseholdException, Matching.Matching.HouseLinkedToMultipleException, Matching.Matching.HouseholdLinkedToMultipleException, Matching.Matching.HouseLinkedToHouseException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException {
+    public Matching findWorkerOptimalStableMatching() throws Matching.Matching.HouseholdLinkedToHouseholdException, Matching.Matching.HouseLinkedToMultipleException, Matching.Matching.HouseholdLinkedToMultipleException, Matching.Matching.HouseLinkedToHouseException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, Matching.Matching.HouseholdAlreadyMatchedException, Matching.Matching.HouseAlreadyMatchedException, Matching.Matching.PreferredNoHouseholdlessHouseException {
         StrictGraph strictGraph = new StrictGraph(this.matching);
         List<Integer> strictCycle = strictGraph.findStrictCycle();
         while (strictCycle != null) {
             this.matching.effectuateStrictCycle(strictCycle, strictGraph.getNil());
-            strictGraph.update(strictCycle);
+            strictGraph.update(strictCycle, this.matching);
             strictCycle = strictGraph.findStrictCycle();
         }
         return this.matching;
