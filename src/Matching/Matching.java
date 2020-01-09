@@ -267,7 +267,6 @@ public class Matching implements Serializable {
                     housesList.add(house.getID());
                     disconnect(house.getID(), householdID);
                 } else {
-                    System.out.println("Got here! 1");
                     housesList.add(null);
                 }
             } else {
@@ -290,7 +289,7 @@ public class Matching implements Serializable {
             }
 
             if (sourceVertex != nilValue && targetVertex != nilValue) {
-                if (i < housesList.size()) { // then i+1 <= housesList.size()
+                if (i+1 < housesList.size()) {
                     connect(housesList.get(i + 1), sourceVertex);
                 } else {
                     connect(housesList.get(0), sourceVertex);
@@ -317,6 +316,8 @@ public class Matching implements Serializable {
                     }
                 }
                 if (bestHouse == null) {
+                    // TODO: Fix that this gets thrown. Note that it never seems to get thrown on a first cycle
+                    //  effectuation, which seems to imply that the update process somehow doesn't work well. Check it?
                     throw new PreferredNoHouseholdlessHouseException("Cycle indicated that household would prefer some" +
                             " other house to their current house, but no such house was found.");
                 } else {
