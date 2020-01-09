@@ -254,7 +254,7 @@ public class Matching implements Serializable {
     }
 
     // Part of the EfficientStableMatchingAlgorithm.
-    public void effectuateStrictCycle(List<Integer> cycle, int nilValue) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
+    public void effectuateStrictCycle(List<Integer> cycle, int nilValue) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
         int edgesCount = cycle.size();
 
         // Disconnect all households from whatever houses they own, and keep a list of these houses.
@@ -290,7 +290,7 @@ public class Matching implements Serializable {
             }
 
             if (sourceVertex != nilValue && targetVertex != nilValue) {
-                connect(sourceVertex, housesList.get(i));
+                connect(housesList.get(i), sourceVertex);
             } else if (sourceVertex == nilValue) {
                 continue; // Household was already previously disconnected, so no change.
             } else { // targetVertex == nilValue, so there is an empty house that the household prefers to their own.
@@ -311,7 +311,7 @@ public class Matching implements Serializable {
                     throw new PreferredNoHouseholdlessHouseException("Cycle indicated that household would prefer some" +
                             " other house to their current house, but no such house was found.");
                 } else {
-                    connect(sourceVertex, bestHouse.getID());
+                    connect(bestHouse.getID(), sourceVertex);
                 }
             }
         }

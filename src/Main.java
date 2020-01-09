@@ -4,6 +4,7 @@ import Algorithms.MinCostPerfectMatchingAlgorithm.MinCostPerfectMatchingResultPr
 import Algorithms.OptimizationAlgorithm.OptimizationAlgorithm;
 import Algorithms.OptimizationAlgorithm.OptimizationAlgorithmResult;
 import Algorithms.OptimizationAlgorithm.OptimizationAlgorithmResultProcessor;
+import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.Matching;
@@ -16,7 +17,7 @@ import java.util.ArrayList;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        test5();
+        test6();
     }
 
     public static void test1() {
@@ -210,5 +211,51 @@ public class Main {
         MinCostPerfectMatchingResultProcessor minCostPerfectMatchingResultProcessor
                 = new MinCostPerfectMatchingResultProcessor(results);
         minCostPerfectMatchingResultProcessor.resultsToCSV(filename);
+    }
+
+    public static void test6() {
+        HousingMarket housingMarket = null;
+        try {
+            housingMarket = new HousingMarket(2017, 100);
+            DataProcessor dataProcessor = new DataProcessor(housingMarket);
+            Matching matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test.csv", 0.85, 0, 100);
+
+            MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
+            float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
+            float oldAverageLocalResult = oldMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+
+            WorkerOptimalStableMatchingAlgorithm workerOptimalStableMatchingAlgorithm = new WorkerOptimalStableMatchingAlgorithm(matching);
+            Matching newMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching();
+            MatchingEvaluator newMatchingEvaluator = new MatchingEvaluator(newMatching);
+            float newOverallResult =newMatchingEvaluator.evaluateTotal(true);
+            float newAverageLocalResult = newMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+
+            float overallPercentageIncrease = (newOverallResult - oldOverallResult)/oldOverallResult * 100;
+            float averageLocalPercentageIncrease = (newAverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
+
+        } catch (HousingMarket.FreeSpaceException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdLinkedToHouseholdException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdAlreadyMatchedException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdLinkedToMultipleException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseAlreadyMatchedException e) {
+            e.printStackTrace();
+        } catch (Household.InvalidHouseholdException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+            e.printStackTrace();
+        } catch (Matching.PreferredNoHouseholdlessHouseException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseLinkedToMultipleException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseLinkedToHouseException e) {
+            e.printStackTrace();
+        }
+
     }
 }

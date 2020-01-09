@@ -5,6 +5,7 @@ import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
 
 import java.util.ArrayList;
@@ -13,12 +14,12 @@ import java.util.List;
 public class StrictGraph {
 
     private Matching matching;
-    private SimpleDirectedGraph underlyingStrictGraph;
+    private SimpleDirectedGraph underlyingStrictGraph = new SimpleDirectedGraph(DefaultEdge.class);
     private ArrayList<Integer> householdIDs = new ArrayList<Integer>();
     private Integer nil = -1;
 
 
-    public StrictGraph(Matching matching) throws Matching.Matching.HouseholdLinkedToMultipleException, Matching.Matching.HouseholdLinkedToHouseholdException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, Matching.Matching.HouseLinkedToMultipleException, Matching.Matching.HouseLinkedToHouseException {
+    public StrictGraph(Matching matching) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         this.matching = matching;
 
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
@@ -44,19 +45,20 @@ public class StrictGraph {
                 fitWithCurrentHouse = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
             }
             for (House otherHouse : this.matching.getHouses()) {
-                if (otherHouse.getID() == currentHouse.getID()) {
-                    continue;
-                } else {
-                    float fitWithOtherHouse = matchingEvaluator.evaluateIndividualTotalFit(otherHouse.getID(), householdID);
-                    if (fitWithOtherHouse > fitWithCurrentHouse) { // Note the strict greater-than relation.
-                        Household householdOfOtherHouseID = this.matching.getHouseholdFromHouse(otherHouse.getID());
-                        if (householdOfOtherHouseID == null) {
-                            // Add type 2 edge
-                            underlyingStrictGraph.addEdge(householdID, nil);
-                        } else {
-                            // Add type 1 edge
-                            underlyingStrictGraph.addEdge(householdID, householdOfOtherHouseID);
-                        }
+                if (currentHouse != null) {
+                    if (otherHouse.getID() == currentHouse.getID()) {
+                        continue;
+                    }
+                }
+                float fitWithOtherHouse = matchingEvaluator.evaluateIndividualTotalFit(otherHouse.getID(), householdID);
+                if (fitWithOtherHouse > fitWithCurrentHouse) { // Note the strict greater-than relation.
+                    Household householdOfOtherHouse = this.matching.getHouseholdFromHouse(otherHouse.getID());
+                    if (householdOfOtherHouse == null) {
+                        // Add type 2 edge
+                        underlyingStrictGraph.addEdge(householdID, nil);
+                    } else {
+                        // Add type 1 edge
+                        underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
                     }
                 }
             }
@@ -75,6 +77,8 @@ public class StrictGraph {
                 }
             }
         }
+
+        System.out.println("Finished construction of strict graph.");
     }
 
     public int getNil() {
@@ -82,20 +86,23 @@ public class StrictGraph {
     }
 
     public List<Integer> findStrictCycle() {
+        System.out.println("Starting Tarjan...");
         TarjanSimpleCycles tarjanSimpleCycles = new TarjanSimpleCycles(underlyingStrictGraph);
         // TODO: Unchecked Assignment error here or does this go well?
         List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
+        System.out.println("Tarjan finished.");
         if (cycles.isEmpty()) {
             return null;
         } else {
+            System.out.println(cycles.size() + " cycles found.");
             // TODO: Only return first cycle, or all? Check if this ever throws up interlocking cycles.
             //  Or: Return the longest cycle?
+            System.out.println("Size of chosen cycle is: " + cycles.get(0).size());
             return cycles.get(0);
         }
     }
 
     public void update(List<Integer> cycle, Matching newMatching) {
-        // TODO: finish.
         // We assume that, in reality, households who have been part of a realized cycle won't want to move again right
         // away, even if we were able to offer them a better house.
         // Thus we remove all the households that are in this cycle, from the graph.

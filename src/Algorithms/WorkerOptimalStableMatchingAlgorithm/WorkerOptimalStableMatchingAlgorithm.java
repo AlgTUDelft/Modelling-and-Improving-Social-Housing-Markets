@@ -1,6 +1,7 @@
 package Algorithms.WorkerOptimalStableMatchingAlgorithm;
 
 import Matching.Matching;
+import Matching.MatchingEvaluator;
 
 import java.util.List;
 
@@ -40,13 +41,16 @@ public class WorkerOptimalStableMatchingAlgorithm {
         this.matching = matching;
     }
 
-    public Matching findWorkerOptimalStableMatching() throws Matching.Matching.HouseholdLinkedToHouseholdException, Matching.Matching.HouseLinkedToMultipleException, Matching.Matching.HouseholdLinkedToMultipleException, Matching.Matching.HouseLinkedToHouseException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, Matching.Matching.HouseholdAlreadyMatchedException, Matching.Matching.HouseAlreadyMatchedException, Matching.Matching.PreferredNoHouseholdlessHouseException {
+    public Matching findWorkerOptimalStableMatching() throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException {
         StrictGraph strictGraph = new StrictGraph(this.matching);
         List<Integer> strictCycle = strictGraph.findStrictCycle();
+        int i = 0;
         while (strictCycle != null) {
+            System.out.println(i);
             this.matching.effectuateStrictCycle(strictCycle, strictGraph.getNil());
             strictGraph.update(strictCycle, this.matching);
             strictCycle = strictGraph.findStrictCycle();
+            i++;
         }
         return this.matching;
     }
