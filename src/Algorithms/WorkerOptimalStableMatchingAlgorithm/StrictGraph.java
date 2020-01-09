@@ -10,6 +10,7 @@ import org.jgrapht.graph.SimpleDirectedGraph;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class StrictGraph {
 
@@ -102,7 +103,7 @@ public class StrictGraph {
         }
     }
 
-    public void update(List<Integer> cycle, Matching newMatching) {
+    public void update(List<Integer> cycle, Matching newMatching) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         // We assume that, in reality, households who have been part of a realized cycle won't want to move again right
         // away, even if we were able to offer them a better house.
         // Thus we remove all the households that are in this cycle, from the graph.
@@ -112,6 +113,48 @@ public class StrictGraph {
                 this.underlyingStrictGraph.removeVertex(householdID);
             }
         }
+
+        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
+
+        Set<DefaultEdge> edges = (Set<DefaultEdge>) this.underlyingStrictGraph.incomingEdgesOf(nil);
+        ArrayList<DefaultEdge> edgesToRemove = new ArrayList<DefaultEdge>();
+        for (DefaultEdge edge : edges) {
+            int householdID = (int) this.underlyingStrictGraph.getEdgeSource(edge);
+            // Check if there still exists some preferred house for this household.
+            float fitWithCurrentHouse;
+
+            House currentHouse = matching.getHouseFromHousehold(householdID);
+
+            if (currentHouse == null) {
+                fitWithCurrentHouse = 0;
+            } else {
+                fitWithCurrentHouse = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
+            }
+            boolean foundBetterHouseholdlessHouse = false;
+            for (House otherHouse : this.matching.getHouses()) {
+                if (currentHouse != null) {
+                    if (otherHouse.getID() == currentHouse.getID()) {
+                        continue;
+                    }
+                }
+                Household householdOfOtherHouse = this.matching.getHouseholdFromHouse(otherHouse.getID());
+                if (householdOfOtherHouse == null) {
+                    float fitWithOtherHouse = matchingEvaluator.evaluateIndividualTotalFit(otherHouse.getID(), householdID);
+                    if (fitWithOtherHouse > fitWithCurrentHouse) { // Note the strict greater-than relation.
+                        foundBetterHouseholdlessHouse = true;
+                        break;
+                    }
+                }
+            }
+            if (!foundBetterHouseholdlessHouse) {
+                edgesToRemove.add(edge);
+            }
+        }
+
+        for (DefaultEdge edge : edgesToRemove) {
+            this.underlyingStrictGraph.removeEdge(edge);
+        }
+
         this.matching = newMatching;
     }
 }
