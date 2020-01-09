@@ -28,6 +28,10 @@ import java.util.List;
 // we use a so-called "strict graph" which is unlabeled; and instead of looking for partially strict cycles, we simply
 // look for cycles, which by definition are fully strict. Each cycle that can be found in this way,
 // using the original algorithm's methods, represents a valid SWI-chain(/SWI-cycle) that we can carry out.
+//
+// Note finally that after each realized cycle, we remove all households that were a part of this cycle
+// from all future strict graphs. This is because we assume that households who have been part of a realized cycle
+// won't want to move again right away, even if we were able to offer them a better house.
 
 public class WorkerOptimalStableMatchingAlgorithm {
     private Matching matching;

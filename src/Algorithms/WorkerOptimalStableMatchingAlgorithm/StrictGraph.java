@@ -96,8 +96,15 @@ public class StrictGraph {
 
     public void update(List<Integer> cycle, Matching newMatching) {
         // TODO: finish.
-
-
+        // We assume that, in reality, households who have been part of a realized cycle won't want to move again right
+        // away, even if we were able to offer them a better house.
+        // Thus we remove all the households that are in this cycle, from the graph.
+        // This process also automatically removes all edges that needed to be removed.
+        for (int householdID : cycle) {
+            if (householdID != nil) {
+                this.underlyingStrictGraph.removeVertex(householdID);
+            }
+        }
         this.matching = newMatching;
     }
 }
