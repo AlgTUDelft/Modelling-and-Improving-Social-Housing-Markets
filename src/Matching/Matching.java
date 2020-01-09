@@ -290,7 +290,11 @@ public class Matching implements Serializable {
             }
 
             if (sourceVertex != nilValue && targetVertex != nilValue) {
-                connect(housesList.get(i), sourceVertex);
+                if (i < housesList.size()) { // then i+1 <= housesList.size()
+                    connect(housesList.get(i + 1), sourceVertex);
+                } else {
+                    connect(housesList.get(0), sourceVertex);
+                }
             } else if (sourceVertex == nilValue) {
                 continue; // Household was already previously disconnected, so no change.
             } else { // targetVertex == nilValue, so there is an empty house that the household prefers to their own.
@@ -298,7 +302,12 @@ public class Matching implements Serializable {
                 // so long as they do indeed prefer it to their current house.
                 // TODO: Is that method of picking a house legit, though?
                 ArrayList<House> householdlessHouses = getHouseholdlessHouses();
-                float highestScore = matchingEvaluator.evaluateIndividualTotalFit(housesList.get(i), sourceVertex);
+                float highestScore;
+                if (housesList.get(i) == null) {
+                    highestScore = 0;
+                } else {
+                    highestScore = matchingEvaluator.evaluateIndividualTotalFit(housesList.get(i), sourceVertex);
+                }
                 House bestHouse = null;
                 for (House house : householdlessHouses) {
                     float candidateScore = matchingEvaluator.evaluateIndividualTotalFit(house.getID(), sourceVertex);

@@ -218,7 +218,7 @@ public class Main {
         try {
             housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            Matching matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test.csv", 0.85, 0, 100);
+            Matching matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test.csv", 0.70, 0, 40);
 
             MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
             float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
