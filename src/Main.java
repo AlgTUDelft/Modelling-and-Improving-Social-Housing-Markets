@@ -4,12 +4,22 @@ import Algorithms.MinCostPerfectMatchingAlgorithm.MinCostPerfectMatchingResultPr
 import Algorithms.OptimizationAlgorithm.OptimizationAlgorithm;
 import Algorithms.OptimizationAlgorithm.OptimizationAlgorithmResult;
 import Algorithms.OptimizationAlgorithm.OptimizationAlgorithmResultProcessor;
+import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
 import Algorithms.MinCostPerfectMatchingAlgorithm.ResidualGraph;
+import org.jgrapht.event.ConnectedComponentTraversalEvent;
+import org.jgrapht.event.EdgeTraversalEvent;
+import org.jgrapht.event.TraversalListener;
+import org.jgrapht.event.VertexTraversalEvent;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleDirectedGraph;
+import org.jgrapht.traverse.DepthFirstIterator;
+import org.jgrapht.traverse.GraphIterator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -218,7 +228,7 @@ public class Main {
         try {
             housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            Matching matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test.csv", 0.30, 0, 80);
+            Matching matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test.csv", 1, 0, 500);
 
             MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
             float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
@@ -232,6 +242,8 @@ public class Main {
 
             float overallPercentageIncrease = (newOverallResult - oldOverallResult)/oldOverallResult * 100;
             float averageLocalPercentageIncrease = (newAverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
+            System.out.println("Overall percentage increase is: " + overallPercentageIncrease);
+            System.out.println("Average local percentage increase is: " + averageLocalPercentageIncrease);
 
         } catch (HousingMarket.FreeSpaceException e) {
             e.printStackTrace();
@@ -254,6 +266,8 @@ public class Main {
         } catch (Matching.HouseLinkedToMultipleException e) {
             e.printStackTrace();
         } catch (Matching.HouseLinkedToHouseException e) {
+            e.printStackTrace();
+        } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
             e.printStackTrace();
         }
 

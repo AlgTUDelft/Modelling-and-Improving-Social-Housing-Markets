@@ -270,13 +270,13 @@ public class Matching implements Serializable {
                     housesList.add(null);
                 }
             } else {
+                // TODO: Insert check for presence of _nil_ so that we can differentiate between SWI-chains and SWI-cycles?
                 housesList.add(null);
             }
         }
 
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this);
 
-        // TODO: Insert check for presence of _nil_ so that we can differentiate between SWI-chains and SWI-cycles?
         for (int i = 0; i<edgesCount; i++) {
             int sourceVertex;
             int targetVertex;
@@ -316,11 +316,6 @@ public class Matching implements Serializable {
                     }
                 }
                 if (bestHouse == null) {
-                    // TODO: Fix that this gets thrown. Note that it never seems to get thrown on a first cycle
-                    //  effectuation, which seems to imply that the update process somehow doesn't work well. Check it?
-                    //  -> It could be that some preferred empty house has been cycled into before,
-                    //     but the corresponding edge to _nil_ doesn't get removed to reflect that now there are no
-                    //     preferred empty houses anymore.
                     throw new PreferredNoHouseholdlessHouseException("Cycle indicated that household would prefer some" +
                             " other house to their current house, but no such house was found.");
                 } else {

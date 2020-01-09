@@ -4,7 +4,11 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
+import org.jgrapht.alg.cycle.JohnsonSimpleCycles;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
+import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
 
@@ -78,29 +82,27 @@ public class StrictGraph {
                 }
             }
         }
-
-        System.out.println("Finished construction of strict graph.");
     }
 
     public int getNil() {
         return this.nil;
     }
 
-    public List<Integer> findStrictCycle() {
-        System.out.println("Starting Tarjan...");
-        TarjanSimpleCycles tarjanSimpleCycles = new TarjanSimpleCycles(underlyingStrictGraph);
-        // TODO: Unchecked Assignment error here or does this go well?
-        List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
-        System.out.println("Tarjan finished.");
-        if (cycles.isEmpty()) {
-            return null;
-        } else {
-            System.out.println(cycles.size() + " cycles found.");
-            // TODO: Only return first cycle, or all? Check if this ever throws up interlocking cycles.
-            //  Or: Return the longest cycle?
-            System.out.println("Size of chosen cycle is: " + cycles.get(0).size());
-            return cycles.get(0);
+    public List<Integer> findStrictCycle() throws CycleFinder.FullyExploredVertexDiscoveredException {
+        // TODO: Note somewhere that we're not using Tarjan, and that we're picking the first cycle we come across.
+        GabowStrongConnectivityInspector gabowStrongConnectivityInspector = new GabowStrongConnectivityInspector(underlyingStrictGraph);
+        List<AsSubgraph<Integer,DefaultEdge>> components = gabowStrongConnectivityInspector.getStronglyConnectedComponents();
+        List<Integer> cycle = null;
+        for (AsSubgraph<Integer, DefaultEdge> component : components) {
+            if (component.vertexSet().size() > 1) {
+                CycleFinder cycleFinder = new CycleFinder(component);
+                cycle = cycleFinder.findCycle();
+                if (cycle != null) {
+                    break;
+                }
+            }
         }
+        return cycle;
     }
 
     public void update(List<Integer> cycle, Matching newMatching) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
