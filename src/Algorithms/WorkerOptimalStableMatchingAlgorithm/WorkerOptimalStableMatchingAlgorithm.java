@@ -44,7 +44,7 @@ public class WorkerOptimalStableMatchingAlgorithm {
     public Matching findWorkerOptimalStableMatching() throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException {
         StrictGraph strictGraph = new StrictGraph(this.matching);
         List<Integer> strictCycle = strictGraph.findStrictCycle();
-        int i = 0;
+        int i = 1;
         while (strictCycle != null) {
             System.out.println(i);
             this.matching.effectuateStrictCycle(strictCycle, strictGraph.getNil());
