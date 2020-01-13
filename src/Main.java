@@ -5,29 +5,23 @@ import Algorithms.OptimizationAlgorithm.OptimizationAlgorithm;
 import Algorithms.OptimizationAlgorithm.OptimizationAlgorithmResult;
 import Algorithms.OptimizationAlgorithm.OptimizationAlgorithmResultProcessor;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
+import Algorithms.WorkerOptimalStableMatchingAlgorithm.WMComparisonResult;
+import Algorithms.WorkerOptimalStableMatchingAlgorithm.WMComparisonResultProcessor;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
 import Algorithms.MinCostPerfectMatchingAlgorithm.ResidualGraph;
-import org.jgrapht.event.ConnectedComponentTraversalEvent;
-import org.jgrapht.event.EdgeTraversalEvent;
-import org.jgrapht.event.TraversalListener;
-import org.jgrapht.event.VertexTraversalEvent;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.SimpleDirectedGraph;
-import org.jgrapht.traverse.DepthFirstIterator;
-import org.jgrapht.traverse.GraphIterator;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        test6();
+        comparison_WOSMA_MCPMA();
     }
 
     public static void test1() {
@@ -204,19 +198,20 @@ public class Main {
     }
 
     public static void test5() throws IOException {
-        String filename = "../10times100MinCostPerfectMatchingRun.csv";
+        String filename = "../1times500MinCostPerfectMatchingRun.csv";
 
         ArrayList<MinCostPerfectMatchingResult> results = new ArrayList<MinCostPerfectMatchingResult>();
-        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 0, 100));
-        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 100, 100));
-        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 200, 100));
-        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 300, 100));
-        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 400, 100));
-        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 500, 100));
-        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 600, 100));
-        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 700, 100));
-        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 800, 100));
-        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 900, 100));
+//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 0, 100));
+//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 100, 100));
+//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 200, 100));
+//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 300, 100));
+//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 400, 100));
+//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 500, 100));
+//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 600, 100));
+//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 700, 100));
+//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 800, 100));
+//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 900, 100));
+        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 0, 500));
 
         MinCostPerfectMatchingResultProcessor minCostPerfectMatchingResultProcessor
                 = new MinCostPerfectMatchingResultProcessor(results);
@@ -228,7 +223,7 @@ public class Main {
         try {
             housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            Matching matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test.csv", 1, 0, 500);
+            Matching matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test2.csv", 1, 500, 100);
 
             MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
             float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
@@ -271,5 +266,114 @@ public class Main {
             e.printStackTrace();
         }
 
+    }
+
+    public static void comparison_WOSMA_MCPMA() throws IOException {
+
+        String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
+        String outputFilename = "../10times100-WOSMA-MCPMA-compared_test2_avgME.csv";
+
+        ArrayList<WMComparisonResult> results = new ArrayList<WMComparisonResult>();
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0,100,200,300,400,500,600,700,800,900));
+        for (int startLine : startLines) {
+            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 100));
+        }
+
+        WMComparisonResultProcessor wmComparisonResultProcessor
+                = new WMComparisonResultProcessor(results);
+        wmComparisonResultProcessor.resultsToCSV(outputFilename);
+    }
+
+
+    public static WMComparisonResult individualComparison_WOSMA_MCPMA(String filename, int startLine, int lineCount) {
+        Matching matching;
+        HousingMarket housingMarket;
+        WMComparisonResult wmComparisonResult = null;
+
+        try {
+            housingMarket = new HousingMarket(2017, 100);
+            DataProcessor dataProcessor = new DataProcessor(housingMarket);
+            matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
+
+            MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
+            float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
+            float oldAverageLocalResult = oldMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+
+            Matching matchingCopy = (Matching) deepClone(matching);
+            WorkerOptimalStableMatchingAlgorithm workerOptimalStableMatchingAlgorithm
+                    = new WorkerOptimalStableMatchingAlgorithm(matching);
+            MinCostPerfectMatchingAlgorithm minCostPerfectMatchingAlgorithm
+                    = new MinCostPerfectMatchingAlgorithm(matchingCopy);
+
+            Matching workerOptimalStableMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching();
+            MatchingEvaluator workerOptimalMatchingEvaluator = new MatchingEvaluator(workerOptimalStableMatching);
+            float WOSMA_OverallResult = workerOptimalMatchingEvaluator.evaluateTotal(true);
+            float WOSMA_AverageLocalResult = workerOptimalMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+
+            Matching minCostPerfectMatching = minCostPerfectMatchingAlgorithm.findMinCostPerfectMatching();
+            MatchingEvaluator minCostPerfectMatchingEvaluator = new MatchingEvaluator(minCostPerfectMatching);
+            float MCPMA_OverallResult = minCostPerfectMatchingEvaluator.evaluateTotal(true);
+            float MCPMA_AverageLocalResult = minCostPerfectMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+
+            float WOSMA_OverallPercentageIncrease = (WOSMA_OverallResult - oldOverallResult)/oldOverallResult * 100;
+            float WOSMA_AverageLocalPercentageIncrease = (WOSMA_AverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
+            float MCPMA_OverallPercentageIncrease = (MCPMA_OverallResult - oldOverallResult)/oldOverallResult * 100;
+            float MCPMA_AverageLocalPercentageIncrease = (MCPMA_AverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
+
+            wmComparisonResult = new WMComparisonResult(oldOverallResult, WOSMA_OverallResult,
+                    WOSMA_OverallPercentageIncrease, MCPMA_OverallResult, MCPMA_OverallPercentageIncrease,
+                    oldAverageLocalResult, WOSMA_AverageLocalResult, WOSMA_AverageLocalPercentageIncrease,
+                    MCPMA_AverageLocalResult, MCPMA_AverageLocalPercentageIncrease);
+
+        } catch (HousingMarket.FreeSpaceException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdLinkedToHouseholdException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseLinkedToMultipleException e) {
+            e.printStackTrace();
+        } catch (Matching.IDNotPresentException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseAlreadyMatchedException e) {
+            e.printStackTrace();
+        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSize bipartiteSidesUnequalSize) {
+            bipartiteSidesUnequalSize.printStackTrace();
+        } catch (Matching.HouseLinkedToHouseException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdAlreadyMatchedException e) {
+            e.printStackTrace();
+        } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
+            e.printStackTrace();
+        } catch (Household.InvalidHouseholdException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdLinkedToMultipleException e) {
+            e.printStackTrace();
+        } catch (ResidualGraph.MatchingNotEmptyException e) {
+            e.printStackTrace();
+        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+            e.printStackTrace();
+        } catch (Matching.PreferredNoHouseholdlessHouseException e) {
+            e.printStackTrace();
+        } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
+            e.printStackTrace();
+        }
+
+        return wmComparisonResult;
+    }
+
+    public static Object deepClone(Object object) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(object);
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            return ois.readObject();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
