@@ -46,7 +46,7 @@ public class WorkerOptimalStableMatchingAlgorithm {
         List<Integer> strictCycle = strictGraph.findStrictCycle();
         int i = 1;
         while (strictCycle != null) {
-            System.out.println(i);
+            System.out.println("Executing strict cycle " + i);
             this.matching.effectuateStrictCycle(strictCycle, strictGraph.getNil());
             strictGraph.update(strictCycle, this.matching);
             strictCycle = strictGraph.findStrictCycle();

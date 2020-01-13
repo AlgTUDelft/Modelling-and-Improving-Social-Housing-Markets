@@ -258,6 +258,7 @@ public class Matching implements Serializable {
     // Part of the EfficientStableMatchingAlgorithm.
     public void effectuateStrictCycle(List<Integer> cycle, int nilValue) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
         int edgesCount = cycle.size();
+
         boolean isChain = false;
 
         // Disconnect all households from whatever houses they own, and keep a list of these houses.
@@ -277,6 +278,7 @@ public class Matching implements Serializable {
                 housesList.add(null);
             }
         }
+        if (isChain) { System.out.println("Chain has size: " + edgesCount); } else { System.out.println("Cycle has size: " + edgesCount); }
 
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this);
 
