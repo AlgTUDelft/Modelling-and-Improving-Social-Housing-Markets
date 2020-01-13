@@ -25,6 +25,8 @@ public class Matching implements Serializable {
     private ArrayList<Household> elderlyHouseholds = new ArrayList<Household>();
     private ArrayList<House> householdlessHouses = new ArrayList<House>();
     private ArrayList<Household> houselessHouseholds = new ArrayList<Household>();
+    private int amtSWIChainsExecuted = 0;
+    private int amtSWICyclesExecuted = 0;
 
 
     private HousingMarket housingMarket;
@@ -256,6 +258,7 @@ public class Matching implements Serializable {
     // Part of the EfficientStableMatchingAlgorithm.
     public void effectuateStrictCycle(List<Integer> cycle, int nilValue) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
         int edgesCount = cycle.size();
+        boolean isChain = false;
 
         // Disconnect all households from whatever houses they own, and keep a list of these houses.
         ArrayList<Integer> housesList = new ArrayList<Integer>();
@@ -270,7 +273,7 @@ public class Matching implements Serializable {
                     housesList.add(null);
                 }
             } else {
-                // TODO: Insert check for presence of _nil_ so that we can differentiate between SWI-chains and SWI-cycles?
+                isChain = true;
                 housesList.add(null);
             }
         }
@@ -323,6 +326,10 @@ public class Matching implements Serializable {
                 }
             }
         }
+
+        if (isChain) {
+            this.amtSWIChainsExecuted++;
+        } else { this.amtSWICyclesExecuted++; }
     }
 
     public boolean isMaximallyMatched() {
@@ -342,6 +349,13 @@ public class Matching implements Serializable {
         return this.matchingGraph;
     }
 
+    public int getAmtSWIChainsExecuted() {
+        return amtSWIChainsExecuted;
+    }
+
+    public int getAmtSWICyclesExecuted() {
+        return amtSWICyclesExecuted;
+    }
 
     public class HouseLinkedToHouseException extends Exception {
         public HouseLinkedToHouseException(String errorMessage) {

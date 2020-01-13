@@ -19,7 +19,7 @@ public class WMComparisonResultProcessor {
 
     public void resultsToCSV(String filename) throws IOException {
         FileWriter writer = new FileWriter(filename);
-        CSVUtils.writeLine(writer, Arrays.asList("oldOverallScore", "WOSMA_OverallScore", "WOSMA_OverallPercentageImprovement", "MCPMA_OverallScore", "MCPMA_OverallPercentageImprovement", "oldAverageLocalScore", "WOSMA_AverageLocalScore", "WOSMA_AverageLocalPercentageImprovement", "MCPMA_AverageLocalScore", "MCPMA_AverageLocalPercentageImprovement"), CSV_SEPARATOR);
+        CSVUtils.writeLine(writer, Arrays.asList("oldOverallScore", "WOSMA_OverallScore", "WOSMA_OverallPercentageImprovement", "MCPMA_OverallScore", "MCPMA_OverallPercentageImprovement", "oldAverageLocalScore", "WOSMA_AverageLocalScore", "WOSMA_AverageLocalPercentageImprovement", "MCPMA_AverageLocalScore", "MCPMA_AverageLocalPercentageImprovement", "WOSMA_amtSWIChainsExecuted", "WOSMA_amtSWICyclesExecuted", "MCPMA_OverallPercentageIncreaseSuperiorityPercentage", "MCPMA_AverageLocalPercentageIncreaseSuperiorityPercentage"), CSV_SEPARATOR);
 
         for (WMComparisonResult wmComparisonResult : WMComparisonResults) {
             List<String> list = new ArrayList<String>();
@@ -33,6 +33,10 @@ public class WMComparisonResultProcessor {
             list.add(Float.toString(wmComparisonResult.getWOSMA_AverageLocalPercentageImprovement()));
             list.add(Float.toString(wmComparisonResult.getMCPMA_AverageLocalScore()));
             list.add(Float.toString(wmComparisonResult.getMCPMA_AverageLocalPercentageImprovement()));
+            list.add(Float.toString(wmComparisonResult.getWOSMA_amtSWIChainsExecuted()));
+            list.add(Float.toString(wmComparisonResult.getWOSMA_amtSWICyclesExecuted()));
+            list.add(Float.toString(wmComparisonResult.getMCPMA_OverallPercentageIncreaseSuperiorityPercentage()));
+            list.add(Float.toString(wmComparisonResult.getMCPMA_AverageLocalPercentageIncreaseSuperiorityPercentage()));
 
             CSVUtils.writeLine(writer, list, CSV_SEPARATOR);
         }

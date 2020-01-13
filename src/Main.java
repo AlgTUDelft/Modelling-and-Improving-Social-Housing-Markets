@@ -271,12 +271,12 @@ public class Main {
     public static void comparison_WOSMA_MCPMA() throws IOException {
 
         String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
-        String outputFilename = "../10times100-WOSMA-MCPMA-compared_test2_avgME.csv";
+        String outputFilename = "../2times500-WOSMA-MCPMA-compared_test2_avgME.csv";
 
         ArrayList<WMComparisonResult> results = new ArrayList<WMComparisonResult>();
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0,100,200,300,400,500,600,700,800,900));
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0,500));
         for (int startLine : startLines) {
-            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 100));
+            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 500));
         }
 
         WMComparisonResultProcessor wmComparisonResultProcessor
@@ -319,11 +319,18 @@ public class Main {
             float WOSMA_AverageLocalPercentageIncrease = (WOSMA_AverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
             float MCPMA_OverallPercentageIncrease = (MCPMA_OverallResult - oldOverallResult)/oldOverallResult * 100;
             float MCPMA_AverageLocalPercentageIncrease = (MCPMA_AverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
+            float MCPMA_OverallPercentageIncreaseSuperiorityPercentage = (MCPMA_OverallPercentageIncrease - WOSMA_OverallPercentageIncrease)/WOSMA_OverallPercentageIncrease * 100;
+            float MCPMA_AverageLocalPercentageIncreaseSuperiorityPercentage = (MCPMA_AverageLocalPercentageIncrease - WOSMA_AverageLocalPercentageIncrease)/WOSMA_AverageLocalPercentageIncrease * 100;
+
+            int WOSMA_amtSWIChainsExecuted = matching.getAmtSWIChainsExecuted();
+            int WOSMA_amtSWICyclesExecuted = matching.getAmtSWICyclesExecuted();
 
             wmComparisonResult = new WMComparisonResult(oldOverallResult, WOSMA_OverallResult,
                     WOSMA_OverallPercentageIncrease, MCPMA_OverallResult, MCPMA_OverallPercentageIncrease,
                     oldAverageLocalResult, WOSMA_AverageLocalResult, WOSMA_AverageLocalPercentageIncrease,
-                    MCPMA_AverageLocalResult, MCPMA_AverageLocalPercentageIncrease);
+                    MCPMA_AverageLocalResult, MCPMA_AverageLocalPercentageIncrease, WOSMA_amtSWIChainsExecuted,
+                    WOSMA_amtSWICyclesExecuted, MCPMA_OverallPercentageIncreaseSuperiorityPercentage,
+                    MCPMA_AverageLocalPercentageIncreaseSuperiorityPercentage);
 
         } catch (HousingMarket.FreeSpaceException e) {
             e.printStackTrace();
