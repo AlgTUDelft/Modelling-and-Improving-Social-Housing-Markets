@@ -271,7 +271,7 @@ public class Main {
     public static void comparison_WOSMA_MCPMA() throws IOException {
 
         String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
-        String outputFilename = "../10times100-WOSMA-MCPMA-compared_test2_minME_emptyInitialMatching.csv";
+        String outputFilename = "../10times100-WOSMA-MCPMA-compared_test2_avgME_emptyInitialMatching.csv";
 
         ArrayList<WMComparisonResult> results = new ArrayList<WMComparisonResult>();
         ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 100, 200, 300, 400, 500, 600, 700, 800, 900));
