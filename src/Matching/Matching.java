@@ -10,6 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
@@ -25,8 +26,8 @@ public class Matching implements Serializable {
     private ArrayList<Household> elderlyHouseholds = new ArrayList<Household>();
     private ArrayList<House> householdlessHouses = new ArrayList<House>();
     private ArrayList<Household> houselessHouseholds = new ArrayList<Household>();
-    private int amtSWIChainsExecuted = 0;
-    private int amtSWICyclesExecuted = 0;
+    private ArrayList<Integer> SWIChainLengths = new ArrayList<Integer>();
+    private ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
 
 
     private HousingMarket housingMarket;
@@ -330,8 +331,12 @@ public class Matching implements Serializable {
         }
 
         if (isChain) {
-            this.amtSWIChainsExecuted++;
-        } else { this.amtSWICyclesExecuted++; }
+            SWIChainLengths.add(edgesCount);
+            SWICycleLengths.add(0);
+        } else {
+            SWIChainLengths.add(0);
+            SWICycleLengths.add(edgesCount);
+        }
     }
 
     public boolean isMaximallyMatched() {
@@ -352,11 +357,33 @@ public class Matching implements Serializable {
     }
 
     public int getAmtSWIChainsExecuted() {
-        return amtSWIChainsExecuted;
+        return (int) SWIChainLengths.stream()
+                .filter(h -> h > 0)
+                .count();
     }
 
     public int getAmtSWICyclesExecuted() {
-        return amtSWICyclesExecuted;
+        return (int) SWICycleLengths.stream()
+                .filter(h -> h > 0)
+                .count();
+    }
+
+    public float getAverageSWIChainLength() {
+        double result = SWIChainLengths.stream()
+                .filter(h -> h > 0)
+                .mapToDouble(a -> a)
+                .average()
+                .orElse(0.0);
+        return (float) result;
+    }
+
+    public float getAverageSWICycleLength() {
+        double result = SWICycleLengths.stream()
+                .filter(h -> h > 0)
+                .mapToDouble(a -> a)
+                .average()
+                .orElse(0.0);
+        return (float) result;
     }
 
     public class HouseLinkedToHouseException extends Exception {

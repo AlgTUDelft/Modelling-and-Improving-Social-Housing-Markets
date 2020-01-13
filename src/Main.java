@@ -271,13 +271,12 @@ public class Main {
     public static void comparison_WOSMA_MCPMA() throws IOException {
 
         String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
-        String outputFilename = "../10times100-WOSMA-MCPMA-compared_test2_avgME_emptyInitialMatching.csv";
-
+        String outputFilename = "../10times100-WOSMA-MCPMA-compared_test2_minME_100percentFullInitialMatching.csv";
 
         ArrayList<WMComparisonResult> results = new ArrayList<WMComparisonResult>();
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 500));
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 100, 200, 300, 400, 500, 600, 700, 800, 900));
         for (int startLine : startLines) {
-            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 500));
+            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 100));
         }
 
         WMComparisonResultProcessor wmComparisonResultProcessor
@@ -294,7 +293,7 @@ public class Main {
         try {
             housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            matching = dataProcessor.csvToMatching(filename, 0.95, startLine, lineCount);
+            matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
 
             MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
             float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
@@ -320,18 +319,21 @@ public class Main {
             float WOSMA_AverageLocalPercentageIncrease = (WOSMA_AverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
             float MCPMA_OverallPercentageIncrease = (MCPMA_OverallResult - oldOverallResult)/oldOverallResult * 100;
             float MCPMA_AverageLocalPercentageIncrease = (MCPMA_AverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
-            float MCPMA_OverallPercentageIncreaseSuperiorityPercentage = (MCPMA_OverallPercentageIncrease - WOSMA_OverallPercentageIncrease)/WOSMA_OverallPercentageIncrease * 100;
-            float MCPMA_AverageLocalPercentageIncreaseSuperiorityPercentage = (MCPMA_AverageLocalPercentageIncrease - WOSMA_AverageLocalPercentageIncrease)/WOSMA_AverageLocalPercentageIncrease * 100;
+            float WOSMA_OverallScoreOptimality = WOSMA_OverallResult/MCPMA_OverallResult;
+            float WOSMA_AverageLocalScoreOptimality = WOSMA_AverageLocalResult/MCPMA_AverageLocalResult;
 
             int WOSMA_amtSWIChainsExecuted = matching.getAmtSWIChainsExecuted();
             int WOSMA_amtSWICyclesExecuted = matching.getAmtSWICyclesExecuted();
+            float WOSMA_averageSWIChainLength = matching.getAverageSWIChainLength();
+            float WOSMA_averageSWICycleLength = matching.getAverageSWICycleLength();
 
             wmComparisonResult = new WMComparisonResult(oldOverallResult, WOSMA_OverallResult,
                     WOSMA_OverallPercentageIncrease, MCPMA_OverallResult, MCPMA_OverallPercentageIncrease,
                     oldAverageLocalResult, WOSMA_AverageLocalResult, WOSMA_AverageLocalPercentageIncrease,
                     MCPMA_AverageLocalResult, MCPMA_AverageLocalPercentageIncrease, WOSMA_amtSWIChainsExecuted,
-                    WOSMA_amtSWICyclesExecuted, MCPMA_OverallPercentageIncreaseSuperiorityPercentage,
-                    MCPMA_AverageLocalPercentageIncreaseSuperiorityPercentage);
+                    WOSMA_amtSWICyclesExecuted, WOSMA_averageSWIChainLength, WOSMA_averageSWICycleLength,
+                    WOSMA_OverallScoreOptimality,
+                    WOSMA_AverageLocalScoreOptimality);
 
         } catch (HousingMarket.FreeSpaceException e) {
             e.printStackTrace();

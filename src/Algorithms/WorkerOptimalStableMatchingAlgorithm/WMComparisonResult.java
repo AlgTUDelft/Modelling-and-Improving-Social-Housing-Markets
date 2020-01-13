@@ -14,15 +14,17 @@ public class WMComparisonResult {
     private float MCPMA_AverageLocalPercentageImprovement;
     private int WOSMA_amtSWIChainsExecuted;
     private int WOSMA_amtSWICyclesExecuted;
-    private float MCPMA_OverallPercentageIncreaseSuperiorityPercentage;
-    private float MCPMA_AverageLocalPercentageIncreaseSuperiorityPercentage;
+    private float WOSMA_averageSWIChainLength;
+    private float WOSMA_averageSWICycleLength;
+    private float WOSMA_OverallScoreOptimality;
+    private float WOSMA_AverageLocalScoreOptimality;
 
-    public float getMCPMA_OverallPercentageIncreaseSuperiorityPercentage() {
-        return MCPMA_OverallPercentageIncreaseSuperiorityPercentage;
+    public float getWOSMA_OverallScoreOptimality() {
+        return WOSMA_OverallScoreOptimality;
     }
 
-    public float getMCPMA_AverageLocalPercentageIncreaseSuperiorityPercentage() {
-        return MCPMA_AverageLocalPercentageIncreaseSuperiorityPercentage;
+    public float getWOSMA_AverageLocalScoreOptimality() {
+        return WOSMA_AverageLocalScoreOptimality;
     }
 
     public WMComparisonResult(float oldOverallScore, float WOSMA_OverallScore, float WOSMA_OverallPercentageImprovement,
@@ -31,8 +33,9 @@ public class WMComparisonResult {
                               float WOSMA_AverageLocalPercentageImprovement, float MCPMA_AverageLocalScore,
                               float MCPMA_AverageLocalPercentageImprovement, int WOSMA_amtSWIChainsExecuted,
                               int WOSMA_amtSWICyclesExecuted,
-                              float MCPMA_OverallPercentageIncreaseSuperiorityPercentage,
-                              float MCPMA_AverageLocalPercentageIncreaseSuperiorityPercentage) {
+                              float WOSMA_averageSWIChainLength, float WOSMA_averageSWICycleLength,
+                              float WOSMA_OverallScoreOptimality,
+                              float WOSMA_AverageLocalScoreOptimality) {
         this.oldOverallScore = oldOverallScore;
         this.WOSMA_OverallScore = WOSMA_OverallScore;
         this.WOSMA_OverallPercentageImprovement = WOSMA_OverallPercentageImprovement;
@@ -45,8 +48,10 @@ public class WMComparisonResult {
         this.MCPMA_AverageLocalPercentageImprovement = MCPMA_AverageLocalPercentageImprovement;
         this.WOSMA_amtSWIChainsExecuted = WOSMA_amtSWIChainsExecuted;
         this.WOSMA_amtSWICyclesExecuted = WOSMA_amtSWICyclesExecuted;
-        this.MCPMA_OverallPercentageIncreaseSuperiorityPercentage = MCPMA_OverallPercentageIncreaseSuperiorityPercentage;
-        this.MCPMA_AverageLocalPercentageIncreaseSuperiorityPercentage = MCPMA_AverageLocalPercentageIncreaseSuperiorityPercentage;
+        this.WOSMA_averageSWIChainLength = WOSMA_averageSWIChainLength;
+        this.WOSMA_averageSWICycleLength = WOSMA_averageSWICycleLength;
+        this.WOSMA_OverallScoreOptimality = WOSMA_OverallScoreOptimality;
+        this.WOSMA_AverageLocalScoreOptimality = WOSMA_AverageLocalScoreOptimality;
     }
 
     public int getWOSMA_amtSWIChainsExecuted() {
@@ -55,6 +60,14 @@ public class WMComparisonResult {
 
     public int getWOSMA_amtSWICyclesExecuted() {
         return WOSMA_amtSWICyclesExecuted;
+    }
+
+    public float getWOSMA_averageSWIChainLength() {
+        return WOSMA_averageSWIChainLength;
+    }
+
+    public float getWOSMA_averageSWICycleLength() {
+        return WOSMA_averageSWICycleLength;
     }
 
     public float getOldOverallScore() {
