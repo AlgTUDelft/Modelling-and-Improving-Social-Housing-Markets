@@ -179,7 +179,7 @@ public class Main {
             e.printStackTrace();
         } catch (Matching.HouseLinkedToHouseException e) {
             e.printStackTrace();
-        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSize e) {
+        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSizeException e) {
             e.printStackTrace();
         } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
             e.printStackTrace();
@@ -271,12 +271,12 @@ public class Main {
     public static void comparison_WOSMA_MCPMA() throws IOException {
 
         String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
-        String outputFilename = "../2times500-WOSMA-MCPMA-compared_test2_avgME.csv";
+        String outputFilename = "../10times100-WOSMA-MCPMA-compared_test2_minME_emptyInitialMatching.csv";
 
         ArrayList<WMComparisonResult> results = new ArrayList<WMComparisonResult>();
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0,500));
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 100, 200, 300, 400, 500, 600, 700, 800, 900));
         for (int startLine : startLines) {
-            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 500));
+            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 100));
         }
 
         WMComparisonResultProcessor wmComparisonResultProcessor
@@ -293,7 +293,7 @@ public class Main {
         try {
             housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
+            matching = dataProcessor.csvToMatching(filename, 0, startLine, lineCount);
 
             MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
             float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
@@ -344,8 +344,8 @@ public class Main {
             e.printStackTrace();
         } catch (Matching.HouseAlreadyMatchedException e) {
             e.printStackTrace();
-        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSize bipartiteSidesUnequalSize) {
-            bipartiteSidesUnequalSize.printStackTrace();
+        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSizeException e) {
+            e.printStackTrace();
         } catch (Matching.HouseLinkedToHouseException e) {
             e.printStackTrace();
         } catch (Matching.HouseholdAlreadyMatchedException e) {

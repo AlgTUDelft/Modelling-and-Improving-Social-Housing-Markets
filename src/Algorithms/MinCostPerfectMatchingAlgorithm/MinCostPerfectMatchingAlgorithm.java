@@ -15,9 +15,9 @@ public class MinCostPerfectMatchingAlgorithm {
 
     public Matching findMinCostPerfectMatching()
             throws Matching.HouseLinkedToMultipleException,
-            Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, BipartiteSidesUnequalSize, Matching.IDNotPresentException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, ResidualGraph.PathEdgeNotInResidualGraphException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, ResidualGraph.MatchingNotEmptyException {
+            Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, BipartiteSidesUnequalSizeException, Matching.IDNotPresentException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, ResidualGraph.PathEdgeNotInResidualGraphException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, ResidualGraph.MatchingNotEmptyException {
         if (this.matching.getHouses().size() != this.matching.getHouseholds().size()) {
-            throw new BipartiteSidesUnequalSize("Error: Matching must contain as many houses as households.");
+            throw new BipartiteSidesUnequalSizeException("Error: Matching must contain as many houses as households.");
         }
         this.matching.dissolveConnections();
 
@@ -34,8 +34,8 @@ public class MinCostPerfectMatchingAlgorithm {
         return this.matching;
     }
 
-    public class BipartiteSidesUnequalSize extends Exception {
-        public BipartiteSidesUnequalSize(String errorMessage) {
+    public class BipartiteSidesUnequalSizeException extends Exception {
+        public BipartiteSidesUnequalSizeException(String errorMessage) {
             super(errorMessage);
         }
     }
