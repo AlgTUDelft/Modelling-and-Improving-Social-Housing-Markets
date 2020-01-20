@@ -8,6 +8,7 @@ import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WMComparisonResult;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WMComparisonResultProcessor;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
+import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.Matching;
@@ -17,6 +18,7 @@ import Algorithms.MinCostPerfectMatchingAlgorithm.ResidualGraph;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class Main {
 
@@ -274,9 +276,9 @@ public class Main {
         String outputFilename = "../test.csv";
 
         ArrayList<WMComparisonResult> results = new ArrayList<WMComparisonResult>();
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 250, 500, 750));
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950));
         for (int startLine : startLines) {
-            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 250));
+            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 50));
         }
 
         WMComparisonResultProcessor wmComparisonResultProcessor
@@ -305,6 +307,7 @@ public class Main {
             MinCostPerfectMatchingAlgorithm minCostPerfectMatchingAlgorithm
                     = new MinCostPerfectMatchingAlgorithm(matchingCopy);
 
+
             Matching workerOptimalStableMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching();
             MatchingEvaluator workerOptimalMatchingEvaluator = new MatchingEvaluator(workerOptimalStableMatching);
             float WOSMA_OverallResult = workerOptimalMatchingEvaluator.evaluateTotal(true);
@@ -314,6 +317,18 @@ public class Main {
             MatchingEvaluator minCostPerfectMatchingEvaluator = new MatchingEvaluator(minCostPerfectMatching);
             float MCPMA_OverallResult = minCostPerfectMatchingEvaluator.evaluateTotal(true);
             float MCPMA_AverageLocalResult = minCostPerfectMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+
+            // TODO: Remove this and the referred functionality once checked.
+            // Do some households move twice in WOSMA?
+            HashMap<Integer, Integer> householdMoves = matching.getHouseholdMoves();
+            System.out.println(householdMoves.size());
+            for (Household household : matching.getHouseholds()) {
+                if (householdMoves.containsKey(household.getID())) {
+                    if (householdMoves.get(household.getID()) > 1) {
+                        System.err.println("Found one!");
+                    }
+                }
+            }
 
             float WOSMA_OverallPercentageIncrease = (WOSMA_OverallResult - oldOverallResult)/oldOverallResult * 100;
             float WOSMA_AverageLocalPercentageIncrease = (WOSMA_AverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;

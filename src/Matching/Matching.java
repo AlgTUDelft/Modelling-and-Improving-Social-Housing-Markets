@@ -7,10 +7,7 @@ import HousingMarket.HousingMarketVertex;
 import HousingMarket.HouseAndHouseholdIDPair;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
@@ -30,6 +27,7 @@ public class Matching implements Serializable {
     private ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
 
     // TODO: Check if some households indeed are moved twice now.
+    private HashMap<Integer, Integer> householdMoves = new HashMap<Integer, Integer>();
 
     private HousingMarket housingMarket;
 
@@ -194,24 +192,19 @@ public class Matching implements Serializable {
     public House getHouseFromHousehold(int householdID)
             throws HouseholdLinkedToHouseholdException,HouseholdLinkedToMultipleException {
         Household household = this.getHousehold(householdID);
-        try {
-            if (this.matchingGraph.edgesOf(household).size() == 1) {
-                DefaultEdge edge = this.matchingGraph.edgesOf(household).iterator().next();
-                HousingMarketVertex house = this.matchingGraph.getEdgeSource(edge);
-                if (house instanceof House) {
-                    return (House) house;
-                } else {
-                    throw new HouseholdLinkedToHouseholdException("Error: Household " + household.toString() +
-                            " is linked to household " + house.toString() + "!");
-                }
-            } else if (this.matchingGraph.edgesOf(household).size() > 1) {
-                throw new HouseholdLinkedToMultipleException("Error: Household " + household.toString()
-                        + " is linked to multiples vertices!");
-            } else return null;
-        } catch(NullPointerException e) {
-            System.out.println("Got here!");
-            return null;
-        }
+        if (this.matchingGraph.edgesOf(household).size() == 1) {
+            DefaultEdge edge = this.matchingGraph.edgesOf(household).iterator().next();
+            HousingMarketVertex house = this.matchingGraph.getEdgeSource(edge);
+            if (house instanceof House) {
+                return (House) house;
+            } else {
+                throw new HouseholdLinkedToHouseholdException("Error: Household " + household.toString() +
+                        " is linked to household " + house.toString() + "!");
+            }
+        } else if (this.matchingGraph.edgesOf(household).size() > 1) {
+            throw new HouseholdLinkedToMultipleException("Error: Household " + household.toString()
+                    + " is linked to multiples vertices!");
+        } else return null;
     }
 
     public boolean hasEdge(int houseID, int householdID) throws HouseLinkedToMultipleException, HouseLinkedToHouseException {
@@ -344,6 +337,14 @@ public class Matching implements Serializable {
             SWIChainLengths.add(0);
             SWICycleLengths.add(edgesCount);
         }
+
+        for (int householdID : cycle) {
+            if (this.householdMoves.containsKey(householdID)) {
+                this.householdMoves.put(householdID, this.householdMoves.get(householdID) + 1);
+            } else {
+                this.householdMoves.put(householdID, 1);
+            }
+        }
     }
 
     public boolean isMaximallyMatched() {
@@ -404,6 +405,10 @@ public class Matching implements Serializable {
                 .average()
                 .orElse(0.0);
         return (float) result;
+    }
+
+    public HashMap<Integer, Integer> getHouseholdMoves() {
+        return householdMoves;
     }
 
     public class HouseLinkedToHouseException extends Exception {
