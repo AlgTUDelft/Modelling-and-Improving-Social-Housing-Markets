@@ -10,7 +10,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalDouble;
+import java.util.Random;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
@@ -354,6 +354,19 @@ public class Matching implements Serializable {
 
     public SimpleGraph<HousingMarketVertex, DefaultEdge> getMatchingGraph() {
         return this.matchingGraph;
+    }
+
+    public void randomlyRewire() throws HouseLinkedToMultipleException, HouseLinkedToHouseException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException {
+        this.dissolveConnections();
+        Random rand = new Random();
+        for (Household household : this.getHouseholds()) {
+            ArrayList<House> householdlessHouses = this.householdlessHouses;
+            if (householdlessHouses.isEmpty()) {
+                break;
+            }
+            House chosenHouse = householdlessHouses.get(rand.nextInt(householdlessHouses.size()));
+            this.connect(chosenHouse.getID(), household.getID());
+        }
     }
 
     public int getAmtSWIChainsExecuted() {
