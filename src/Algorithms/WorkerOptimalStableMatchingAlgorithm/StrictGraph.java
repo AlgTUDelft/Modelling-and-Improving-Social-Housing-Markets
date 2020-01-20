@@ -143,6 +143,20 @@ public class StrictGraph {
         cycleWithoutNil.remove(Integer.valueOf(nil));
         this.wireHouseholds(cycleWithoutNil);
 
+//        Set<DefaultEdge> allEdges = (Set<DefaultEdge>) this.underlyingStrictGraph.edgeSet();
+//        ArrayList<DefaultEdge> allEdgesToRemove = new ArrayList<DefaultEdge>();
+//        for (DefaultEdge edge : allEdges) {
+//            allEdgesToRemove.add(edge);
+//        }
+//        for (DefaultEdge edge : allEdgesToRemove) {
+//            this.underlyingStrictGraph.removeEdge(edge);
+//        }
+
+        ArrayList<Integer> householdIDs = new ArrayList<Integer>();
+        for (Household household : newMatching.getHouseholds()) {
+            householdIDs.add(household.getID());
+        }
+        this.wireHouseholds(householdIDs);
 
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
 

@@ -318,18 +318,6 @@ public class Main {
             float MCPMA_OverallResult = minCostPerfectMatchingEvaluator.evaluateTotal(true);
             float MCPMA_AverageLocalResult = minCostPerfectMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
 
-            // TODO: Remove this and the referred functionality once checked.
-            // Do some households move twice in WOSMA?
-            HashMap<Integer, Integer> householdMoves = matching.getHouseholdMoves();
-            System.out.println(householdMoves.size());
-            for (Household household : matching.getHouseholds()) {
-                if (householdMoves.containsKey(household.getID())) {
-                    if (householdMoves.get(household.getID()) > 1) {
-                        System.err.println("Found one!");
-                    }
-                }
-            }
-
             float WOSMA_OverallPercentageIncrease = (WOSMA_OverallResult - oldOverallResult)/oldOverallResult * 100;
             float WOSMA_AverageLocalPercentageIncrease = (WOSMA_AverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
             float MCPMA_OverallPercentageIncrease = (MCPMA_OverallResult - oldOverallResult)/oldOverallResult * 100;
