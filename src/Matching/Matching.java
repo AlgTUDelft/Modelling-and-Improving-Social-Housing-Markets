@@ -31,6 +31,7 @@ public class Matching implements Serializable {
     public Matching(HousingMarket housingMarket) {
         this.matchingGraph = new SimpleGraph<>(DefaultEdge.class);
         this.housingMarket = housingMarket;
+
     }
 
     public void addHouse(House house) {
@@ -255,6 +256,7 @@ public class Matching implements Serializable {
 
     // Part of the EfficientStableMatchingAlgorithm.
     public void effectuateStrictCycle(List<Integer> cycle, int nilValue) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
+        // TODO: Check if this needs to be changed following my modifications of WOSMA!!
         int edgesCount = cycle.size();
 
         boolean isChain = false;
@@ -395,7 +397,6 @@ public class Matching implements Serializable {
                 .orElse(0.0);
         return (float) result;
     }
-
 
     public class HouseLinkedToHouseException extends Exception {
         public HouseLinkedToHouseException(String errorMessage) {
