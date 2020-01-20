@@ -29,6 +29,7 @@ public class Matching implements Serializable {
     private ArrayList<Integer> SWIChainLengths = new ArrayList<Integer>();
     private ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
 
+    // TODO: Check if some households indeed are moved twice now.
 
     private HousingMarket housingMarket;
 
@@ -193,18 +194,24 @@ public class Matching implements Serializable {
     public House getHouseFromHousehold(int householdID)
             throws HouseholdLinkedToHouseholdException,HouseholdLinkedToMultipleException {
         Household household = this.getHousehold(householdID);
-        if (this.matchingGraph.edgesOf(household).size() == 1) {
-            DefaultEdge edge = this.matchingGraph.edgesOf(household).iterator().next();
-            HousingMarketVertex house = this.matchingGraph.getEdgeSource(edge);
-            if (house instanceof House) {
-                return (House) house;
-            } else { throw new HouseholdLinkedToHouseholdException("Error: Household " + household.toString() +
-                    " is linked to household " + house.toString() + "!");}
-        } else if (this.matchingGraph.edgesOf(household).size() > 1) {
-            throw new HouseholdLinkedToMultipleException("Error: Household " + household.toString()
-                    + " is linked to multiples vertices!");
+        try {
+            if (this.matchingGraph.edgesOf(household).size() == 1) {
+                DefaultEdge edge = this.matchingGraph.edgesOf(household).iterator().next();
+                HousingMarketVertex house = this.matchingGraph.getEdgeSource(edge);
+                if (house instanceof House) {
+                    return (House) house;
+                } else {
+                    throw new HouseholdLinkedToHouseholdException("Error: Household " + household.toString() +
+                            " is linked to household " + house.toString() + "!");
+                }
+            } else if (this.matchingGraph.edgesOf(household).size() > 1) {
+                throw new HouseholdLinkedToMultipleException("Error: Household " + household.toString()
+                        + " is linked to multiples vertices!");
+            } else return null;
+        } catch(NullPointerException e) {
+            System.out.println("Got here!");
+            return null;
         }
-        else return null;
     }
 
     public boolean hasEdge(int houseID, int householdID) throws HouseLinkedToMultipleException, HouseLinkedToHouseException {

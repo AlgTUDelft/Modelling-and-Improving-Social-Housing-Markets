@@ -27,7 +27,6 @@ public class StrictGraph {
     public StrictGraph(Matching matching) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         this.matching = matching;
 
-        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
 
         // Add vertices.
         underlyingStrictGraph.addVertex(nil); // _nil_ vertex.
@@ -37,7 +36,13 @@ public class StrictGraph {
             householdIDs.add(householdID);
         }
 
+        this.wireHouseholds(householdIDs);
+    }
+
+    public void wireHouseholds(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         // Add edges. Types here refer to the first three types noted in the paper's description of the WOSMA-algorithm.
+        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
+
         for (Integer householdID : householdIDs) {
             float fitWithCurrentHouse;
             House currentHouse = matching.getHouseFromHousehold(householdID);
@@ -110,11 +115,34 @@ public class StrictGraph {
         // away, even if we were able to offer them a better house.
         // Thus we remove all the households that are in this cycle, from the graph.
         // This process also automatically removes all edges that needed to be removed.
+        // TODO: Describe modification where we now no longer remove households.
+//        for (int householdID : cycle) {
+//            if (householdID != nil) {
+//                this.underlyingStrictGraph.removeVertex(householdID);
+//            }
+//        }
+
+        this.matching = newMatching;
+
+        ArrayList<DefaultEdge> cycleEdgesToRemove = new ArrayList<DefaultEdge>();
         for (int householdID : cycle) {
             if (householdID != nil) {
-                this.underlyingStrictGraph.removeVertex(householdID);
+                for (DefaultEdge edge : (Set<DefaultEdge>) this.underlyingStrictGraph.incomingEdgesOf(householdID)) {
+                    cycleEdgesToRemove.add(edge);
+                }
+                for (DefaultEdge edge : (Set<DefaultEdge>) this.underlyingStrictGraph.outgoingEdgesOf(householdID)) {
+                    cycleEdgesToRemove.add(edge);
+                }
             }
         }
+        for (DefaultEdge edge : cycleEdgesToRemove) {
+            this.underlyingStrictGraph.removeEdge(edge);
+        }
+
+        ArrayList<Integer> cycleWithoutNil = new ArrayList<Integer>(cycle);
+        cycleWithoutNil.remove(Integer.valueOf(nil));
+        this.wireHouseholds(cycleWithoutNil);
+
 
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
 
@@ -157,6 +185,5 @@ public class StrictGraph {
             this.underlyingStrictGraph.removeEdge(edge);
         }
 
-        this.matching = newMatching;
     }
 }
