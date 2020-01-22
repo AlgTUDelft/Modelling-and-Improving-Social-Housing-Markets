@@ -37,6 +37,9 @@ public class CycleFinder {
         //  It will go w1->w2->w3->w4->w5->w6->w7 --- no cycle; where w1->w2 is strict.
         //  Then later, if w3->w4 is strict, it might still go and try w3->w4->w5->w6->w7 all over again.
         //  This makes it a very slow algorithm! I can fix this.
+        //  Idea: don't focus on nodes, focus on edges. Give edges different discovery-statuses.
+        //  And perhaps: Whenever you find a cycle, just check if it contains a strict edge,
+        //  rather than forcibly starting out with some strict edge and often checking it anyway.
         // Implements simple DFS. Returns the first cycle that it can find.
         // Two conditions need to hold:
         // 1) The cycle contains at least one strict edge.
