@@ -72,7 +72,8 @@ public class CycleFinder {
 
     private List<Integer> recursivelyFindCycle(ArrayList<Integer> path) throws FullyExploredVertexDiscoveredException {
         int vertex = path.get(path.size()-1);
-        states.put(vertex, 1);
+        // TODO: Get rid of states, and instead check for cycles by exploring until we find a node,
+        //  not whose state is 1, but rather whose value equals the path's initial value.
         Set<DefaultWeightedEdge> outgoingEdges = graph.outgoingEdgesOf(vertex);
         for (DefaultWeightedEdge edge : outgoingEdges) {
             // Condition 2 check. Only traverse this edge if it succeeds.
@@ -87,7 +88,7 @@ public class CycleFinder {
                     }
                 } else if (states.get(neighbor) == 1) {
                     int pathStart = path.indexOf(neighbor);
-                    List<Integer> cycle = path.subList(pathStart, path.size()); // TODO: OutOfBounds error, or not?
+                    List<Integer> cycle = path.subList(pathStart, path.size());
                     return cycle;
                 } else { // states.get(neighbor) == 2
                     throw new FullyExploredVertexDiscoveredException("Found a vertex that was supposed to" +
@@ -95,7 +96,6 @@ public class CycleFinder {
                 }
             }
         }
-        states.put(vertex, 2);
         return null;
     }
 
