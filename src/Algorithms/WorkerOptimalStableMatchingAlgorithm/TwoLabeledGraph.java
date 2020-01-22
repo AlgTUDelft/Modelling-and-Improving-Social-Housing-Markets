@@ -4,19 +4,24 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public class TwoLabeledGraph {
 
     private Matching matching;
+    // Edges' weights are 1 if strict, 0 otherwise.
     private SimpleDirectedWeightedGraph underlyingStrictGraph = new SimpleDirectedWeightedGraph(DefaultWeightedEdge.class);
     private ArrayList<Integer> householdIDs = new ArrayList<Integer>();
     private Integer nil = -1;
 
-    public TwoLabeledGraph(Matching matching) {
+    public TwoLabeledGraph(Matching matching) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = matching;
 
         // Add vertices.
@@ -27,11 +32,10 @@ public class TwoLabeledGraph {
             householdIDs.add(householdID);
         }
 
-        this.initalWireHouseholds(householdIDs);
+        this.wireHouseholds(householdIDs, true);
     }
 
-    public void initalWireHouseholds(ArrayList<Integer> householdIDs) throws Matching.Matching.HouseholdLinkedToMultipleException, Matching.Matching.HouseholdLinkedToHouseholdException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException {
-        // TODO: finish; add non-strict edges and assign weights.
+    public void wireHouseholds(ArrayList<Integer> householdIDs, boolean initialWiring) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         // Add edges. Types here refer to the first three types noted in the paper's description of the WOSMA-algorithm.
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
 
@@ -41,7 +45,8 @@ public class TwoLabeledGraph {
 
             if (currentHouse == null) {
                 // Add type 3 edge, condition 1.
-                underlyingStrictGraph.addEdge(nil, householdID);
+                DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(nil, householdID);
+                underlyingStrictGraph.setEdgeWeight(edge, 0);
                 fitWithCurrentHouse = 0;
             } else {
                 fitWithCurrentHouse = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
@@ -53,14 +58,28 @@ public class TwoLabeledGraph {
                     }
                 }
                 float fitWithOtherHouse = matchingEvaluator.evaluateIndividualTotalFit(otherHouse.getID(), householdID);
-                if (fitWithOtherHouse > fitWithCurrentHouse) { // Note the strict greater-than relation.
+                if (fitWithOtherHouse >= fitWithCurrentHouse) { // Note the strict greater-than relation.
                     Household householdOfOtherHouse = this.matching.getHouseholdFromHouse(otherHouse.getID());
                     if (householdOfOtherHouse == null) {
                         // Add type 2 edge
-                        underlyingStrictGraph.addEdge(householdID, nil);
+                        DefaultWeightedEdge edge;
+                        if (fitWithOtherHouse > fitWithCurrentHouse) {
+                            edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, nil);
+                            underlyingStrictGraph.setEdgeWeight(edge, 1);
+                        } else if (!initialWiring) {
+                            edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, nil);
+                            underlyingStrictGraph.setEdgeWeight(edge, 0);
+                        } else { continue; }
                     } else {
                         // Add type 1 edge
-                        underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
+                        DefaultWeightedEdge edge;
+                        if (fitWithOtherHouse > fitWithCurrentHouse) {
+                            edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
+                            underlyingStrictGraph.setEdgeWeight(edge, 1);
+                        } else if (!initialWiring) {
+                            edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
+                            underlyingStrictGraph.setEdgeWeight(edge, 0);
+                        } else { continue; }
                     }
                 }
             }
@@ -75,7 +94,8 @@ public class TwoLabeledGraph {
                     // If the above edge-additive process did not cause the current household to receive any incoming
                     // edges, then the reduced second condition -- there is no worker who strictly desires the current
                     // household's house -- is fulfilled, meaning the following edge should be added.
-                    underlyingStrictGraph.addEdge(nil, householdID);
+                    DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(nil, householdID);
+                    underlyingStrictGraph.setEdgeWeight(edge, 0);
                 }
             }
         }
@@ -83,5 +103,84 @@ public class TwoLabeledGraph {
 
     public Integer getNil() {
         return nil;
+    }
+
+    public void update(List<Integer> cycle, Matching newMatching) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
+        this.matching = newMatching;
+
+        // First update the edges of the households that were present in the cycle.
+        // For these we may now add non-strict edges.
+        ArrayList<DefaultWeightedEdge> cycleEdgesToRemove = new ArrayList<DefaultWeightedEdge>();
+        for (int householdID : cycle) {
+            if (householdID != nil) {
+                for (DefaultWeightedEdge edge : (Set<DefaultWeightedEdge>) this.underlyingStrictGraph.incomingEdgesOf(householdID)) {
+                    cycleEdgesToRemove.add(edge);
+                }
+                for (DefaultWeightedEdge edge : (Set<DefaultWeightedEdge>) this.underlyingStrictGraph.outgoingEdgesOf(householdID)) {
+                    cycleEdgesToRemove.add(edge);
+                }
+            }
+        }
+        for (DefaultWeightedEdge edge : cycleEdgesToRemove) {
+            this.underlyingStrictGraph.removeEdge(edge);
+        }
+
+        ArrayList<Integer> cycleWithoutNil = new ArrayList<Integer>(cycle);
+        cycleWithoutNil.remove(Integer.valueOf(nil));
+        this.wireHouseholds(cycleWithoutNil, false);
+
+
+        // Then, for each households w, re-check the edges w->nil
+        // to see if there's still other preferred or equally-good houses for w.
+        // Note that we technically needn't check the households that were present in the cycle,
+        // because their edges are already A-OK due to the above _wireHouseholds_-call;
+        // but it's little harm to re-check them anyway.
+        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
+
+        Set<DefaultWeightedEdge> edges = (Set<DefaultWeightedEdge>) this.underlyingStrictGraph.incomingEdgesOf(nil);
+        ArrayList<DefaultWeightedEdge> edgesToRemove = new ArrayList<DefaultWeightedEdge>();
+        for (DefaultWeightedEdge edge : edges) {
+            int householdID = (int) this.underlyingStrictGraph.getEdgeSource(edge);
+            float fitWithCurrentHouse;
+
+            House currentHouse = matching.getHouseFromHousehold(householdID);
+
+            if (currentHouse == null) {
+                fitWithCurrentHouse = 0;
+            } else {
+                fitWithCurrentHouse = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
+            }
+            boolean foundOnlyWorseHouseholdlessHouses = true;
+            for (House otherHouse : this.matching.getHouses()) {
+                if (currentHouse != null) {
+                    if (otherHouse.getID() == currentHouse.getID()) {
+                        continue;
+                    }
+                }
+                Household householdOfOtherHouse = this.matching.getHouseholdFromHouse(otherHouse.getID());
+                if (householdOfOtherHouse == null) {
+                    float fitWithOtherHouse = matchingEvaluator.evaluateIndividualTotalFit(otherHouse.getID(), householdID);
+                    if (fitWithOtherHouse > fitWithCurrentHouse) {
+                        foundOnlyWorseHouseholdlessHouses = false;
+                        this.underlyingStrictGraph.setEdgeWeight(edge, 1);
+                        break; // Break, because we know this edge must be strict now;
+                        // after all, we've definitively found a preferred house.
+                    } else if (fitWithOtherHouse == fitWithCurrentHouse) {
+                        foundOnlyWorseHouseholdlessHouses = false;
+                        this.underlyingStrictGraph.setEdgeWeight(edge, 0);
+                        // TODO: Wait! We don't want to have non-strict edges if we haven't moved this household yet...
+                        // No break, because we don't yet know if there is any house
+                        // that this household strictly prefers.
+                    }
+                }
+            }
+            if (foundOnlyWorseHouseholdlessHouses) {
+                edgesToRemove.add(edge);
+            }
+        }
+
+        for (DefaultWeightedEdge edge : edgesToRemove) {
+            this.underlyingStrictGraph.removeEdge(edge);
+        }
     }
 }
