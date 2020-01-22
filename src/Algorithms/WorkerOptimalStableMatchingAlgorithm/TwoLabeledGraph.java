@@ -5,6 +5,7 @@ import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
 import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
+import org.jgrapht.alg.cycle.TarjanSimpleCycles;
 import org.jgrapht.graph.*;
 
 import java.util.ArrayList;
