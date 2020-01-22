@@ -5,7 +5,6 @@ import HousingMarket.HouseAndHouseholdIDPair;
 import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
-import TreeNode.TreeNode;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

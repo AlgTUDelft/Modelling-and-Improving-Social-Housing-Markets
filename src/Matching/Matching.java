@@ -7,9 +7,7 @@ import HousingMarket.HousingMarketVertex;
 import HousingMarket.HouseAndHouseholdIDPair;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
@@ -25,13 +23,16 @@ public class Matching implements Serializable {
     private ArrayList<Household> elderlyHouseholds = new ArrayList<Household>();
     private ArrayList<House> householdlessHouses = new ArrayList<House>();
     private ArrayList<Household> houselessHouseholds = new ArrayList<Household>();
-
+    private ArrayList<Integer> SWIChainLengths = new ArrayList<Integer>();
+    private ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
+    private Set<Integer> householdsMovedByWOSMA = new HashSet<Integer>();
 
     private HousingMarket housingMarket;
 
     public Matching(HousingMarket housingMarket) {
         this.matchingGraph = new SimpleGraph<>(DefaultEdge.class);
         this.housingMarket = housingMarket;
+
     }
 
     public void addHouse(House house) {
@@ -195,13 +196,14 @@ public class Matching implements Serializable {
             HousingMarketVertex house = this.matchingGraph.getEdgeSource(edge);
             if (house instanceof House) {
                 return (House) house;
-            } else { throw new HouseholdLinkedToHouseholdException("Error: Household " + household.toString() +
-                    " is linked to household " + house.toString() + "!");}
+            } else {
+                throw new HouseholdLinkedToHouseholdException("Error: Household " + household.toString() +
+                        " is linked to household " + house.toString() + "!");
+            }
         } else if (this.matchingGraph.edgesOf(household).size() > 1) {
             throw new HouseholdLinkedToMultipleException("Error: Household " + household.toString()
                     + " is linked to multiples vertices!");
-        }
-        else return null;
+        } else return null;
     }
 
     public boolean hasEdge(int houseID, int householdID) throws HouseLinkedToMultipleException, HouseLinkedToHouseException {
@@ -253,6 +255,91 @@ public class Matching implements Serializable {
         }
     }
 
+    // Part of the EfficientStableMatchingAlgorithm.
+    public void executeCycle(List<Integer> cycle, int nilValue) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
+        // TODO: Check if this needs to be changed following my modifications of WOSMA!!
+        int edgesCount = cycle.size();
+
+        boolean isChain = false;
+
+        // Disconnect all households from whatever houses they own, and keep a list of these houses.
+        ArrayList<Integer> housesList = new ArrayList<Integer>();
+        for (int i = 0; i<edgesCount; i++) {
+            int householdID = cycle.get(i);
+            if (householdID != nilValue) {
+                House house = getHouseFromHousehold(householdID);
+                if (house != null) {
+                    housesList.add(house.getID());
+                    disconnect(house.getID(), householdID);
+                } else {
+                    housesList.add(null);
+                }
+                householdsMovedByWOSMA.add(householdID);
+            } else {
+                isChain = true;
+                housesList.add(null);
+            }
+        }
+        if (isChain) { System.out.println("Chain has size: " + edgesCount); } else { System.out.println("Cycle has size: " + edgesCount); }
+
+        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this);
+
+        for (int i = 0; i<edgesCount; i++) {
+            int sourceVertex;
+            int targetVertex;
+            if (i == edgesCount-1) {
+                sourceVertex = cycle.get(i);
+                targetVertex = cycle.get(0);
+            } else {
+                sourceVertex = cycle.get(i);
+                targetVertex = cycle.get(i+1);
+            }
+
+            if (sourceVertex != nilValue && targetVertex != nilValue) {
+                if (i+1 < housesList.size()) {
+                    connect(housesList.get(i + 1), sourceVertex);
+                } else {
+                    connect(housesList.get(0), sourceVertex);
+                }
+            } else if (sourceVertex == nilValue) {
+                continue; // Household was already previously disconnected, so no change.
+            } else { // targetVertex == nilValue, so there is an empty house that the household prefers to their own.
+                // We now choose to connect him with that house amongst the empty houses, that they prefer most,
+                // so long as they do indeed prefer it to their current house.
+                // TODO: Is that method of picking a house legit, though?
+                ArrayList<House> householdlessHouses = getHouseholdlessHouses();
+                float highestScore;
+                if (housesList.get(i) == null) {
+                    highestScore = 0;
+                } else {
+                    highestScore = matchingEvaluator.evaluateIndividualTotalFit(housesList.get(i), sourceVertex);
+                }
+                House bestHouse = null;
+                for (House house : householdlessHouses) {
+                    float candidateScore = matchingEvaluator.evaluateIndividualTotalFit(house.getID(), sourceVertex);
+                    if (candidateScore > highestScore) {
+                        highestScore = candidateScore;
+                        bestHouse = house;
+                    }
+                }
+                if (bestHouse == null) {
+                    throw new PreferredNoHouseholdlessHouseException("Cycle indicated that household would prefer some" +
+                            " other house to their current house, but no such house was found.");
+                } else {
+                    connect(bestHouse.getID(), sourceVertex);
+                }
+            }
+        }
+
+        if (isChain) {
+            SWIChainLengths.add(edgesCount);
+            SWICycleLengths.add(0);
+        } else {
+            SWIChainLengths.add(0);
+            SWICycleLengths.add(edgesCount);
+        }
+    }
+
     public boolean isMaximallyMatched() {
         if (this.houses.size() != this.households.size()) {
             System.err.println("|Houses| != |Households|. Therefore matching can never be perfect.");
@@ -270,6 +357,52 @@ public class Matching implements Serializable {
         return this.matchingGraph;
     }
 
+    public void randomlyRewire() throws HouseLinkedToMultipleException, HouseLinkedToHouseException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException {
+        this.dissolveConnections();
+        Random rand = new Random();
+        for (Household household : this.getHouseholds()) {
+            ArrayList<House> householdlessHouses = this.householdlessHouses;
+            if (householdlessHouses.isEmpty()) {
+                break;
+            }
+            House chosenHouse = householdlessHouses.get(rand.nextInt(householdlessHouses.size()));
+            this.connect(chosenHouse.getID(), household.getID());
+        }
+    }
+
+    public int getAmtSWIChainsExecuted() {
+        return (int) SWIChainLengths.stream()
+                .filter(h -> h > 0)
+                .count();
+    }
+
+    public int getAmtSWICyclesExecuted() {
+        return (int) SWICycleLengths.stream()
+                .filter(h -> h > 0)
+                .count();
+    }
+
+    public float getAverageSWIChainLength() {
+        double result = SWIChainLengths.stream()
+                .filter(h -> h > 0)
+                .mapToDouble(a -> a)
+                .average()
+                .orElse(0.0);
+        return (float) result;
+    }
+
+    public float getAverageSWICycleLength() {
+        double result = SWICycleLengths.stream()
+                .filter(h -> h > 0)
+                .mapToDouble(a -> a)
+                .average()
+                .orElse(0.0);
+        return (float) result;
+    }
+
+    public Set<Integer> getHouseholdsMovedByWOSMA() {
+        return householdsMovedByWOSMA;
+    }
 
     public class HouseLinkedToHouseException extends Exception {
         public HouseLinkedToHouseException(String errorMessage) {
@@ -309,6 +442,10 @@ public class Matching implements Serializable {
 
     public class IDNotPresentException extends Exception {
         public IDNotPresentException(String errorMessage) { super(errorMessage); }
+    }
+
+    public class PreferredNoHouseholdlessHouseException extends Exception {
+        public PreferredNoHouseholdlessHouseException(String errorMessage) { super(errorMessage); }
     }
 
 }

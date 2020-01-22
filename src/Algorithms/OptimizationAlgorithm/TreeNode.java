@@ -1,4 +1,4 @@
-package TreeNode;
+package Algorithms.OptimizationAlgorithm;
 
 import java.util.ArrayList;
 import java.util.List;
