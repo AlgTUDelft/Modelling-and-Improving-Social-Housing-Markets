@@ -1,6 +1,7 @@
 package Algorithms.WorkerOptimalStableMatchingAlgorithm;
 
 import Matching.Matching;
+import org.apache.poi.ss.formula.functions.Index;
 import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
@@ -15,7 +16,7 @@ public class CycleFinder {
 
     private AsSubgraph<Integer, DefaultWeightedEdge> graph;
     List<Integer> vertices;
-    // Takes vertex, returns state in {0 = unexplored | 1 = being explored | 2 = fully explored}.
+    // Takes vertex, returns state in {0 = unexplored | 1 = being explored}.
     private HashMap<Integer, Integer> states = new HashMap<Integer, Integer>();
     private Set<Integer> householdIDsMovedByWOSMA;
     private int nilValue;
@@ -61,9 +62,7 @@ public class CycleFinder {
                 if (cycle != null) {
                     break;
                 }
-                for (int anyVertex : vertices) {
-                    states.put(anyVertex, 0);
-                }
+                states.put(vertex, 0);
             }
             if (cycle != null) {
                 break;
@@ -75,26 +74,29 @@ public class CycleFinder {
     private List<Integer> recursivelyFindCycle(ArrayList<Integer> path) throws FullyExploredVertexDiscoveredException {
         int vertex = path.get(path.size()-1);
         states.put(vertex, 1);
-        // TODO: Get rid of states, and instead check for cycles by exploring until we find a node,
-        //  not whose state is 1, but rather whose value equals the path's initial value.
-        //  However, even if we did that, we would still get stuck in an endless
-        //  w1 -> w2 -> w3 -> w4 -> w3 -> w4 -> w3...
-        //  In order to avoid this, we might like to maybe do the following:
-        //  * Keep track of nodes' states, but only within a single recursion-head (as defined by findCycle()).
-        //  * If we find a node equalling the initial node, that's a cycle!
-        //  * If we find a neighbor with state 1 (but failing the above condition),
-        //    then don't traverse that edge. It would only lead to a potentially bad cycle.
         Set<DefaultWeightedEdge> outgoingEdges = graph.outgoingEdgesOf(vertex);
         for (DefaultWeightedEdge edge : outgoingEdges) {
             // Condition 2 check. Only traverse this edge if it succeeds.
             if (edgeIsStrictOrSourcedAtMovedHousehold(edge)) {
                 int neighbor = graph.getEdgeTarget(edge);
+                // Does neighbor complete the path at its start? Then return cycle; by definition
+                // it contains a strict edge, namely its first edge.
                 if (path.get(0) == neighbor) {
                     return path;
                 }
+                // Is neighbor present in path, but crucially it is not the first node?
+                // Then we only want to return the cycle in this path if it contains a strict edge.
+                // Otherwise, do nothing. At any rate there is no need to traverse this neighbor.
                 if (states.get(neighbor) == 1) {
-                    continue;
-                } else if (states.get(neighbor) == 0) {
+                    int pathStart = path.indexOf(neighbor);
+                    List<Integer> potentialCycle = path.subList(pathStart, path.size());
+                    if (containsStrictEdge(potentialCycle)) {
+                        return potentialCycle;
+                    }
+                    else { continue; }
+                } else
+                    // Has neighbor not been discovered yet? Then explore it.
+                    if (states.get(neighbor) == 0) {
                     ArrayList<Integer> recursedPath = (ArrayList<Integer>) deepClone(path);
                     recursedPath.add(neighbor);
                     List<Integer> cycle = recursivelyFindCycle(recursedPath);
@@ -104,6 +106,7 @@ public class CycleFinder {
                 }
             }
         }
+        states.put(vertex, 0);
         return null;
     }
 
@@ -117,6 +120,17 @@ public class CycleFinder {
         }
         if (householdIDsMovedByWOSMA.contains(source)) {
             return true; // Household that this edge's inclusion would move, has been moved before.
+        }
+        return false;
+    }
+
+    private boolean containsStrictEdge(List<Integer> potentialCycle) {
+        for (int i = 0; i < potentialCycle.size(); i++) {
+            int source = potentialCycle.get(i);
+            int target = potentialCycle.get((i + 1) % potentialCycle.size());
+            if (this.graph.getEdgeWeight(this.graph.getEdge(source, target)) == 1) {
+                return true;
+            }
         }
         return false;
     }

@@ -274,6 +274,7 @@ public class Matching implements Serializable {
                 } else {
                     housesList.add(null);
                 }
+                householdsMovedByWOSMA.add(householdID);
             } else {
                 isChain = true;
                 housesList.add(null);
