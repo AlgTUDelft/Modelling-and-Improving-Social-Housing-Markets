@@ -16,20 +16,24 @@ public class CycleFinder {
     List<Integer> vertices;
     // Takes vertex, returns state in {0 = unexplored | 1 = being explored | 2 = fully explored}.
     private HashMap<Integer, Integer> states = new HashMap<Integer, Integer>();
-    private Matching matching;
+    private Set<Integer> householdIDsMovedByWOSMA;
 
-
-    public CycleFinder(AsSubgraph<Integer, DefaultWeightedEdge> graph, Matching matching) {
+    public CycleFinder(AsSubgraph<Integer, DefaultWeightedEdge> graph, Set<Integer> householdIDsMovedByWOSMA) {
         this.graph = graph;
         this.vertices = new ArrayList<>(graph.vertexSet());
         for (int vertex : vertices) {
             states.put(vertex, 0);
         }
-        this.matching = matching;
+        this.householdIDsMovedByWOSMA = householdIDsMovedByWOSMA;
     }
 
     public List<Integer> findCycle() throws FullyExploredVertexDiscoveredException {
         // Implements simple DFS. Returns the first cycle that it can find.
+        // Two conditions need to hold:
+        // 1) The cycle contains at least one strict edge.
+        // 2) All non-strict edges that the cycle contains,
+        //    must be sourced at a household that has been moved by WOSMA before (or at nil).
+        // TODO: Ensure both conditions hold.
         Iterator<Integer> iterator = vertices.iterator();
         List<Integer> cycle = null;
         while (iterator.hasNext()) {

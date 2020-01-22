@@ -180,14 +180,13 @@ public class TwoLabeledGraph {
         }
     }
 
-    public List<Integer> findCycle() {
-        // TODO: Modify this and CycleFinder class so that conditions 1 and 2 are checked.
+    public List<Integer> findCycle() throws CycleFinder.FullyExploredVertexDiscoveredException {
         GabowStrongConnectivityInspector gabowStrongConnectivityInspector = new GabowStrongConnectivityInspector(underlyingStrictGraph);
         List<AsSubgraph<Integer,DefaultWeightedEdge>> components = gabowStrongConnectivityInspector.getStronglyConnectedComponents();
         List<Integer> cycle = null;
         for (AsSubgraph<Integer, DefaultWeightedEdge> component : components) {
             if (component.vertexSet().size() > 1) {
-                CycleFinder cycleFinder = new CycleFinder(component, this.matching);
+                CycleFinder cycleFinder = new CycleFinder(component, this.matching.getHouseholdsMovedByWOSMA());
                 cycle = cycleFinder.findCycle();
                 if (cycle != null) {
                     break;
