@@ -41,7 +41,6 @@ public class CycleFinder {
         // For each vertex...
         while (vertexIterator.hasNext()) {
             int vertex = vertexIterator.next();
-            states.put(vertex, 1);
             Set<DefaultWeightedEdge> outgoingEdges = graph.outgoingEdgesOf(vertex);
             List<DefaultWeightedEdge> outgoingStrictEdges = outgoingEdges.stream()
                     .filter(e -> graph.getEdgeWeight(e) == 1)
@@ -53,6 +52,7 @@ public class CycleFinder {
             // Furthermore, because every strict edge is in this manner tried,
             // we will never miss an eligible cycle.
             while (strictEdgeIterator.hasNext()) {
+                states.put(vertex, 1);
                 DefaultWeightedEdge edge = strictEdgeIterator.next();
                 ArrayList<Integer> path = new ArrayList<Integer>();
                 path.add(vertex);
@@ -61,38 +61,46 @@ public class CycleFinder {
                 if (cycle != null) {
                     break;
                 }
+                for (int anyVertex : vertices) {
+                    states.put(anyVertex, 0);
+                }
             }
             if (cycle != null) {
                 break;
             }
-            states.put(vertex, 2);
         }
         return cycle;
     }
 
     private List<Integer> recursivelyFindCycle(ArrayList<Integer> path) throws FullyExploredVertexDiscoveredException {
         int vertex = path.get(path.size()-1);
+        states.put(vertex, 1);
         // TODO: Get rid of states, and instead check for cycles by exploring until we find a node,
         //  not whose state is 1, but rather whose value equals the path's initial value.
+        //  However, even if we did that, we would still get stuck in an endless
+        //  w1 -> w2 -> w3 -> w4 -> w3 -> w4 -> w3...
+        //  In order to avoid this, we might like to maybe do the following:
+        //  * Keep track of nodes' states, but only within a single recursion-head (as defined by findCycle()).
+        //  * If we find a node equalling the initial node, that's a cycle!
+        //  * If we find a neighbor with state 1 (but failing the above condition),
+        //    then don't traverse that edge. It would only lead to a potentially bad cycle.
         Set<DefaultWeightedEdge> outgoingEdges = graph.outgoingEdgesOf(vertex);
         for (DefaultWeightedEdge edge : outgoingEdges) {
             // Condition 2 check. Only traverse this edge if it succeeds.
             if (edgeIsStrictOrSourcedAtMovedHousehold(edge)) {
                 int neighbor = graph.getEdgeTarget(edge);
-                if (states.get(neighbor) == 0) {
+                if (path.get(0) == neighbor) {
+                    return path;
+                }
+                if (states.get(neighbor) == 1) {
+                    continue;
+                } else if (states.get(neighbor) == 0) {
                     ArrayList<Integer> recursedPath = (ArrayList<Integer>) deepClone(path);
                     recursedPath.add(neighbor);
                     List<Integer> cycle = recursivelyFindCycle(recursedPath);
                     if (cycle != null) {
                         return cycle;
                     }
-                } else if (states.get(neighbor) == 1) {
-                    int pathStart = path.indexOf(neighbor);
-                    List<Integer> cycle = path.subList(pathStart, path.size());
-                    return cycle;
-                } else { // states.get(neighbor) == 2
-                    throw new FullyExploredVertexDiscoveredException("Found a vertex that was supposed to" +
-                            " be already fully explored.");
                 }
             }
         }

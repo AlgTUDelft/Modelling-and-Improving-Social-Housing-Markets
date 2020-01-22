@@ -43,8 +43,8 @@ public class TwoLabeledGraph {
 
             if (currentHouse == null) {
                 // Add type 3 edge, condition 1.
-                DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(nil, householdID);
-                underlyingStrictGraph.setEdgeWeight(edge, 0);
+                underlyingStrictGraph.addEdge(nil, householdID);
+                underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
                 fitWithCurrentHouse = 0;
             } else {
                 fitWithCurrentHouse = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
@@ -62,21 +62,21 @@ public class TwoLabeledGraph {
                         // Add type 2 edge
                         DefaultWeightedEdge edge;
                         if (fitWithOtherHouse > fitWithCurrentHouse) {
-                            edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, nil);
-                            underlyingStrictGraph.setEdgeWeight(edge, 1);
+                            underlyingStrictGraph.addEdge(householdID, nil);
+                            underlyingStrictGraph.setEdgeWeight(householdID, nil, 1);
                         } else { // fitWithOtherHouse == fitWithCurrentHouse
-                            edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, nil);
-                            underlyingStrictGraph.setEdgeWeight(edge, 0);
+                            underlyingStrictGraph.addEdge(householdID, nil);
+                            underlyingStrictGraph.setEdgeWeight(householdID, nil, 0);
                         }
                     } else {
                         // Add type 1 edge
                         DefaultWeightedEdge edge;
                         if (fitWithOtherHouse > fitWithCurrentHouse) {
-                            edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
-                            underlyingStrictGraph.setEdgeWeight(edge, 1);
+                            underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
+                            underlyingStrictGraph.setEdgeWeight(householdID, householdOfOtherHouse.getID(), 1);
                         } else { // fitWithOtherHouse == fitWithCurrentHouse
-                            edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
-                            underlyingStrictGraph.setEdgeWeight(edge, 0);
+                            underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
+                            underlyingStrictGraph.setEdgeWeight(householdID, householdOfOtherHouse.getID(), 0);
                         }
                     }
                 }
@@ -92,8 +92,8 @@ public class TwoLabeledGraph {
                     // If the above edge-additive process did not cause the current household to receive any incoming
                     // edges, then the reduced second condition -- there is no worker who strictly desires the current
                     // household's house -- is fulfilled, meaning the following edge should be added.
-                    DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(nil, householdID);
-                    underlyingStrictGraph.setEdgeWeight(edge, 0);
+                    underlyingStrictGraph.addEdge(nil, householdID);
+                    underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
                 }
             }
         }

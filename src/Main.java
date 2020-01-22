@@ -276,9 +276,9 @@ public class Main {
         String outputFilename = "../test.csv";
 
         ArrayList<WMComparisonResult> results = new ArrayList<WMComparisonResult>();
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950));
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 250, 500, 750));
         for (int startLine : startLines) {
-            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 50));
+            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 250));
         }
 
         WMComparisonResultProcessor wmComparisonResultProcessor
@@ -295,7 +295,7 @@ public class Main {
         try {
             housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
+            matching = dataProcessor.csvToMatching(filename, 0, startLine, lineCount);
 
             MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
             float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
