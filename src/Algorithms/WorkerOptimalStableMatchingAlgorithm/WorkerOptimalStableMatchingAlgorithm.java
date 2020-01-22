@@ -42,16 +42,32 @@ public class WorkerOptimalStableMatchingAlgorithm {
     }
 
     public Matching findWorkerOptimalStableMatching() throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException, CycleFinder.FullyExploredVertexDiscoveredException {
-        StrictGraph strictGraph = new StrictGraph(this.matching);
-        List<Integer> strictCycle = strictGraph.findStrictCycle();
+//        StrictGraph strictGraph = new StrictGraph(this.matching);
+//        List<Integer> strictCycle = strictGraph.findStrictCycle();
+//        int i = 1;
+//        while (strictCycle != null) {
+//            System.out.println("Executing strict cycle " + i);
+//            this.matching.effectuateStrictCycle(strictCycle, strictGraph.getNil());
+//            strictGraph.update(strictCycle, this.matching);
+//            strictCycle = strictGraph.findStrictCycle();
+//            i++;
+//        }
+        // TODO: Update description above to reflect this new part.
+        // Brief explanation:
+        // Make two-labeled graph, but only execute cycles
+        // (1) where at least one edge is strict and
+        // (2) all non-strict edges are pointing to households that have moved along a strict edge before.
         int i = 1;
-        while (strictCycle != null) {
-            System.out.println("Executing strict cycle " + i);
-            this.matching.effectuateStrictCycle(strictCycle, strictGraph.getNil());
-            strictGraph.update(strictCycle, this.matching);
-            strictCycle = strictGraph.findStrictCycle();
+        TwoLabeledGraph twoLabeledGraph = new TwoLabeledGraph(this.matching);
+        List<Integer> cycle = twoLabeledGraph.findCycle();
+        while (cycle != null) {
+            System.out.println("Executing cycle " + i);
+            this.matching.executeCycle(cycle, twoLabeledGraph.getNil());
+            twoLabeledGraph.updateAfterCycleExecution(cycle, this.matching);
+            cycle = twoLabeledGraph.findCycle();
             i++;
         }
+
         return this.matching;
     }
 

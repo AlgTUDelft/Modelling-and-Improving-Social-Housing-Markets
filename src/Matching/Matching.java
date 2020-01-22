@@ -7,10 +7,7 @@ import HousingMarket.HousingMarketVertex;
 import HousingMarket.HouseAndHouseholdIDPair;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
@@ -28,13 +25,14 @@ public class Matching implements Serializable {
     private ArrayList<Household> houselessHouseholds = new ArrayList<Household>();
     private ArrayList<Integer> SWIChainLengths = new ArrayList<Integer>();
     private ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
-
+    private Set<Integer> householdsMovedByWOSMA = new HashSet<Integer>();
 
     private HousingMarket housingMarket;
 
     public Matching(HousingMarket housingMarket) {
         this.matchingGraph = new SimpleGraph<>(DefaultEdge.class);
         this.housingMarket = housingMarket;
+
     }
 
     public void addHouse(House house) {
@@ -198,13 +196,14 @@ public class Matching implements Serializable {
             HousingMarketVertex house = this.matchingGraph.getEdgeSource(edge);
             if (house instanceof House) {
                 return (House) house;
-            } else { throw new HouseholdLinkedToHouseholdException("Error: Household " + household.toString() +
-                    " is linked to household " + house.toString() + "!");}
+            } else {
+                throw new HouseholdLinkedToHouseholdException("Error: Household " + household.toString() +
+                        " is linked to household " + house.toString() + "!");
+            }
         } else if (this.matchingGraph.edgesOf(household).size() > 1) {
             throw new HouseholdLinkedToMultipleException("Error: Household " + household.toString()
                     + " is linked to multiples vertices!");
-        }
-        else return null;
+        } else return null;
     }
 
     public boolean hasEdge(int houseID, int householdID) throws HouseLinkedToMultipleException, HouseLinkedToHouseException {
@@ -257,7 +256,8 @@ public class Matching implements Serializable {
     }
 
     // Part of the EfficientStableMatchingAlgorithm.
-    public void effectuateStrictCycle(List<Integer> cycle, int nilValue) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
+    public void executeCycle(List<Integer> cycle, int nilValue) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
+        // TODO: Check if this needs to be changed following my modifications of WOSMA!!
         int edgesCount = cycle.size();
 
         boolean isChain = false;
@@ -274,6 +274,7 @@ public class Matching implements Serializable {
                 } else {
                     housesList.add(null);
                 }
+                householdsMovedByWOSMA.add(householdID);
             } else {
                 isChain = true;
                 housesList.add(null);
@@ -397,6 +398,10 @@ public class Matching implements Serializable {
                 .average()
                 .orElse(0.0);
         return (float) result;
+    }
+
+    public Set<Integer> getHouseholdsMovedByWOSMA() {
+        return householdsMovedByWOSMA;
     }
 
     public class HouseLinkedToHouseException extends Exception {

@@ -8,6 +8,7 @@ import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WMComparisonResult;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WMComparisonResultProcessor;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
+import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.Matching;
@@ -17,6 +18,7 @@ import Algorithms.MinCostPerfectMatchingAlgorithm.ResidualGraph;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class Main {
 
@@ -293,7 +295,7 @@ public class Main {
         try {
             housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            matching = dataProcessor.csvToMatching(filename, 0.5, startLine, lineCount);
+            matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
 
             MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
             float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
@@ -304,6 +306,7 @@ public class Main {
                     = new WorkerOptimalStableMatchingAlgorithm(matching);
             MinCostPerfectMatchingAlgorithm minCostPerfectMatchingAlgorithm
                     = new MinCostPerfectMatchingAlgorithm(matchingCopy);
+
 
             Matching workerOptimalStableMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching();
             MatchingEvaluator workerOptimalMatchingEvaluator = new MatchingEvaluator(workerOptimalStableMatching);
