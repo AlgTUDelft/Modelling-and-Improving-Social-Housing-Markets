@@ -4,10 +4,8 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
-import org.jgrapht.graph.DefaultDirectedGraph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.SimpleDirectedWeightedGraph;
+import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
+import org.jgrapht.graph.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +30,10 @@ public class TwoLabeledGraph {
             householdIDs.add(householdID);
         }
 
-        this.wireHouseholds(householdIDs, true);
+        this.wireHouseholds(householdIDs);
     }
 
-    public void wireHouseholds(ArrayList<Integer> householdIDs, boolean initialWiring) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
+    public void wireHouseholds(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         // Add edges. Types here refer to the first three types noted in the paper's description of the WOSMA-algorithm.
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
 
@@ -58,7 +56,7 @@ public class TwoLabeledGraph {
                     }
                 }
                 float fitWithOtherHouse = matchingEvaluator.evaluateIndividualTotalFit(otherHouse.getID(), householdID);
-                if (fitWithOtherHouse >= fitWithCurrentHouse) { // Note the strict greater-than relation.
+                if (fitWithOtherHouse >= fitWithCurrentHouse) {
                     Household householdOfOtherHouse = this.matching.getHouseholdFromHouse(otherHouse.getID());
                     if (householdOfOtherHouse == null) {
                         // Add type 2 edge
@@ -66,20 +64,20 @@ public class TwoLabeledGraph {
                         if (fitWithOtherHouse > fitWithCurrentHouse) {
                             edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, nil);
                             underlyingStrictGraph.setEdgeWeight(edge, 1);
-                        } else if (!initialWiring) {
+                        } else { // fitWithOtherHouse == fitWithCurrentHouse
                             edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, nil);
                             underlyingStrictGraph.setEdgeWeight(edge, 0);
-                        } else { continue; }
+                        }
                     } else {
                         // Add type 1 edge
                         DefaultWeightedEdge edge;
                         if (fitWithOtherHouse > fitWithCurrentHouse) {
                             edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
                             underlyingStrictGraph.setEdgeWeight(edge, 1);
-                        } else if (!initialWiring) {
+                        } else { // fitWithOtherHouse == fitWithCurrentHouse
                             edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
                             underlyingStrictGraph.setEdgeWeight(edge, 0);
-                        } else { continue; }
+                        }
                     }
                 }
             }
@@ -105,11 +103,10 @@ public class TwoLabeledGraph {
         return nil;
     }
 
-    public void update(List<Integer> cycle, Matching newMatching) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
+    public void updateAfterCycleExecution(List<Integer> cycle, Matching newMatching) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = newMatching;
 
-        // First update the edges of the households that were present in the cycle.
-        // For these we may now add non-strict edges.
+        // First update the edges of the households that were present in the cycle and which have thus been moved.
         ArrayList<DefaultWeightedEdge> cycleEdgesToRemove = new ArrayList<DefaultWeightedEdge>();
         for (int householdID : cycle) {
             if (householdID != nil) {
@@ -127,7 +124,7 @@ public class TwoLabeledGraph {
 
         ArrayList<Integer> cycleWithoutNil = new ArrayList<Integer>(cycle);
         cycleWithoutNil.remove(Integer.valueOf(nil));
-        this.wireHouseholds(cycleWithoutNil, false);
+        this.wireHouseholds(cycleWithoutNil);
 
 
         // Then, for each households w, re-check the edges w->nil
@@ -168,7 +165,6 @@ public class TwoLabeledGraph {
                     } else if (fitWithOtherHouse == fitWithCurrentHouse) {
                         foundOnlyWorseHouseholdlessHouses = false;
                         this.underlyingStrictGraph.setEdgeWeight(edge, 0);
-                        // TODO: Wait! We don't want to have non-strict edges if we haven't moved this household yet...
                         // No break, because we don't yet know if there is any house
                         // that this household strictly prefers.
                     }
@@ -182,5 +178,22 @@ public class TwoLabeledGraph {
         for (DefaultWeightedEdge edge : edgesToRemove) {
             this.underlyingStrictGraph.removeEdge(edge);
         }
+    }
+
+    public List<Integer> findCycle() {
+        // TODO: Modify this and CycleFinder class so that conditions 1 and 2 are checked.
+        GabowStrongConnectivityInspector gabowStrongConnectivityInspector = new GabowStrongConnectivityInspector(underlyingStrictGraph);
+        List<AsSubgraph<Integer,DefaultWeightedEdge>> components = gabowStrongConnectivityInspector.getStronglyConnectedComponents();
+        List<Integer> cycle = null;
+        for (AsSubgraph<Integer, DefaultWeightedEdge> component : components) {
+            if (component.vertexSet().size() > 1) {
+                CycleFinder cycleFinder = new CycleFinder(component, this.matching);
+                cycle = cycleFinder.findCycle();
+                if (cycle != null) {
+                    break;
+                }
+            }
+        }
+        return cycle;
     }
 }

@@ -25,6 +25,7 @@ public class Matching implements Serializable {
     private ArrayList<Household> houselessHouseholds = new ArrayList<Household>();
     private ArrayList<Integer> SWIChainLengths = new ArrayList<Integer>();
     private ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
+    private Set<Integer> householdsMovedByWOSMA = new HashSet<Integer>();
 
     private HousingMarket housingMarket;
 
@@ -255,7 +256,7 @@ public class Matching implements Serializable {
     }
 
     // Part of the EfficientStableMatchingAlgorithm.
-    public void effectuateStrictCycle(List<Integer> cycle, int nilValue) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
+    public void executeCycle(List<Integer> cycle, int nilValue) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
         // TODO: Check if this needs to be changed following my modifications of WOSMA!!
         int edgesCount = cycle.size();
 
@@ -396,6 +397,10 @@ public class Matching implements Serializable {
                 .average()
                 .orElse(0.0);
         return (float) result;
+    }
+
+    public Set<Integer> getHouseholdsMovedByWOSMA() {
+        return householdsMovedByWOSMA;
     }
 
     public class HouseLinkedToHouseException extends Exception {

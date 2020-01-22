@@ -65,8 +65,8 @@ public class WorkerOptimalStableMatchingAlgorithm {
         List<Integer> cycle = twoLabeledGraph.findCycle();
         while (cycle != null) {
             System.out.println("Executing cycle " + i);
-            this.matching.effectuateStrictCycle(cycle, twoLabeledGraph.getNil());
-            twoLabeledGraph.update(cycle, this.matching);
+            this.matching.executeCycle(cycle, twoLabeledGraph.getNil());
+            twoLabeledGraph.updateAfterCycleExecution(cycle, this.matching);
             cycle = twoLabeledGraph.findCycle();
             i++;
         }
