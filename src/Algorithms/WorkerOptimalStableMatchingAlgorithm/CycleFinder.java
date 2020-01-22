@@ -32,6 +32,11 @@ public class CycleFinder {
     }
 
     public List<Integer> findCycle() throws FullyExploredVertexDiscoveredException {
+        // TODO: I think, but am not sure, that this traverses a lot of strict edges multiple times.
+        //  Or rather, it does this only when it can't find cycles.
+        //  It will go w1->w2->w3->w4->w5->w6->w7 --- no cycle; where w1->w2 is strict.
+        //  Then later, if w3->w4 is strict, it might still go and try w3->w4->w5->w6->w7 all over again.
+        //  This makes it a very slow algorithm! I can fix this.
         // Implements simple DFS. Returns the first cycle that it can find.
         // Two conditions need to hold:
         // 1) The cycle contains at least one strict edge.
