@@ -186,7 +186,7 @@ public class TwoLabeledGraph {
         List<Integer> cycle = null;
         for (AsSubgraph<Integer, DefaultWeightedEdge> component : components) {
             if (component.vertexSet().size() > 1) {
-                CycleFinder cycleFinder = new CycleFinder(component, this.matching.getHouseholdsMovedByWOSMA());
+                CycleFinder cycleFinder = new CycleFinder(component, this.matching.getHouseholdsMovedByWOSMA(), this.getNil());
                 cycle = cycleFinder.findCycle();
                 if (cycle != null) {
                     break;

@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CycleFinder {
 
@@ -17,14 +18,16 @@ public class CycleFinder {
     // Takes vertex, returns state in {0 = unexplored | 1 = being explored | 2 = fully explored}.
     private HashMap<Integer, Integer> states = new HashMap<Integer, Integer>();
     private Set<Integer> householdIDsMovedByWOSMA;
+    private int nilValue;
 
-    public CycleFinder(AsSubgraph<Integer, DefaultWeightedEdge> graph, Set<Integer> householdIDsMovedByWOSMA) {
+    public CycleFinder(AsSubgraph<Integer, DefaultWeightedEdge> graph, Set<Integer> householdIDsMovedByWOSMA, int nilValue) {
         this.graph = graph;
         this.vertices = new ArrayList<>(graph.vertexSet());
         for (int vertex : vertices) {
             states.put(vertex, 0);
         }
         this.householdIDsMovedByWOSMA = householdIDsMovedByWOSMA;
+        this.nilValue = nilValue;
     }
 
     public List<Integer> findCycle() throws FullyExploredVertexDiscoveredException {
@@ -33,23 +36,36 @@ public class CycleFinder {
         // 1) The cycle contains at least one strict edge.
         // 2) All non-strict edges that the cycle contains,
         //    must be sourced at a household that has been moved by WOSMA before (or at nil).
-        // TODO: Ensure both conditions hold.
-        //  cond. 1: Instead of going over all vertices, go over all strict edges;
-        //           for each, add its source and target node to _path_, then recurse.
-        //           -- Also set this source node's state to 1? (Think here about
-        //                 the different strict edges that will be tried.)
-        //  cond. 2: Only recurse on edges that are strict, or whose source household
-        //           is present in householdIDsMovedByWOSMA.
-        Iterator<Integer> iterator = vertices.iterator();
+        Iterator<Integer> vertexIterator = vertices.iterator();
         List<Integer> cycle = null;
-        while (iterator.hasNext()) {
-            int vertex = iterator.next();
-            ArrayList<Integer> path = new ArrayList<Integer>();
-            path.add(vertex);
-            cycle = recursivelyFindCycle(path);
+        // For each vertex...
+        while (vertexIterator.hasNext()) {
+            int vertex = vertexIterator.next();
+            states.put(vertex, 1);
+            Set<DefaultWeightedEdge> outgoingEdges = graph.outgoingEdgesOf(vertex);
+            List<DefaultWeightedEdge> outgoingStrictEdges = outgoingEdges.stream()
+                    .filter(e -> graph.getEdgeWeight(e) == 1)
+                    .collect(Collectors.toList());
+            Iterator<DefaultWeightedEdge> strictEdgeIterator = outgoingStrictEdges.iterator();
+
+            // ...Iterate over all its strict outgoing edges to find a cycle.
+            // This satisfies condition 1.
+            // Furthermore, because every strict edge is in this manner tried,
+            // we will never miss an eligible cycle.
+            while (strictEdgeIterator.hasNext()) {
+                DefaultWeightedEdge edge = strictEdgeIterator.next();
+                ArrayList<Integer> path = new ArrayList<Integer>();
+                path.add(vertex);
+                path.add(graph.getEdgeTarget(edge));
+                cycle = recursivelyFindCycle(path);
+                if (cycle != null) {
+                    break;
+                }
+            }
             if (cycle != null) {
                 break;
             }
+            states.put(vertex, 2);
         }
         return cycle;
     }
@@ -59,27 +75,42 @@ public class CycleFinder {
         states.put(vertex, 1);
         Set<DefaultWeightedEdge> outgoingEdges = graph.outgoingEdgesOf(vertex);
         for (DefaultWeightedEdge edge : outgoingEdges) {
-            int neighbor = graph.getEdgeTarget(edge);
-            if (states.get(neighbor) == 0) {
-                ArrayList<Integer> recursedPath = (ArrayList<Integer>) deepClone(path);
-                recursedPath.add(neighbor);
-                List<Integer> cycle = recursivelyFindCycle(recursedPath);
-                if (cycle != null) {
+            // Condition 2 check. Only traverse this edge if it succeeds.
+            if (edgeIsStrictOrSourcedAtMovedHousehold(edge)) {
+                int neighbor = graph.getEdgeTarget(edge);
+                if (states.get(neighbor) == 0) {
+                    ArrayList<Integer> recursedPath = (ArrayList<Integer>) deepClone(path);
+                    recursedPath.add(neighbor);
+                    List<Integer> cycle = recursivelyFindCycle(recursedPath);
+                    if (cycle != null) {
+                        return cycle;
+                    }
+                } else if (states.get(neighbor) == 1) {
+                    int pathStart = path.indexOf(neighbor);
+                    List<Integer> cycle = path.subList(pathStart, path.size()); // TODO: OutOfBounds error, or not?
                     return cycle;
+                } else { // states.get(neighbor) == 2
+                    throw new FullyExploredVertexDiscoveredException("Found a vertex that was supposed to" +
+                            " be already fully explored.");
                 }
-            }
-            else if (states.get(neighbor) == 1) {
-                int pathStart = path.indexOf(neighbor);
-                List<Integer> cycle = path.subList(pathStart, path.size()); // TODO: OutOfBounds error, or not?
-                return cycle;
-            }
-            else { // states.get(neighbor) == 2
-                throw new FullyExploredVertexDiscoveredException("Found a vertex that was supposed to" +
-                        " be already fully explored.");
             }
         }
         states.put(vertex, 2);
         return null;
+    }
+
+    private boolean edgeIsStrictOrSourcedAtMovedHousehold(DefaultWeightedEdge edge) {
+        if (graph.getEdgeWeight(edge) == 1) {
+            return true; // Edge is itself strict.
+        }
+        int source = graph.getEdgeSource(edge);
+        if (source == nilValue) {
+            return true; // Edge does not refer to the move of some household, so we don't mind.
+        }
+        if (householdIDsMovedByWOSMA.contains(source)) {
+            return true; // Household that this edge's inclusion would move, has been moved before.
+        }
+        return false;
     }
 
     public static Object deepClone(Object object) {
