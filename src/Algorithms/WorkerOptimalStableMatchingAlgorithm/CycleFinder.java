@@ -34,6 +34,12 @@ public class CycleFinder {
         // 2) All non-strict edges that the cycle contains,
         //    must be sourced at a household that has been moved by WOSMA before (or at nil).
         // TODO: Ensure both conditions hold.
+        //  cond. 1: Instead of going over all vertices, go over all strict edges;
+        //           for each, add its source and target node to _path_, then recurse.
+        //           -- Also set this source node's state to 1? (Think here about
+        //                 the different strict edges that will be tried.)
+        //  cond. 2: Only recurse on edges that are strict, or whose source household
+        //           is present in householdIDsMovedByWOSMA.
         Iterator<Integer> iterator = vertices.iterator();
         List<Integer> cycle = null;
         while (iterator.hasNext()) {
