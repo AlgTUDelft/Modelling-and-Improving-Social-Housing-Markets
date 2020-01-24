@@ -14,6 +14,8 @@ import HousingMarket.HousingMarket;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
 import Matching.DynamicMatching;
+import Matching.DynamicMatchingComparisonResult;
+import Matching.DynamicMatchingComparisonResultProcessor;
 import Algorithms.MinCostPerfectMatchingAlgorithm.ResidualGraph;
 
 import java.io.*;
@@ -377,32 +379,50 @@ public class Main {
         return wmComparisonResult;
     }
 
-    public static void runDynamicMatching() {
+    public static void runDynamicMatching() throws IOException {
         String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
         String outputFilename = "../test.csv";
 
+        ArrayList<DynamicMatchingComparisonResult> dynamicMatchingComparisonResults
+                = new ArrayList<DynamicMatchingComparisonResult>();
         ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 250, 500, 750));
         for (int startLine : startLines) {
-            individualRunDynamicMatching(inputFileName,startLine, 250);
+            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(inputFileName,startLine, 250));
         }
+        DynamicMatchingComparisonResultProcessor dynamicMatchingComparisonResultProcessor
+                = new DynamicMatchingComparisonResultProcessor(dynamicMatchingComparisonResults);
+        dynamicMatchingComparisonResultProcessor.resultsToCSV(outputFilename);
+
     }
 
-    public static void individualRunDynamicMatching(String filename, int startLine, int lineCount) {
+    public static DynamicMatchingComparisonResult individualRunDynamicMatching(String filename, int startLine, int lineCount) {
         int timestepCount = lineCount/2;
         HousingMarket housingMarket = null;
+        DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {
             housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
             Matching matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
             DynamicMatching dynamicMatching = new DynamicMatching(matching, lineCount/2, true);
+            Matching matching0 = dynamicMatching.getInitialMatching();
             Matching matching1 = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount);
             Matching matching2 = dynamicMatching.advanceTimeFullyThenSolve(timestepCount);
+            Matching matching3 = new MinCostPerfectMatchingAlgorithm(dynamicMatching.getInputMatching())
+                    .findMinCostPerfectMatching();
 
+            MatchingEvaluator matchingEvaluator0 = new MatchingEvaluator(matching0);
             MatchingEvaluator matchingEvaluator1 = new MatchingEvaluator(matching1);
             MatchingEvaluator matchingEvaluator2 = new MatchingEvaluator(matching2);
+            MatchingEvaluator matchingEvaluator3 = new MatchingEvaluator(matching3);
 
-            matchingEvaluator1.evaluateAverageIndividualTotalFit(true);
-            matchingEvaluator2.evaluateAverageIndividualTotalFit(true);
+            float score0 = matchingEvaluator0.evaluateAverageIndividualTotalFit(true); // Solved initial matching
+            float score1 = matchingEvaluator1.evaluateAverageIndividualTotalFit(true); // Solved final matching, per step
+            float score2 = matchingEvaluator2.evaluateAverageIndividualTotalFit(true); // Solved final matching, afterwards
+            float score3 = matchingEvaluator3.evaluateAverageIndividualTotalFit(true); // Optimal result
+
+            dynamicMatchingComparisonResult
+                    = new DynamicMatchingComparisonResult(score0, score1, score2, score3);
+
         } catch (HousingMarket.FreeSpaceException e) {
             e.printStackTrace();
         } catch (Household.InvalidHouseholdException e) {
@@ -429,8 +449,17 @@ public class Main {
             e.printStackTrace();
         } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
             e.printStackTrace();
+        } catch (ResidualGraph.MatchingNotEmptyException e) {
+            e.printStackTrace();
+        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSizeException e) {
+            e.printStackTrace();
+        } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
+            e.printStackTrace();
+        } catch (Matching.IDNotPresentException e) {
+            e.printStackTrace();
         }
 
+        return dynamicMatchingComparisonResult;
     }
 
     public static Object deepClone(Object object) {

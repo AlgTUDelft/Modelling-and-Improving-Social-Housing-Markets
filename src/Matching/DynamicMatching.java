@@ -15,6 +15,8 @@ import java.util.Random;
 
 public class DynamicMatching {
 
+    private final Matching inputMatching;
+
     private final Matching initialMatching;
     private final int initialTimestepsLeft;
     private final ArrayList<House> initialHousesToArrive = new ArrayList<House>();
@@ -29,8 +31,9 @@ public class DynamicMatching {
 
 
     public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
+        inputMatching = matching;
         WorkerOptimalStableMatchingAlgorithm wosma
-                = new WorkerOptimalStableMatchingAlgorithm(matching);
+                = new WorkerOptimalStableMatchingAlgorithm((Matching) deepClone(inputMatching));
         this.initialMatching = wosma.findWorkerOptimalStableMatching();
         this.currentMatching = (Matching) deepClone(initialMatching);
         this.oneSided = oneSided;
@@ -56,6 +59,7 @@ public class DynamicMatching {
 
     // TODO: Implement check for when timestep did not change? Or will it sometimes just not change until enough
     //  households have been added?
+    // TODO: Why does matching not change after some timesteps? All those households being added must do something, surely?
 
 
     public Matching advanceTimeAndSolvePerStep(int timestepCount) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
@@ -110,6 +114,13 @@ public class DynamicMatching {
         this.currentTimestepsLeft = (Integer) deepClone(initialTimestepsLeft);
     }
 
+    public Matching getInitialMatching() {
+        return initialMatching;
+    }
+
+    public Matching getInputMatching() {
+        return inputMatching;
+    }
 
     private static Object deepClone(Object object) {
         try {
