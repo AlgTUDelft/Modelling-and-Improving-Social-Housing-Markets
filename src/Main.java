@@ -276,9 +276,9 @@ public class Main {
         String outputFilename = "../test.csv";
 
         ArrayList<WMComparisonResult> results = new ArrayList<WMComparisonResult>();
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 250, 500, 750));
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 500));
         for (int startLine : startLines) {
-            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 250));
+            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 500));
         }
 
         WMComparisonResultProcessor wmComparisonResultProcessor
