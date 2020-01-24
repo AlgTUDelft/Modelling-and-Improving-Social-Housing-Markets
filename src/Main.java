@@ -13,6 +13,7 @@ import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
+import Matching.DynamicMatching;
 import Algorithms.MinCostPerfectMatchingAlgorithm.ResidualGraph;
 
 import java.io.*;
@@ -23,7 +24,8 @@ import java.util.HashMap;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        comparison_WOSMA_MCPMA();
+//        comparison_WOSMA_MCPMA();
+        runDynamicMatching();
     }
 
     public static void test1() {
@@ -373,6 +375,62 @@ public class Main {
         }
 
         return wmComparisonResult;
+    }
+
+    public static void runDynamicMatching() {
+        String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
+        String outputFilename = "../test.csv";
+
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 250, 500, 750));
+        for (int startLine : startLines) {
+            individualRunDynamicMatching(inputFileName,startLine, 250);
+        }
+    }
+
+    public static void individualRunDynamicMatching(String filename, int startLine, int lineCount) {
+        int timestepCount = lineCount/2;
+        HousingMarket housingMarket = null;
+        try {
+            housingMarket = new HousingMarket(2017, 100);
+            DataProcessor dataProcessor = new DataProcessor(housingMarket);
+            Matching matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
+            DynamicMatching dynamicMatching = new DynamicMatching(matching, lineCount/2, true);
+            Matching matching1 = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount);
+            Matching matching2 = dynamicMatching.advanceTimeFullyThenSolve(timestepCount);
+
+            MatchingEvaluator matchingEvaluator1 = new MatchingEvaluator(matching1);
+            MatchingEvaluator matchingEvaluator2 = new MatchingEvaluator(matching2);
+
+            matchingEvaluator1.evaluateAverageIndividualTotalFit(true);
+            matchingEvaluator2.evaluateAverageIndividualTotalFit(true);
+        } catch (HousingMarket.FreeSpaceException e) {
+            e.printStackTrace();
+        } catch (Household.InvalidHouseholdException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseAlreadyMatchedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdAlreadyMatchedException e) {
+            e.printStackTrace();
+        } catch (DynamicMatching.TooManyTimestepsException e) {
+            e.printStackTrace();
+        } catch (Matching.PreferredNoHouseholdlessHouseException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseLinkedToMultipleException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdLinkedToMultipleException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseLinkedToHouseException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdLinkedToHouseholdException e) {
+            e.printStackTrace();
+        } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
+            e.printStackTrace();
+        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static Object deepClone(Object object) {

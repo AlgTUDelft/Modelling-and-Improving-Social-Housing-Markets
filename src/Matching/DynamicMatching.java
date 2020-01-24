@@ -16,18 +16,23 @@ import java.util.Random;
 public class DynamicMatching {
 
     private final Matching initialMatching;
-    private Matching currentMatching;
-    private int timestepsLeft;
+    private final int initialTimestepsLeft;
     private final ArrayList<House> initialHousesToArrive = new ArrayList<House>();
     private final ArrayList<Household> initialHouseholdsToArrive = new ArrayList<Household>();
+
+    private Matching currentMatching;
+    private int currentTimestepsLeft;
     private ArrayList<House> currentHousesToArrive;
     private ArrayList<Household> currentHouseholdsToArrive;
+
     private boolean oneSided; // false means two-sided arrival. One-sided means houses are set and households arrive.
 
 
-    public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException {
-        this.initialMatching = matching;
-        this.currentMatching = (Matching) deepClone(matching);
+    public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
+        WorkerOptimalStableMatchingAlgorithm wosma
+                = new WorkerOptimalStableMatchingAlgorithm(matching);
+        this.initialMatching = wosma.findWorkerOptimalStableMatching();
+        this.currentMatching = (Matching) deepClone(initialMatching);
         this.oneSided = oneSided;
         if (timestepCount > initialMatching.getHouseholds().size()) {
             throw new TooManyTimestepsException("Amount of timesteps exceeds amount of households.");
@@ -44,11 +49,18 @@ public class DynamicMatching {
         }
         currentHousesToArrive = (ArrayList<House>) deepClone(initialHousesToArrive);
         currentHouseholdsToArrive = (ArrayList<Household>) deepClone(initialHouseholdsToArrive);
-        this.timestepsLeft = timestepCount;
+        this.initialTimestepsLeft = timestepCount;
+        this.currentTimestepsLeft = (Integer) deepClone(timestepCount);
     }
+
+
+    // TODO: Implement check for when timestep did not change? Or will it sometimes just not change until enough
+    //  households have been added?
+
 
     public Matching advanceTimeAndSolvePerStep(int timestepCount) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         for (int i = 0; i < timestepCount; i++) {
+            System.out.println("Timestep " + i);
             simulateEnvironmentTimestep();
             runAlgorithm();
         }
@@ -59,6 +71,7 @@ public class DynamicMatching {
 
     public Matching advanceTimeFullyThenSolve(int timestepCount) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         for (int i = 0; i < timestepCount; i++) {
+            System.out.println("Timestep " + i);
             simulateEnvironmentTimestep();
         }
         runAlgorithm();
@@ -68,7 +81,7 @@ public class DynamicMatching {
     }
 
     private Matching simulateEnvironmentTimestep() {
-        if (timestepsLeft == 0) {
+        if (currentTimestepsLeft == 0) {
             System.err.print("Simulation has ended; cannot advance time further.");
         } else {
             House house = currentHousesToArrive.get(0);
@@ -79,7 +92,7 @@ public class DynamicMatching {
                 currentHouseholdsToArrive.remove(household);
                 currentMatching.addHousehold(household);
             }
-            timestepsLeft--;
+            currentTimestepsLeft--;
         }
         return currentMatching;
     }
@@ -94,6 +107,7 @@ public class DynamicMatching {
         this.currentMatching = (Matching) deepClone(this.initialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(this.initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(this.initialHouseholdsToArrive);
+        this.currentTimestepsLeft = (Integer) deepClone(initialTimestepsLeft);
     }
 
 

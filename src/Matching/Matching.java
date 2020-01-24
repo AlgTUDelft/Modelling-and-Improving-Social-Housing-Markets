@@ -317,7 +317,7 @@ public class Matching implements Serializable {
                 House bestHouse = null;
                 for (House house : householdlessHouses) {
                     float candidateScore = matchingEvaluator.evaluateIndividualTotalFit(house.getID(), sourceVertex);
-                    if (candidateScore > highestScore) {
+                    if (candidateScore >= highestScore) {
                         highestScore = candidateScore;
                         bestHouse = house;
                     }
