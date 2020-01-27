@@ -13,7 +13,7 @@ public class MinCostPerfectMatchingAlgorithm {
         this.matching = matching;
     }
 
-    public Matching findMinCostPerfectMatching()
+    public Matching findMinCostPerfectMatching(boolean print)
             throws Matching.HouseLinkedToMultipleException,
             Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, BipartiteSidesUnequalSizeException, Matching.IDNotPresentException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, ResidualGraph.PathEdgeNotInResidualGraphException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, ResidualGraph.MatchingNotEmptyException {
         if (this.matching.getHouses().size() != this.matching.getHouseholds().size()) {
@@ -25,7 +25,7 @@ public class MinCostPerfectMatchingAlgorithm {
         matchingPrices.setInitialPrices();
         int i = 0;
         while (!this.matching.isMaximallyMatched()) {
-            System.out.println("Augmenting path " + i);
+            if(print) { System.out.println("Augmenting path " + i); }
             GraphPath<Integer, DefaultWeightedEdge> augmentingPath = matchingPrices.getResidualGraph().findAugmentingPath();
             this.matching = matchingPrices.augmentMatchingAndUpdateAll(augmentingPath);
             i++;

@@ -34,7 +34,7 @@ public class DynamicMatching {
         inputMatching = matching;
         WorkerOptimalStableMatchingAlgorithm wosma
                 = new WorkerOptimalStableMatchingAlgorithm((Matching) deepClone(inputMatching));
-        this.initialMatching = wosma.findWorkerOptimalStableMatching();
+        this.initialMatching = wosma.findWorkerOptimalStableMatching(false);
         this.currentMatching = (Matching) deepClone(initialMatching);
         this.oneSided = oneSided;
         if (timestepCount > initialMatching.getHouseholds().size()) {
@@ -57,28 +57,26 @@ public class DynamicMatching {
     }
 
 
-    // TODO: Implement check for when timestep did not change? Or will it sometimes just not change until enough
-    //  households have been added?
     // TODO: Why does matching not change after some timesteps? All those households being added must do something, surely?
 
 
-    public Matching advanceTimeAndSolvePerStep(int timestepCount) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
+    public Matching advanceTimeAndSolvePerStep(int timestepCount, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         for (int i = 0; i < timestepCount; i++) {
-            System.out.println("Timestep " + i);
+            if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
-            runAlgorithm();
+            runAlgorithm(print);
         }
         Matching resultingMatching = (Matching) deepClone(currentMatching);
         resetState();
         return resultingMatching;
     }
 
-    public Matching advanceTimeFullyThenSolve(int timestepCount) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
+    public Matching advanceTimeFullyThenSolve(int timestepCount, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         for (int i = 0; i < timestepCount; i++) {
-            System.out.println("Timestep " + i);
+            if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
         }
-        runAlgorithm();
+        runAlgorithm(print);
         Matching resultingMatching = (Matching) deepClone(currentMatching);
         resetState();
         return resultingMatching;
@@ -101,10 +99,10 @@ public class DynamicMatching {
         return currentMatching;
     }
 
-    private void runAlgorithm() throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
+    private void runAlgorithm(boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         WorkerOptimalStableMatchingAlgorithm wosma
                 = new WorkerOptimalStableMatchingAlgorithm(currentMatching);
-        this.currentMatching = wosma.findWorkerOptimalStableMatching();
+        this.currentMatching = wosma.findWorkerOptimalStableMatching(print);
     }
 
     private void resetState() {

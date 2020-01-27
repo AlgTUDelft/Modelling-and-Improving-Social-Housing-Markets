@@ -161,7 +161,7 @@ public class Main {
             MinCostPerfectMatchingAlgorithm minCostPerfectMatchingAlgorithm
                     = new MinCostPerfectMatchingAlgorithm(matching);
 
-            Matching minCostPerfectMatching = minCostPerfectMatchingAlgorithm.findMinCostPerfectMatching();
+            Matching minCostPerfectMatching = minCostPerfectMatchingAlgorithm.findMinCostPerfectMatching(true);
             MatchingEvaluator newMatchingEvaluator = new MatchingEvaluator(minCostPerfectMatching);
             float newOverallResult = newMatchingEvaluator.evaluateTotal(true);
             float newAverageLocalResult = newMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
@@ -236,7 +236,7 @@ public class Main {
             float oldAverageLocalResult = oldMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
 
             WorkerOptimalStableMatchingAlgorithm workerOptimalStableMatchingAlgorithm = new WorkerOptimalStableMatchingAlgorithm(matching);
-            Matching newMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching();
+            Matching newMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(true);
             MatchingEvaluator newMatchingEvaluator = new MatchingEvaluator(newMatching);
             float newOverallResult =newMatchingEvaluator.evaluateTotal(true);
             float newAverageLocalResult = newMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
@@ -312,12 +312,12 @@ public class Main {
                     = new MinCostPerfectMatchingAlgorithm(matchingCopy);
 
 
-            Matching workerOptimalStableMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching();
+            Matching workerOptimalStableMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(true);
             MatchingEvaluator workerOptimalMatchingEvaluator = new MatchingEvaluator(workerOptimalStableMatching);
             float WOSMA_OverallResult = workerOptimalMatchingEvaluator.evaluateTotal(true);
             float WOSMA_AverageLocalResult = workerOptimalMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
 
-            Matching minCostPerfectMatching = minCostPerfectMatchingAlgorithm.findMinCostPerfectMatching();
+            Matching minCostPerfectMatching = minCostPerfectMatchingAlgorithm.findMinCostPerfectMatching(true);
             MatchingEvaluator minCostPerfectMatchingEvaluator = new MatchingEvaluator(minCostPerfectMatching);
             float MCPMA_OverallResult = minCostPerfectMatchingEvaluator.evaluateTotal(true);
             float MCPMA_AverageLocalResult = minCostPerfectMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
@@ -405,10 +405,10 @@ public class Main {
             Matching matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
             DynamicMatching dynamicMatching = new DynamicMatching(matching, lineCount/2, true);
             Matching matching0 = dynamicMatching.getInitialMatching();
-            Matching matching1 = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount);
-            Matching matching2 = dynamicMatching.advanceTimeFullyThenSolve(timestepCount);
+            Matching matching1 = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, true);
+            Matching matching2 = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false);
             Matching matching3 = new MinCostPerfectMatchingAlgorithm(dynamicMatching.getInputMatching())
-                    .findMinCostPerfectMatching();
+                    .findMinCostPerfectMatching(false);
 
             MatchingEvaluator matchingEvaluator0 = new MatchingEvaluator(matching0);
             MatchingEvaluator matchingEvaluator1 = new MatchingEvaluator(matching1);

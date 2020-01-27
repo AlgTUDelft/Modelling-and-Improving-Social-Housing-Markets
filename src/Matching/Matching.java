@@ -268,7 +268,7 @@ public class Matching implements Serializable {
     }
 
     // Part of the EfficientStableMatchingAlgorithm.
-    public void executeCycle(List<Integer> cycle, int nilValue) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
+    public void executeCycle(List<Integer> cycle, int nilValue, boolean print) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
         // TODO: Check if this needs to be changed following my modifications of WOSMA!!
         int edgesCount = cycle.size();
 
@@ -292,7 +292,12 @@ public class Matching implements Serializable {
                 housesList.add(null);
             }
         }
-        if (isChain) { System.out.println("Chain has size: " + edgesCount); } else { System.out.println("Cycle has size: " + edgesCount); }
+        if(print) {
+            if (isChain) {
+                System.out.println("Chain has size: " + edgesCount);
+            } else { System.out.println("Cycle has size: " + edgesCount);
+            }
+        }
 
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this);
 

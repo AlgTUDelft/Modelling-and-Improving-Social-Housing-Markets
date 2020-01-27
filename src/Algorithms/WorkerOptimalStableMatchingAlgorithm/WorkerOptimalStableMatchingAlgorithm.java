@@ -41,7 +41,7 @@ public class WorkerOptimalStableMatchingAlgorithm {
         this.matching = matching;
     }
 
-    public Matching findWorkerOptimalStableMatching() throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException, CycleFinder.FullyExploredVertexDiscoveredException {
+    public Matching findWorkerOptimalStableMatching(boolean print) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException, CycleFinder.FullyExploredVertexDiscoveredException {
 //        StrictGraph strictGraph = new StrictGraph(this.matching);
 //        List<Integer> strictCycle = strictGraph.findStrictCycle();
 //        int i = 1;
@@ -61,8 +61,8 @@ public class WorkerOptimalStableMatchingAlgorithm {
         TwoLabeledGraph twoLabeledGraph = new TwoLabeledGraph(this.matching);
         List<Integer> cycle = twoLabeledGraph.findCycle();
         while (cycle != null) {
-            System.out.println("Executing cycle " + i);
-            this.matching.executeCycle(cycle, twoLabeledGraph.getNil());
+            if(print) { System.out.println("Executing cycle " + i); }
+            this.matching.executeCycle(cycle, twoLabeledGraph.getNil(), print);
             twoLabeledGraph.updateAfterCycleExecution(cycle, this.matching);
             cycle = twoLabeledGraph.findCycle();
             i++;
