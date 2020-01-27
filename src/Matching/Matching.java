@@ -169,7 +169,7 @@ public class Matching implements Serializable {
     }
 
     public Set<Integer> getHouselessHouseholdsIDs() {
-        Set<Integer> houselessHouseholdsIDs = getHouses().stream().filter(h -> {
+        Set<Integer> houselessHouseholdsIDs = getHouseholds().stream().filter(h -> {
             try {
                 return getHouseFromHousehold(h.getID()) == null;
             } catch (HouseholdLinkedToMultipleException e) {

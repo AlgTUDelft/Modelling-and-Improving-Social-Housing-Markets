@@ -65,6 +65,7 @@ public class DynamicMatching {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
             runAlgorithm(print);
+            System.out.println("Houseless households: " + this.currentMatching.getHouselessHouseholdsIDs().size());
         }
         Matching resultingMatching = (Matching) deepClone(currentMatching);
         resetState();
@@ -82,7 +83,7 @@ public class DynamicMatching {
         return resultingMatching;
     }
 
-    private Matching simulateEnvironmentTimestep() {
+    private void simulateEnvironmentTimestep() {
         if (currentTimestepsLeft == 0) {
             System.err.print("Simulation has ended; cannot advance time further.");
         } else {
@@ -96,13 +97,12 @@ public class DynamicMatching {
             }
             currentTimestepsLeft--;
         }
-        return currentMatching;
     }
 
     private void runAlgorithm(boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         WorkerOptimalStableMatchingAlgorithm wosma
                 = new WorkerOptimalStableMatchingAlgorithm(currentMatching);
-        this.currentMatching = wosma.findWorkerOptimalStableMatching(print);
+        wosma.findWorkerOptimalStableMatching(print); // Modifies currentMatching.
     }
 
     private void resetState() {
