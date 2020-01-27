@@ -30,7 +30,9 @@ public class DynamicMatching {
 
     private boolean oneSided; // false means two-sided arrival. One-sided means houses are set and households arrive.
 
-    // TODO: Final scores sometimes make no sense. Go through which matchings are supposed to be what, and if they are.
+    // TODO: Scores of 'per-step' are higher than 'all-afterwards', which is...understandable, given that we
+    //  essentially pick a cycle randomly; but it's not so great for comparison purposes. Time to dive back into
+    //  CycleFinder and change how it works...!
     public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         inputMatching = matching;
         WorkerOptimalStableMatchingAlgorithm wosma
@@ -59,7 +61,7 @@ public class DynamicMatching {
         this.initialTimestepsLeft = timestepCount;
         this.currentTimestepsLeft = (Integer) deepClone(timestepCount);
     }
-    
+
 
     public Matching advanceTimeAndSolvePerStep(int timestepCount, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         for (int i = 0; i < timestepCount; i++) {

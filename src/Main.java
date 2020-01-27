@@ -385,9 +385,9 @@ public class Main {
 
         ArrayList<DynamicMatchingComparisonResult> dynamicMatchingComparisonResults
                 = new ArrayList<DynamicMatchingComparisonResult>();
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 125, 250, 375, 500, 625, 750, 875));
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 250, 500, 750));
         for (int startLine : startLines) {
-            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(inputFileName,startLine, 125));
+            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(inputFileName,startLine, 250));
         }
         DynamicMatchingComparisonResultProcessor dynamicMatchingComparisonResultProcessor
                 = new DynamicMatchingComparisonResultProcessor(dynamicMatchingComparisonResults);
@@ -402,7 +402,7 @@ public class Main {
         try {
             housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            Matching matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
+            Matching matching = dataProcessor.csvToMatching(filename, 0.5, startLine, lineCount);
             DynamicMatching dynamicMatching = new DynamicMatching(matching, lineCount/2, true);
             Matching matching0 = dynamicMatching.getInitialMatching();
             Matching matching1 = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, true);
