@@ -154,29 +154,31 @@ public class Matching implements Serializable {
         return this.elderlyHouseholds;
     }
 
-    public Set<Integer> getHouseholdlessHouses() {
-        java.util.stream.Stream<HousingMarketVertex> stream = this.matchingGraph.vertexSet().stream().filter(v -> this.matchingGraph.edgesOf(v).isEmpty());
-        Set<HousingMarketVertex> edgelessVertices = stream.collect(toSet());
-        Set<Integer> householdlessHousesIDs = edgelessVertices.stream().map(v -> v.getID()).filter(i -> {
+    public Set<Integer> getHouseholdlessHousesIDs() {
+        Set<Integer> householdlessHousesIDs = getHouses().stream().filter(h -> {
             try {
-                return isHouseID(i);
-            } catch (IDNotPresentException e) {
-                return false;
+                return getHouseholdFromHouse(h.getID()) == null;
+            } catch (HouseLinkedToHouseException e) {
+                e.printStackTrace();
+            } catch (HouseLinkedToMultipleException e) {
+                e.printStackTrace();
             }
-        }).collect(toSet());
+            return false;
+        }).map(v -> v.getID()).collect(toSet());
         return householdlessHousesIDs;
     }
 
-    public Set<Integer> getHouselessHouseholds() {
-        java.util.stream.Stream<HousingMarketVertex> stream = this.matchingGraph.vertexSet().stream().filter(v -> this.matchingGraph.edgesOf(v).isEmpty());
-        Set<HousingMarketVertex> edgelessVertices = stream.collect(toSet());
-        Set<Integer> houselessHouseholdsIDs = edgelessVertices.stream().map(v -> v.getID()).filter(i -> {
+    public Set<Integer> getHouselessHouseholdsIDs() {
+        Set<Integer> houselessHouseholdsIDs = getHouses().stream().filter(h -> {
             try {
-                return !isHouseID(i);
-            } catch (IDNotPresentException e) {
-                return false;
+                return getHouseFromHousehold(h.getID()) == null;
+            } catch (HouseholdLinkedToMultipleException e) {
+                e.printStackTrace();
+            } catch (HouseholdLinkedToHouseholdException e) {
+                e.printStackTrace();
             }
-        }).collect(toSet());
+            return false;
+        }).map(v -> v.getID()).collect(toSet());
         return houselessHouseholdsIDs;
     }
 
@@ -317,7 +319,7 @@ public class Matching implements Serializable {
                 // We now choose to connect him with that house amongst the empty houses, that they prefer most,
                 // so long as they do indeed prefer it to their current house.
                 // TODO: Is that method of picking a house legit, though?
-                Set<Integer> householdlessHouses = getHouseholdlessHouses();
+                Set<Integer> householdlessHouses = getHouseholdlessHousesIDs();
                 float highestScore;
                 if (housesList.get(i) == null) {
                     highestScore = 0;
@@ -371,11 +373,11 @@ public class Matching implements Serializable {
         this.dissolveConnections();
         Random rand = new Random();
         for (Household household : this.getHouseholds()) {
-            Set<Integer> householdlessHousesIDs = getHouseholdlessHouses();
+            Set<Integer> householdlessHousesIDs = getHouseholdlessHousesIDs();
             if (householdlessHousesIDs.isEmpty()) {
                 break;
             }
-            ArrayList<Integer> householdlessHousesIDsArray = new ArrayList<Integer>(this.getHouseholdlessHouses().stream().collect(Collectors.toList()));
+            ArrayList<Integer> householdlessHousesIDsArray = new ArrayList<Integer>(this.getHouseholdlessHousesIDs().stream().collect(Collectors.toList()));
             int chosenHouseID = rand.nextInt(householdlessHousesIDsArray.size());
             this.connect(chosenHouseID, household.getID());
         }

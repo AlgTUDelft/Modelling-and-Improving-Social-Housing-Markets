@@ -51,8 +51,8 @@ public class OptimizationAlgorithm {
             MatchingEvaluator.HouseholdIncomeTooHighException,
             Matching.HouseholdAlreadyMatchedException,
             Matching.HouseAlreadyMatchedException {
-        ArrayList<House> householdlessHouses = new ArrayList<House>(this.matching.getHouseholdlessHouses().stream().map(v -> this.matching.getHouse(v)).collect(Collectors.toList()));
-        ArrayList<Household> houselessHouseholds = new ArrayList<Household>(this.matching.getHouselessHouseholds().stream().map(v -> this.matching.getHousehold(v)).collect(Collectors.toList()));
+        ArrayList<House> householdlessHouses = new ArrayList<House>(this.matching.getHouseholdlessHousesIDs().stream().map(v -> this.matching.getHouse(v)).collect(Collectors.toList()));
+        ArrayList<Household> houselessHouseholds = new ArrayList<Household>(this.matching.getHouselessHouseholdsIDs().stream().map(v -> this.matching.getHousehold(v)).collect(Collectors.toList()));
         return optimizeAll(householdlessHouses,
                 houselessHouseholds, true);
 
