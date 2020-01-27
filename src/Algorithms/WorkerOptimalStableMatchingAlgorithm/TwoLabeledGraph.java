@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static java.util.stream.Collectors.toSet;
+
 public class TwoLabeledGraph {
 
     private Matching matching;
@@ -34,6 +36,7 @@ public class TwoLabeledGraph {
         this.wireHouseholds(householdIDs);
     }
 
+    // TODO: Note somewhere that I use edgeweights denoting exactly the preference, rather than "1 = strict".
     public void wireHouseholds(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         // Add edges. Types here refer to the first three types noted in the paper's description of the WOSMA-algorithm.
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
@@ -64,7 +67,7 @@ public class TwoLabeledGraph {
                         DefaultWeightedEdge edge;
                         if (fitWithOtherHouse > fitWithCurrentHouse) {
                             underlyingStrictGraph.addEdge(householdID, nil);
-                            underlyingStrictGraph.setEdgeWeight(householdID, nil, 1);
+                            underlyingStrictGraph.setEdgeWeight(householdID, nil, fitWithOtherHouse - fitWithCurrentHouse);
                         } else { // fitWithOtherHouse == fitWithCurrentHouse
                             underlyingStrictGraph.addEdge(householdID, nil);
                             underlyingStrictGraph.setEdgeWeight(householdID, nil, 0);
@@ -74,7 +77,7 @@ public class TwoLabeledGraph {
                         DefaultWeightedEdge edge;
                         if (fitWithOtherHouse > fitWithCurrentHouse) {
                             underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
-                            underlyingStrictGraph.setEdgeWeight(householdID, householdOfOtherHouse.getID(), 1);
+                            underlyingStrictGraph.setEdgeWeight(householdID, householdOfOtherHouse.getID(), fitWithOtherHouse - fitWithCurrentHouse);
                         } else { // fitWithOtherHouse == fitWithCurrentHouse
                             underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
                             underlyingStrictGraph.setEdgeWeight(householdID, householdOfOtherHouse.getID(), 0);
@@ -160,7 +163,7 @@ public class TwoLabeledGraph {
                     float fitWithOtherHouse = matchingEvaluator.evaluateIndividualTotalFit(otherHouse.getID(), householdID);
                     if (fitWithOtherHouse > fitWithCurrentHouse) {
                         foundOnlyWorseHouseholdlessHouses = false;
-                        this.underlyingStrictGraph.setEdgeWeight(edge, 1);
+                        this.underlyingStrictGraph.setEdgeWeight(edge, fitWithOtherHouse - fitWithCurrentHouse);
                         break; // Break, because we know this edge must be strict now;
                         // after all, we've definitively found a preferred house.
                     } else if (fitWithOtherHouse == fitWithCurrentHouse) {
@@ -181,19 +184,65 @@ public class TwoLabeledGraph {
         }
     }
 
-    public List<Integer> findCycle() throws CycleFinder.FullyExploredVertexDiscoveredException {
-        GabowStrongConnectivityInspector gabowStrongConnectivityInspector = new GabowStrongConnectivityInspector(underlyingStrictGraph);
-        List<AsSubgraph<Integer,DefaultWeightedEdge>> components = gabowStrongConnectivityInspector.getStronglyConnectedComponents();
-        List<Integer> cycle = null;
-        for (AsSubgraph<Integer, DefaultWeightedEdge> component : components) {
-            if (component.vertexSet().size() > 1) {
-                CycleFinder cycleFinder = new CycleFinder(component, this.matching.getHouseholdsMovedByWOSMA(), this.getNil());
-                cycle = cycleFinder.findCycle();
-                if (cycle != null) {
-                    break;
+    public List<Integer> findCycle(boolean findMax, boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException {
+        if (!findMax) {
+            GabowStrongConnectivityInspector gabowStrongConnectivityInspector = new GabowStrongConnectivityInspector(underlyingStrictGraph);
+            List<AsSubgraph<Integer, DefaultWeightedEdge>> components = gabowStrongConnectivityInspector.getStronglyConnectedComponents();
+            List<Integer> cycle = null;
+            for (AsSubgraph<Integer, DefaultWeightedEdge> component : components) {
+                if (component.vertexSet().size() > 1) {
+                    CycleFinder cycleFinder = new CycleFinder(component, this.matching.getHouseholdsMovedByWOSMA(), this.getNil());
+                    cycle = cycleFinder.findCycle();
+                    if (cycle != null) {
+                        break;
+                    }
                 }
             }
+            return cycle;
+        } else {
+            ArrayList<DefaultWeightedEdge> edges = new ArrayList<DefaultWeightedEdge>(this.underlyingStrictGraph.edgeSet());
+            Set<DefaultWeightedEdge> edgesToAdd = edges.stream().filter(e -> underlyingStrictGraph.getEdgeWeight(e) > 0).collect(toSet());
+            Set<DefaultWeightedEdge> edgesFromNil = edges.stream().filter(e -> underlyingStrictGraph.getEdgeSource(e) == nil).collect(toSet());
+            underlyingStrictGraph.removeAllEdges(edges);
+            for (DefaultWeightedEdge edge : edgesToAdd) {
+                int source = (int) underlyingStrictGraph.getEdgeSource(edge);
+                int target = (int) underlyingStrictGraph.getEdgeTarget(edge);
+                underlyingStrictGraph.addEdge(source, target, edge);
+            }
+            for (DefaultWeightedEdge edge : edgesFromNil) {
+                int source = (int) underlyingStrictGraph.getEdgeSource(edge);
+                int target = (int) underlyingStrictGraph.getEdgeTarget(edge);
+                underlyingStrictGraph.addEdge(source, target, edge); // Doesn't matter now that it's weight 0.
+            }
+            TarjanSimpleCycles<Integer, DefaultWeightedEdge> tarjanSimpleCycles
+                    = new TarjanSimpleCycles<>(underlyingStrictGraph);
+            List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
+            if (print) { System.out.println("Tarjan found " + cycles.size() + " cycles."); }
+            return findBestCycle(cycles);
         }
-        return cycle;
+    }
+
+    public List<Integer> findBestCycle(List<List<Integer>> cycles) {
+        double bestScore = 0.0;
+        List<Integer> bestCycle = null;
+        for (List<Integer> cycle : cycles) {
+            double candidateScore = calculateCycleScore(cycle);
+            if (candidateScore > bestScore) {
+                bestScore = candidateScore;
+                bestCycle = cycle;
+            }
+        }
+        return bestCycle;
+    }
+
+    public double calculateCycleScore(List<Integer> cycle) {
+        double score = 0;
+        for (int i = 0; i < cycle.size(); i++) {
+            int source = cycle.get(i);
+            int target = cycle.get((i + 1) % cycle.size());
+            DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.getEdge(source, target);
+            score = score + underlyingStrictGraph.getEdgeWeight(edge);
+        }
+        return score;
     }
 }

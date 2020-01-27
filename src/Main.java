@@ -236,7 +236,7 @@ public class Main {
             float oldAverageLocalResult = oldMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
 
             WorkerOptimalStableMatchingAlgorithm workerOptimalStableMatchingAlgorithm = new WorkerOptimalStableMatchingAlgorithm(matching);
-            Matching newMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(true);
+            Matching newMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(false,true);
             MatchingEvaluator newMatchingEvaluator = new MatchingEvaluator(newMatching);
             float newOverallResult =newMatchingEvaluator.evaluateTotal(true);
             float newAverageLocalResult = newMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
@@ -312,7 +312,7 @@ public class Main {
                     = new MinCostPerfectMatchingAlgorithm(matchingCopy);
 
 
-            Matching workerOptimalStableMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(true);
+            Matching workerOptimalStableMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(false,true);
             MatchingEvaluator workerOptimalMatchingEvaluator = new MatchingEvaluator(workerOptimalStableMatching);
             float WOSMA_OverallResult = workerOptimalMatchingEvaluator.evaluateTotal(true);
             float WOSMA_AverageLocalResult = workerOptimalMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
@@ -405,8 +405,8 @@ public class Main {
             Matching matching = dataProcessor.csvToMatching(filename, 0.5, startLine, lineCount);
             DynamicMatching dynamicMatching = new DynamicMatching(matching, lineCount/2, true);
             Matching matching0 = dynamicMatching.getInitialMatching();
-            Matching matching1 = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, true);
-            Matching matching2 = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false);
+            Matching matching1 = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false);
+            Matching matching2 = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, true);
             Matching matching3 = new MinCostPerfectMatchingAlgorithm(dynamicMatching.getInputMatching())
                     .findMinCostPerfectMatching(false);
 

@@ -100,7 +100,7 @@ public class CycleFinder {
     }
 
     private boolean edgeIsStrictOrSourcedAtMovedHousehold(DefaultWeightedEdge edge) {
-        if (graph.getEdgeWeight(edge) == 1) {
+        if (graph.getEdgeWeight(edge) > 0) {
             return true; // Edge is itself strict.
         }
         int source = graph.getEdgeSource(edge);
@@ -117,7 +117,7 @@ public class CycleFinder {
         for (int i = 0; i < potentialCycle.size(); i++) {
             int source = potentialCycle.get(i);
             int target = potentialCycle.get((i + 1) % potentialCycle.size());
-            if (this.graph.getEdgeWeight(this.graph.getEdge(source, target)) == 1) {
+            if (this.graph.getEdgeWeight(this.graph.getEdge(source, target)) > 0) {
                 return true;
             }
         }

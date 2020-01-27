@@ -41,7 +41,11 @@ public class WorkerOptimalStableMatchingAlgorithm {
         this.matching = matching;
     }
 
-    public Matching findWorkerOptimalStableMatching(boolean print) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException, CycleFinder.FullyExploredVertexDiscoveredException {
+    // TODO: Check if findMax method indeed gives us the best final scores.
+    // TODO: Ensure that the edges to Nil are highest-scoring.
+    // TODO: Update graph update method to work well with findMax.
+
+    public Matching findWorkerOptimalStableMatching(boolean findMax, boolean print) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException, CycleFinder.FullyExploredVertexDiscoveredException {
 //        StrictGraph strictGraph = new StrictGraph(this.matching);
 //        List<Integer> strictCycle = strictGraph.findStrictCycle();
 //        int i = 1;
@@ -59,12 +63,12 @@ public class WorkerOptimalStableMatchingAlgorithm {
         // (2) all non-strict edges are pointing to households that have moved along a strict edge before.
         int i = 1;
         TwoLabeledGraph twoLabeledGraph = new TwoLabeledGraph(this.matching);
-        List<Integer> cycle = twoLabeledGraph.findCycle();
+        List<Integer> cycle = twoLabeledGraph.findCycle(findMax, print);
         while (cycle != null) {
             if(print) { System.out.println("Executing cycle " + i); }
             this.matching.executeCycle(cycle, twoLabeledGraph.getNil(), print);
             twoLabeledGraph.updateAfterCycleExecution(cycle, this.matching);
-            cycle = twoLabeledGraph.findCycle();
+            cycle = twoLabeledGraph.findCycle(findMax, print);
             i++;
         }
 

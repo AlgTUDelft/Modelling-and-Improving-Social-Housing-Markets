@@ -37,7 +37,7 @@ public class DynamicMatching {
         inputMatching = matching;
         WorkerOptimalStableMatchingAlgorithm wosma
                 = new WorkerOptimalStableMatchingAlgorithm((Matching) deepClone(inputMatching));
-        this.initialMatching = wosma.findWorkerOptimalStableMatching(false);
+        this.initialMatching = wosma.findWorkerOptimalStableMatching(false,false);
         this.oneSided = oneSided;
         if (timestepCount > initialMatching.getHouseholds().size()) {
             throw new TooManyTimestepsException("Amount of timesteps exceeds amount of households.");
@@ -67,7 +67,7 @@ public class DynamicMatching {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
-            runAlgorithm(print);
+            runAlgorithm(false, print);
         }
         Matching resultingMatching = (Matching) deepClone(currentMatching);
 //        checkIfHouselessHouseholdsHaveNoPreferredEmptyHouse();
@@ -80,7 +80,7 @@ public class DynamicMatching {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
         }
-        runAlgorithm(print);
+        runAlgorithm(true, print);
         Matching resultingMatching = (Matching) deepClone(currentMatching);
         resetState();
         return resultingMatching;
@@ -102,10 +102,10 @@ public class DynamicMatching {
         }
     }
 
-    private void runAlgorithm(boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
+    private void runAlgorithm(boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         WorkerOptimalStableMatchingAlgorithm wosma
                 = new WorkerOptimalStableMatchingAlgorithm(currentMatching);
-        wosma.findWorkerOptimalStableMatching(print); // Modifies currentMatching.
+        wosma.findWorkerOptimalStableMatching(findMax, print); // Modifies currentMatching.
     }
 
     private void checkIfHouselessHouseholdsHaveNoPreferredEmptyHouse() throws MatchingEvaluator.HouseholdIncomeTooHighException {
