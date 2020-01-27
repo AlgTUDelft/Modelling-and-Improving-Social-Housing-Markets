@@ -274,6 +274,19 @@ public class Matching implements Serializable {
 
         boolean isChain = false;
 
+        // TODO: There's a bug here! When we connect all houses first,
+        //  and then give the households some house, possibly just any that they like,
+        //  then it's possible that some household grabs, of all houses,
+        //  that house that was supposed to go to a next household in this chain...
+        //  Example:
+        //  Previously:
+        //  143:8-> 232:0 -> nil:- -> 278:220.
+        //  So we should get:
+        //  143:0, 232:something, 278:8
+        //  but we have:
+        //  143:0, 232:8, 278:null
+        //  Fun bug! Let's solve this one.
+        
         // Disconnect all households from whatever houses they own, and keep a list of these houses.
         ArrayList<Integer> housesList = new ArrayList<Integer>();
         for (int i = 0; i<edgesCount; i++) {
