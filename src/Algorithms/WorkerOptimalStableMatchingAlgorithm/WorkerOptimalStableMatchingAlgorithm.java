@@ -42,8 +42,8 @@ public class WorkerOptimalStableMatchingAlgorithm {
     }
 
     // TODO: Check if findMax method indeed gives us the best final scores.
-    // TODO: Ensure that the edges to Nil are highest-scoring.
-    // TODO: Update graph update method to work well with findMax.
+    // TODO: Ensure that the edges to Nil are highest-scoring. -- DONE
+    // TODO: Update graph update method to work well with findMax. -- DONE
 
     public Matching findWorkerOptimalStableMatching(boolean findMax, boolean print) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException, CycleFinder.FullyExploredVertexDiscoveredException {
 //        StrictGraph strictGraph = new StrictGraph(this.matching);
@@ -62,12 +62,12 @@ public class WorkerOptimalStableMatchingAlgorithm {
         // (1) where at least one edge is strict and
         // (2) all non-strict edges are pointing to households that have moved along a strict edge before.
         int i = 1;
-        TwoLabeledGraph twoLabeledGraph = new TwoLabeledGraph(this.matching);
+        TwoLabeledGraph twoLabeledGraph = new TwoLabeledGraph(this.matching, findMax);
         List<Integer> cycle = twoLabeledGraph.findCycle(findMax, print);
         while (cycle != null) {
             if(print) { System.out.println("Executing cycle " + i); }
             this.matching.executeCycle(cycle, twoLabeledGraph.getNil(), print);
-            twoLabeledGraph.updateAfterCycleExecution(cycle, this.matching);
+            twoLabeledGraph.updateAfterCycleExecution(cycle, this.matching, findMax);
             cycle = twoLabeledGraph.findCycle(findMax, print);
             i++;
         }

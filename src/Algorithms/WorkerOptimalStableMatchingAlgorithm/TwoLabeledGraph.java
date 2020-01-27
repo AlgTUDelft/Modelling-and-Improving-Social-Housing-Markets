@@ -22,7 +22,7 @@ public class TwoLabeledGraph {
     private ArrayList<Integer> householdIDs = new ArrayList<Integer>();
     private Integer nil = -1;
 
-    public TwoLabeledGraph(Matching matching) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
+    public TwoLabeledGraph(Matching matching, boolean findMax) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = matching;
 
         // Add vertices.
@@ -33,11 +33,12 @@ public class TwoLabeledGraph {
             householdIDs.add(householdID);
         }
 
-        this.wireHouseholds(householdIDs);
+        this.wireHouseholds(householdIDs, findMax);
     }
 
     // TODO: Note somewhere that I use edgeweights denoting exactly the preference, rather than "1 = strict".
-    public void wireHouseholds(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
+    //  Also note that this functionality is only used when findMax is true.
+    public void wireHouseholds(ArrayList<Integer> householdIDs, boolean findMax) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         // Add edges. Types here refer to the first three types noted in the paper's description of the WOSMA-algorithm.
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
 
@@ -68,7 +69,7 @@ public class TwoLabeledGraph {
                         if (fitWithOtherHouse > fitWithCurrentHouse) {
                             underlyingStrictGraph.addEdge(householdID, nil);
                             underlyingStrictGraph.setEdgeWeight(householdID, nil, fitWithOtherHouse - fitWithCurrentHouse);
-                        } else { // fitWithOtherHouse == fitWithCurrentHouse
+                        } else if (!findMax) { // fitWithOtherHouse == fitWithCurrentHouse
                             underlyingStrictGraph.addEdge(householdID, nil);
                             underlyingStrictGraph.setEdgeWeight(householdID, nil, 0);
                         }
@@ -78,7 +79,7 @@ public class TwoLabeledGraph {
                         if (fitWithOtherHouse > fitWithCurrentHouse) {
                             underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
                             underlyingStrictGraph.setEdgeWeight(householdID, householdOfOtherHouse.getID(), fitWithOtherHouse - fitWithCurrentHouse);
-                        } else { // fitWithOtherHouse == fitWithCurrentHouse
+                        } else if (!findMax) { // fitWithOtherHouse == fitWithCurrentHouse
                             underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
                             underlyingStrictGraph.setEdgeWeight(householdID, householdOfOtherHouse.getID(), 0);
                         }
@@ -107,7 +108,7 @@ public class TwoLabeledGraph {
         return nil;
     }
 
-    public void updateAfterCycleExecution(List<Integer> cycle, Matching newMatching) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
+    public void updateAfterCycleExecution(List<Integer> cycle, Matching newMatching, boolean findMax) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = newMatching;
 
         // First update the edges of the households that were present in the cycle and which have thus been moved.
@@ -128,7 +129,7 @@ public class TwoLabeledGraph {
 
         ArrayList<Integer> cycleWithoutNil = new ArrayList<Integer>(cycle);
         cycleWithoutNil.remove(Integer.valueOf(nil));
-        this.wireHouseholds(cycleWithoutNil);
+        this.wireHouseholds(cycleWithoutNil, findMax);
 
 
         // Then, for each households w, re-check the edges w->nil
@@ -143,6 +144,7 @@ public class TwoLabeledGraph {
         for (DefaultWeightedEdge edge : edges) {
             int householdID = (int) this.underlyingStrictGraph.getEdgeSource(edge);
             float fitWithCurrentHouse;
+            float highScore = 0;
 
             House currentHouse = matching.getHouseFromHousehold(householdID);
 
@@ -163,10 +165,17 @@ public class TwoLabeledGraph {
                     float fitWithOtherHouse = matchingEvaluator.evaluateIndividualTotalFit(otherHouse.getID(), householdID);
                     if (fitWithOtherHouse > fitWithCurrentHouse) {
                         foundOnlyWorseHouseholdlessHouses = false;
-                        this.underlyingStrictGraph.setEdgeWeight(edge, fitWithOtherHouse - fitWithCurrentHouse);
-                        break; // Break, because we know this edge must be strict now;
-                        // after all, we've definitively found a preferred house.
-                    } else if (fitWithOtherHouse == fitWithCurrentHouse) {
+                        if (!findMax) {
+                            this.underlyingStrictGraph.setEdgeWeight(edge, fitWithOtherHouse - fitWithCurrentHouse);
+                            break; // Break, because we know this edge must be strict now;
+                            // after all, we've definitively found a preferred house.
+                        }
+                        else {
+                            if (fitWithOtherHouse - fitWithCurrentHouse > highScore) {
+                                highScore = fitWithOtherHouse - fitWithCurrentHouse;
+                            }
+                        }
+                    } else if (fitWithOtherHouse == fitWithCurrentHouse && !findMax) {
                         foundOnlyWorseHouseholdlessHouses = false;
                         this.underlyingStrictGraph.setEdgeWeight(edge, 0);
                         // No break, because we don't yet know if there is any house
@@ -176,6 +185,8 @@ public class TwoLabeledGraph {
             }
             if (foundOnlyWorseHouseholdlessHouses) {
                 edgesToRemove.add(edge);
+            } else if (findMax) {
+                this.underlyingStrictGraph.setEdgeWeight(edge, highScore);
             }
         }
 
@@ -200,20 +211,20 @@ public class TwoLabeledGraph {
             }
             return cycle;
         } else {
-            ArrayList<DefaultWeightedEdge> edges = new ArrayList<DefaultWeightedEdge>(this.underlyingStrictGraph.edgeSet());
-            Set<DefaultWeightedEdge> edgesToAdd = edges.stream().filter(e -> underlyingStrictGraph.getEdgeWeight(e) > 0).collect(toSet());
-            Set<DefaultWeightedEdge> edgesFromNil = edges.stream().filter(e -> underlyingStrictGraph.getEdgeSource(e) == nil).collect(toSet());
-            underlyingStrictGraph.removeAllEdges(edges);
-            for (DefaultWeightedEdge edge : edgesToAdd) {
-                int source = (int) underlyingStrictGraph.getEdgeSource(edge);
-                int target = (int) underlyingStrictGraph.getEdgeTarget(edge);
-                underlyingStrictGraph.addEdge(source, target, edge);
-            }
-            for (DefaultWeightedEdge edge : edgesFromNil) {
-                int source = (int) underlyingStrictGraph.getEdgeSource(edge);
-                int target = (int) underlyingStrictGraph.getEdgeTarget(edge);
-                underlyingStrictGraph.addEdge(source, target, edge); // Doesn't matter now that it's weight 0.
-            }
+//            ArrayList<DefaultWeightedEdge> edges = new ArrayList<DefaultWeightedEdge>(this.underlyingStrictGraph.edgeSet());
+//            Set<DefaultWeightedEdge> edgesToAdd = edges.stream().filter(e -> underlyingStrictGraph.getEdgeWeight(e) > 0).collect(toSet());
+//            Set<DefaultWeightedEdge> edgesFromNil = edges.stream().filter(e -> underlyingStrictGraph.getEdgeSource(e) == nil).collect(toSet());
+//            underlyingStrictGraph.removeAllEdges(edges);
+//            for (DefaultWeightedEdge edge : edgesToAdd) {
+//                int source = (int) underlyingStrictGraph.getEdgeSource(edge);
+//                int target = (int) underlyingStrictGraph.getEdgeTarget(edge);
+//                underlyingStrictGraph.addEdge(source, target, edge);
+//            }
+//            for (DefaultWeightedEdge edge : edgesFromNil) {
+//                int source = (int) underlyingStrictGraph.getEdgeSource(edge);
+//                int target = (int) underlyingStrictGraph.getEdgeTarget(edge);
+//                underlyingStrictGraph.addEdge(source, target, edge); // Doesn't matter now that it's weight 0.
+//            }
             TarjanSimpleCycles<Integer, DefaultWeightedEdge> tarjanSimpleCycles
                     = new TarjanSimpleCycles<>(underlyingStrictGraph);
             List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
