@@ -41,13 +41,13 @@ public class DynamicMatching {
             throw new TooManyTimestepsException("Amount of timesteps exceeds amount of households.");
         }
         for (int step = 0; step < timestepCount; step++) {
-            House randomHouse = initialMatching.getHouses().get(new Random().nextInt(initialMatching.getHouses().size()));
-            initialMatching.removeHouse(randomHouse.getID());
-            this.initialHousesToArrive.add(randomHouse);
+            Household randomHousehold = initialMatching.getHouseholds().get(new Random().nextInt(initialMatching.getHouseholds().size()));
+            initialMatching.removeHousehold(randomHousehold.getID());
+            this.initialHouseholdsToArrive.add(randomHousehold);
             if (!oneSided) {
-                Household randomHousehold = initialMatching.getHouseholds().get(new Random().nextInt(initialMatching.getHouseholds().size()));
-                initialMatching.removeHousehold(randomHousehold.getID());
-                this.initialHouseholdsToArrive.add(randomHousehold);
+                House randomHouse = initialMatching.getHouses().get(new Random().nextInt(initialMatching.getHouses().size()));
+                initialMatching.removeHouse(randomHouse.getID());
+                this.initialHousesToArrive.add(randomHouse);
             }
         }
         currentHousesToArrive = (ArrayList<House>) deepClone(initialHousesToArrive);
@@ -88,13 +88,13 @@ public class DynamicMatching {
         if (currentTimestepsLeft == 0) {
             System.err.print("Simulation has ended; cannot advance time further.");
         } else {
-            House house = currentHousesToArrive.get(0);
-            currentHousesToArrive.remove(house);
-            currentMatching.addHouse(house);
+            Household household = currentHouseholdsToArrive.get(0);
+            currentHouseholdsToArrive.remove(household);
+            currentMatching.addHousehold(household);
             if (!oneSided) {
-                Household household = currentHouseholdsToArrive.get(0);
-                currentHouseholdsToArrive.remove(household);
-                currentMatching.addHousehold(household);
+                House house = currentHousesToArrive.get(0);
+                currentHousesToArrive.remove(house);
+                currentMatching.addHouse(house);
             }
             currentTimestepsLeft--;
         }

@@ -1,5 +1,7 @@
 package HousingMarket;
 
-public class HousingMarketVertex {
+public interface HousingMarketVertex {
     // Can remain empty.
+
+    public int getID();
 }

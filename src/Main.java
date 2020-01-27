@@ -385,9 +385,9 @@ public class Main {
 
         ArrayList<DynamicMatchingComparisonResult> dynamicMatchingComparisonResults
                 = new ArrayList<DynamicMatchingComparisonResult>();
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 250, 500, 750));
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 125, 250, 375, 500, 625, 750, 875));
         for (int startLine : startLines) {
-            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(inputFileName,startLine, 250));
+            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(inputFileName,startLine, 125));
         }
         DynamicMatchingComparisonResultProcessor dynamicMatchingComparisonResultProcessor
                 = new DynamicMatchingComparisonResultProcessor(dynamicMatchingComparisonResults);
@@ -396,7 +396,7 @@ public class Main {
     }
 
     public static DynamicMatchingComparisonResult individualRunDynamicMatching(String filename, int startLine, int lineCount) {
-        int timestepCount = lineCount/2;
+        int timestepCount = lineCount/2-1;
         HousingMarket housingMarket = null;
         DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {

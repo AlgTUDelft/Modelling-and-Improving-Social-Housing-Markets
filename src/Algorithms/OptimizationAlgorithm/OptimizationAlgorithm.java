@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.stream.Collectors;
 
 public class OptimizationAlgorithm {
     private Matching matching;
@@ -50,8 +51,10 @@ public class OptimizationAlgorithm {
             MatchingEvaluator.HouseholdIncomeTooHighException,
             Matching.HouseholdAlreadyMatchedException,
             Matching.HouseAlreadyMatchedException {
-        return optimizeAll(this.matching.getHouseholdlessHouses(),
-                this.matching.getHouselessHouseholds(), true);
+        ArrayList<House> householdlessHouses = new ArrayList<House>(this.matching.getHouseholdlessHouses().stream().map(v -> this.matching.getHouse(v)).collect(Collectors.toList()));
+        ArrayList<Household> houselessHouseholds = new ArrayList<Household>(this.matching.getHouselessHouseholds().stream().map(v -> this.matching.getHousehold(v)).collect(Collectors.toList()));
+        return optimizeAll(householdlessHouses,
+                houselessHouseholds, true);
 
     }
     public OptimizationAlgorithmResult optimizeAll(ArrayList<House> houses, ArrayList<Household> households, boolean printOutput)

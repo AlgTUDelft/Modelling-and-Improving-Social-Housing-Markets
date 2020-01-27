@@ -8,11 +8,14 @@ import HousingMarket.HouseAndHouseholdIDPair;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleGraph;
+
+import static java.util.stream.Collectors.toSet;
 
 public class Matching implements Serializable {
     private SimpleGraph<HousingMarketVertex, DefaultEdge> matchingGraph;
@@ -21,8 +24,6 @@ public class Matching implements Serializable {
     private ArrayList<Household> households = new ArrayList<Household>();
     private ArrayList<Household> householdsWithPriority = new ArrayList<Household>();
     private ArrayList<Household> elderlyHouseholds = new ArrayList<Household>();
-    private ArrayList<House> householdlessHouses = new ArrayList<House>();
-    private ArrayList<Household> houselessHouseholds = new ArrayList<Household>();
     private ArrayList<Integer> SWIChainLengths = new ArrayList<Integer>();
     private ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
     private Set<Integer> householdsMovedByWOSMA = new HashSet<Integer>();
@@ -32,14 +33,12 @@ public class Matching implements Serializable {
     public Matching(HousingMarket housingMarket) {
         this.matchingGraph = new SimpleGraph<>(DefaultEdge.class);
         this.housingMarket = housingMarket;
-
     }
 
     public void addHouse(House house) {
         int newInt = getAndIncrementID();
         house.setID(newInt);
         this.houses.add(house);
-        this.householdlessHouses.add(house);
         this.matchingGraph.addVertex(house);
     }
 
@@ -53,7 +52,6 @@ public class Matching implements Serializable {
         int newInt = getAndIncrementID();
         household.setID(newInt);
         this.households.add(household);
-        this.houselessHouseholds.add(household);
         if (household.getPriority()) {
             this.householdsWithPriority.add(household);
         }
@@ -72,7 +70,6 @@ public class Matching implements Serializable {
     public void removeHouse(int ID) {
         House house = this.getHouse(ID);
         this.houses.remove(house);
-        this.householdlessHouses.remove(house);
         this.matchingGraph.removeVertex(house);
     }
 
@@ -81,7 +78,6 @@ public class Matching implements Serializable {
         this.households.remove(household);
         this.householdsWithPriority.remove(household);
         this.elderlyHouseholds.remove(household);
-        this.houselessHouseholds.remove(household);
         this.matchingGraph.removeVertex(household);
     }
 
@@ -102,8 +98,6 @@ public class Matching implements Serializable {
             throw new HouseholdAlreadyMatchedException("Error: Household " + household.toString() + " is already matched!");
         } else {
             this.matchingGraph.addEdge(house, household);
-            this.householdlessHouses.remove(house);
-            this.houselessHouseholds.remove(household);
         }
     }
 
@@ -111,8 +105,6 @@ public class Matching implements Serializable {
         House house = this.getHouse(houseID);
         Household household = this.getHousehold(householdID);
         this.matchingGraph.removeEdge(house, household);
-        this.householdlessHouses.add(house);
-        this.houselessHouseholds.add(household);
     }
 
     public void dissolveConnections() throws HouseLinkedToMultipleException, HouseLinkedToHouseException {
@@ -162,12 +154,30 @@ public class Matching implements Serializable {
         return this.elderlyHouseholds;
     }
 
-    public ArrayList<House> getHouseholdlessHouses() {
-        return this.householdlessHouses;
+    public Set<Integer> getHouseholdlessHouses() {
+        java.util.stream.Stream<HousingMarketVertex> stream = this.matchingGraph.vertexSet().stream().filter(v -> this.matchingGraph.edgesOf(v).isEmpty());
+        Set<HousingMarketVertex> edgelessVertices = stream.collect(toSet());
+        Set<Integer> householdlessHousesIDs = edgelessVertices.stream().map(v -> v.getID()).filter(i -> {
+            try {
+                return isHouseID(i);
+            } catch (IDNotPresentException e) {
+                return false;
+            }
+        }).collect(toSet());
+        return householdlessHousesIDs;
     }
 
-    public ArrayList<Household> getHouselessHouseholds() {
-        return this.houselessHouseholds;
+    public Set<Integer> getHouselessHouseholds() {
+        java.util.stream.Stream<HousingMarketVertex> stream = this.matchingGraph.vertexSet().stream().filter(v -> this.matchingGraph.edgesOf(v).isEmpty());
+        Set<HousingMarketVertex> edgelessVertices = stream.collect(toSet());
+        Set<Integer> houselessHouseholdsIDs = edgelessVertices.stream().map(v -> v.getID()).filter(i -> {
+            try {
+                return !isHouseID(i);
+            } catch (IDNotPresentException e) {
+                return false;
+            }
+        }).collect(toSet());
+        return houselessHouseholdsIDs;
     }
 
     public Household getHouseholdFromHouse(int houseID)
@@ -307,7 +317,7 @@ public class Matching implements Serializable {
                 // We now choose to connect him with that house amongst the empty houses, that they prefer most,
                 // so long as they do indeed prefer it to their current house.
                 // TODO: Is that method of picking a house legit, though?
-                ArrayList<House> householdlessHouses = getHouseholdlessHouses();
+                Set<Integer> householdlessHouses = getHouseholdlessHouses();
                 float highestScore;
                 if (housesList.get(i) == null) {
                     highestScore = 0;
@@ -315,11 +325,11 @@ public class Matching implements Serializable {
                     highestScore = matchingEvaluator.evaluateIndividualTotalFit(housesList.get(i), sourceVertex);
                 }
                 House bestHouse = null;
-                for (House house : householdlessHouses) {
-                    float candidateScore = matchingEvaluator.evaluateIndividualTotalFit(house.getID(), sourceVertex);
+                for (int houseID : householdlessHouses) {
+                    float candidateScore = matchingEvaluator.evaluateIndividualTotalFit(houseID, sourceVertex);
                     if (candidateScore >= highestScore) {
                         highestScore = candidateScore;
-                        bestHouse = house;
+                        bestHouse = getHouse(houseID);
                     }
                 }
                 if (bestHouse == null) {
@@ -361,12 +371,13 @@ public class Matching implements Serializable {
         this.dissolveConnections();
         Random rand = new Random();
         for (Household household : this.getHouseholds()) {
-            ArrayList<House> householdlessHouses = this.householdlessHouses;
-            if (householdlessHouses.isEmpty()) {
+            Set<Integer> householdlessHousesIDs = getHouseholdlessHouses();
+            if (householdlessHousesIDs.isEmpty()) {
                 break;
             }
-            House chosenHouse = householdlessHouses.get(rand.nextInt(householdlessHouses.size()));
-            this.connect(chosenHouse.getID(), household.getID());
+            ArrayList<Integer> householdlessHousesIDsArray = new ArrayList<Integer>(this.getHouseholdlessHouses().stream().collect(Collectors.toList()));
+            int chosenHouseID = rand.nextInt(householdlessHousesIDsArray.size());
+            this.connect(chosenHouseID, household.getID());
         }
     }
 

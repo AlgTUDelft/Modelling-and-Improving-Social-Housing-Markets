@@ -4,7 +4,7 @@ import HousingMarket.HousingMarketVertex;
 
 import java.io.Serializable;
 
-public class Household extends HousingMarketVertex implements Serializable {
+public class Household implements HousingMarketVertex, Serializable {
 
     private int id;
     private String municipality;
