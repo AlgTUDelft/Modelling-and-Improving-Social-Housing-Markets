@@ -415,10 +415,12 @@ public class Main {
             System.out.println("Got here! 2");
             System.out.println(matching2.getHouseholds().size());
             System.out.println(matching2.getHouses().size());
+            // TODO: Somewhere, keep track of when we've ran into Tarjan's error.
             Matching matching3 = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, true,true);
             System.out.println("Got here! 3");
             System.out.println(matching3.getHouseholds().size());
             System.out.println(matching3.getHouses().size());
+            // TODO: Replace this with another matching. Are results still consistent?
             Matching matching4 = new MinCostPerfectMatchingAlgorithm(matching3)
                     .findMinCostPerfectMatching(false);
             System.out.println("Got here! 4");

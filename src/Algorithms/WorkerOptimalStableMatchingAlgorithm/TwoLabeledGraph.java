@@ -208,7 +208,7 @@ public class TwoLabeledGraph {
         }
     }
 
-    public List<Integer> findCycle(boolean findMax, boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException {
+    public List<Integer> findCycle(boolean findMax, boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, OutOfMemoryError {
         if (!findMax) {
             GabowStrongConnectivityInspector gabowStrongConnectivityInspector = new GabowStrongConnectivityInspector(underlyingStrictGraph);
             List<AsSubgraph<Integer, DefaultWeightedEdge>> components = gabowStrongConnectivityInspector.getStronglyConnectedComponents();
@@ -245,9 +245,7 @@ public class TwoLabeledGraph {
                 if (print) { System.out.println("Tarjan found " + cycles.size() + " cycles."); }
                 return findBestCycle(cycles);
             } catch (OutOfMemoryError e) {
-                System.err.println("Tarjan found more cycles than can fit in this computer's memory.");
-                System.err.println("Continuing as though _findMax_ is false...");
-                return findCycle(false, print);
+                throw new OutOfMemoryError(e.getMessage());
             }
         }
     }
