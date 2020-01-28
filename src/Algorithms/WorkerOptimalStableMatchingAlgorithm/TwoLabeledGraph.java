@@ -54,6 +54,9 @@ public class TwoLabeledGraph {
             } else {
                 fitWithCurrentHouse = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
             }
+
+            float highScore = 0; // Relevant only if findMax.
+
             for (House otherHouse : this.matching.getHouses()) {
                 if (currentHouse != null) {
                     if (otherHouse.getID() == currentHouse.getID()) {
@@ -66,9 +69,14 @@ public class TwoLabeledGraph {
                     if (householdOfOtherHouse == null) {
                         // Add type 2 edge
                         DefaultWeightedEdge edge;
-                        if (fitWithOtherHouse > fitWithCurrentHouse) {
-                            underlyingStrictGraph.addEdge(householdID, nil);
-                            underlyingStrictGraph.setEdgeWeight(householdID, nil, fitWithOtherHouse - fitWithCurrentHouse);
+                        if (fitWithOtherHouse > fitWithCurrentHouse && fitWithOtherHouse - fitWithCurrentHouse > highScore) {
+                            if (findMax) {
+                                highScore = fitWithOtherHouse - fitWithCurrentHouse;
+                            } else {
+                                underlyingStrictGraph.addEdge(householdID, nil);
+                                underlyingStrictGraph.setEdgeWeight(householdID, nil, fitWithOtherHouse - fitWithCurrentHouse);
+                                break; // All nonzero weight values are treated the same if !findMax, so no need to continue.
+                            }
                         } else if (!findMax) { // fitWithOtherHouse == fitWithCurrentHouse
                             underlyingStrictGraph.addEdge(householdID, nil);
                             underlyingStrictGraph.setEdgeWeight(householdID, nil, 0);
@@ -85,6 +93,11 @@ public class TwoLabeledGraph {
                         }
                     }
                 }
+            }
+            // Type 2 edge;
+            if (highScore > 0) {
+                underlyingStrictGraph.addEdge(householdID, nil);
+                underlyingStrictGraph.setEdgeWeight(householdID, nil, highScore);
             }
         }
 
@@ -227,9 +240,15 @@ public class TwoLabeledGraph {
 //            }
             TarjanSimpleCycles<Integer, DefaultWeightedEdge> tarjanSimpleCycles
                     = new TarjanSimpleCycles<>(underlyingStrictGraph);
-            List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
-            if (print) { System.out.println("Tarjan found " + cycles.size() + " cycles."); }
-            return findBestCycle(cycles);
+            try {
+                List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
+                if (print) { System.out.println("Tarjan found " + cycles.size() + " cycles."); }
+                return findBestCycle(cycles);
+            } catch (OutOfMemoryError e) {
+                System.err.println("Tarjan found more cycles than can fit in this computer's memory.");
+                System.err.println("Continuing as though _findMax_ is false...");
+                return findCycle(false, print);
+            }
         }
     }
 

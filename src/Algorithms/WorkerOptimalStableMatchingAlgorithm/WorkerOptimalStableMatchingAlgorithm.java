@@ -41,10 +41,6 @@ public class WorkerOptimalStableMatchingAlgorithm {
         this.matching = matching;
     }
 
-    // TODO: Check if findMax method indeed gives us the best final scores.
-    // TODO: Ensure that the edges to Nil are highest-scoring. -- DONE
-    // TODO: Update graph update method to work well with findMax. -- DONE
-
     public Matching findWorkerOptimalStableMatching(boolean findMax, boolean print) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException, CycleFinder.FullyExploredVertexDiscoveredException {
 //        StrictGraph strictGraph = new StrictGraph(this.matching);
 //        List<Integer> strictCycle = strictGraph.findStrictCycle();

@@ -20,13 +20,14 @@ public class DynamicMatchingComparisonResultProcessor {
     public void resultsToCSV(String filename) throws IOException {
         FileWriter writer = new FileWriter(filename);
         CSVUtils.writeLine(writer, Arrays.asList("solvedInitialMatchingScore", "solvedFinalMatchingPerStepScore",
-                "solvedFinalMatchingAfterwardsScore", "superOptimalScore"), CSV_SEPARATOR);
+                "solvedFinalMatchingAfterwardsScore", "solvedFinalMatchingAfterwardsFindMaxScore", "superOptimalScore"), CSV_SEPARATOR);
 
         for (DynamicMatchingComparisonResult dynamicMatchingComparisonResult : dynamicMatchingComparisonResults) {
             List<String> list = new ArrayList<String>();
             list.add(Float.toString(dynamicMatchingComparisonResult.getSolvedInitialMatchingScore()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getSolvedFinalMatchingPerStepScore()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getSolvedFinalMatchingAfterwardsScore()));
+            list.add(Float.toString(dynamicMatchingComparisonResult.getSolvedFinalMatchingAfterwardsFindMaxScore()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getSuperOptimalScore()));
 
             CSVUtils.writeLine(writer, list, CSV_SEPARATOR);

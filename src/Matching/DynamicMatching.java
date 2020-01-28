@@ -30,9 +30,7 @@ public class DynamicMatching {
 
     private boolean oneSided; // false means two-sided arrival. One-sided means houses are set and households arrive.
 
-    // TODO: Scores of 'per-step' are higher than 'all-afterwards', which is...understandable, given that we
-    //  essentially pick a cycle randomly; but it's not so great for comparison purposes. Time to dive back into
-    //  CycleFinder and change how it works...!
+    // TODO: Analyze scores.
     public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         inputMatching = matching;
         WorkerOptimalStableMatchingAlgorithm wosma
@@ -75,12 +73,12 @@ public class DynamicMatching {
         return resultingMatching;
     }
 
-    public Matching advanceTimeFullyThenSolve(int timestepCount, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
+    public Matching advanceTimeFullyThenSolve(int timestepCount, boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
         }
-        runAlgorithm(true, print);
+        runAlgorithm(findMax, print);
         Matching resultingMatching = (Matching) deepClone(currentMatching);
         resetState();
         return resultingMatching;
