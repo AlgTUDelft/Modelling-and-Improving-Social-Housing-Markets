@@ -379,15 +379,21 @@ public class Main {
         return wmComparisonResult;
     }
 
-    public static void runDynamicMatching() throws IOException {
+    public static Matching setupMatching(double connectionProb, int startLine, int lineCount) throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, IOException {
         String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
+        HousingMarket housingMarket = new HousingMarket(2017, 100);
+        DataProcessor dataProcessor = new DataProcessor(housingMarket);
+        return dataProcessor.csvToMatching(inputFileName, 0.9, startLine, lineCount);
+    }
+
+    public static void runDynamicMatching() throws IOException {
         String outputFilename = "../test.csv";
 
         ArrayList<DynamicMatchingComparisonResult> dynamicMatchingComparisonResults
                 = new ArrayList<DynamicMatchingComparisonResult>();
         ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 250, 500, 750));
         for (int startLine : startLines) {
-            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(inputFileName,startLine, 250));
+            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 250));
         }
         DynamicMatchingComparisonResultProcessor dynamicMatchingComparisonResultProcessor
                 = new DynamicMatchingComparisonResultProcessor(dynamicMatchingComparisonResults);
@@ -395,33 +401,25 @@ public class Main {
 
     }
 
-    public static DynamicMatchingComparisonResult individualRunDynamicMatching(String filename, int startLine, int lineCount) {
-        // TODO: When this had a -1 at the end, we got an error with the MCPBMA. Double-check and fix.
-        int timestepCount = lineCount/2;
-        HousingMarket housingMarket = null;
+    public static DynamicMatchingComparisonResult individualRunDynamicMatching(int startLine, int lineCount) {
+        int timestepCount = lineCount/2 -1;
         DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {
-            housingMarket = new HousingMarket(2017, 100);
-            DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            Matching matching = dataProcessor.csvToMatching(filename, 0.5, startLine, lineCount);
-            DynamicMatching dynamicMatching = new DynamicMatching(matching, lineCount/2, true);
+            double connectionProb = 0.9;
+            Matching matching = setupMatching(connectionProb, startLine, lineCount);
+            DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, false);
 
-            // TODO: Are these all measuring the same thing? Same final amount of houses and households?!
-            //  Because the supposedly optimal score was surpassed by the findMax score at one point...
             Matching matching0 = dynamicMatching.getInitialMatching();
             Matching matching1 = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false);
             System.out.println("Got here! 1");
-            Matching matching2 = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false,true);
+            dynamicMatching.resetState();
+            Matching matching2 = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false,false);
             System.out.println("Got here! 2");
-            System.out.println(matching2.getHouseholds().size());
-            System.out.println(matching2.getHouses().size());
-            // TODO: Somewhere, keep track of when we've ran into Tarjan's error.
-            Matching matching3 = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, true,true);
+            dynamicMatching.resetState();
+            Matching matching3 = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, true,false);
             System.out.println("Got here! 3");
-            System.out.println(matching3.getHouseholds().size());
-            System.out.println(matching3.getHouses().size());
-            // TODO: Replace this with another matching. Are results still consistent?
-            Matching matching4 = new MinCostPerfectMatchingAlgorithm(matching3)
+            Matching matching4 = (Matching) deepClone(dynamicMatching.getInputMatching());
+            matching4 = new MinCostPerfectMatchingAlgorithm(matching4)
                     .findMinCostPerfectMatching(false);
             System.out.println("Got here! 4");
 
@@ -437,6 +435,7 @@ public class Main {
             float score3 = matchingEvaluator3.evaluateAverageIndividualTotalFit(true); // Solved final matching, afterwards, findMax
             float score4 = matchingEvaluator4.evaluateAverageIndividualTotalFit(true); // Optimal result
 
+            System.out.println("Initial matching, score: ");
             dynamicMatchingComparisonResult
                     = new DynamicMatchingComparisonResult(score0, score1, score2, score3, score4);
 

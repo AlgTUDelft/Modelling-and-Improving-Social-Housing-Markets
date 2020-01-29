@@ -30,19 +30,22 @@ public class DynamicMatching {
 
     private boolean oneSided; // false means two-sided arrival. One-sided means houses are set and households arrive.
 
-    // TODO: Analyze scores.
+    // TODO: Analyze scores. (findMax sometimes does worse? Why?)
+    // TODO: Test two-sided.
+    // TODO: Add metrics to results, such as: amount of houses and households, initial conditions, timesteps taken,
+    //        findMax, findMax success, etc.
+    // TODO: Double-check findMax in finding cycles; does it really capture the kinds of cycles (re: strictness of edges, etc.)
+    //        that we want it to capture?
     public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         inputMatching = matching;
-        WorkerOptimalStableMatchingAlgorithm wosma
-                = new WorkerOptimalStableMatchingAlgorithm((Matching) deepClone(inputMatching));
-        this.initialMatching = wosma.findWorkerOptimalStableMatching(false,false);
         this.oneSided = oneSided;
-        if (timestepCount > initialMatching.getHouseholds().size()) {
+        if (timestepCount > inputMatching.getHouseholds().size()) {
             throw new TooManyTimestepsException("Amount of timesteps exceeds amount of households.");
         }
-        if (!oneSided && timestepCount > initialMatching.getHouses().size()) {
+        if (!oneSided && timestepCount > inputMatching.getHouses().size()) {
             throw new TooManyTimestepsException("Amount of timesteps exceeds amount of houses.");
         }
+        Matching initialMatching = (Matching) deepClone(inputMatching);
         for (int step = 0; step < timestepCount; step++) {
             Household randomHousehold = initialMatching.getHouseholds().get(new Random().nextInt(initialMatching.getHouseholds().size()));
             initialMatching.removeHousehold(randomHousehold.getID());
@@ -53,6 +56,10 @@ public class DynamicMatching {
                 this.initialHousesToArrive.add(randomHouse);
             }
         }
+        WorkerOptimalStableMatchingAlgorithm wosma
+                = new WorkerOptimalStableMatchingAlgorithm(initialMatching);
+        // TODO: set findMax to true?
+        this.initialMatching = wosma.findWorkerOptimalStableMatching(true,false);
         this.currentMatching = (Matching) deepClone(initialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(initialHouseholdsToArrive);
@@ -65,11 +72,10 @@ public class DynamicMatching {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
-            runAlgorithm(false, print);
+            runAlgorithm(true, print);
         }
         Matching resultingMatching = (Matching) deepClone(currentMatching);
 //        checkIfHouselessHouseholdsHaveNoPreferredEmptyHouse();
-        resetState();
         return resultingMatching;
     }
 
@@ -80,7 +86,6 @@ public class DynamicMatching {
         }
         runAlgorithm(findMax, print);
         Matching resultingMatching = (Matching) deepClone(currentMatching);
-        resetState();
         return resultingMatching;
     }
 
@@ -119,7 +124,7 @@ public class DynamicMatching {
         }
     }
 
-    private void resetState() {
+    public void resetState() {
         this.currentMatching = (Matching) deepClone(this.initialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(this.initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(this.initialHouseholdsToArrive);
