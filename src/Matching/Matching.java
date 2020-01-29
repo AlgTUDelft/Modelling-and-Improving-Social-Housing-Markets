@@ -392,6 +392,10 @@ public class Matching implements Serializable {
         }
     }
 
+    public void resetHouseholdsMovedByWOSMA() {
+        this.householdsMovedByWOSMA.clear();
+    }
+
     public int getAmtSWIChainsExecuted() {
         return (int) SWIChainLengths.stream()
                 .filter(h -> h > 0)

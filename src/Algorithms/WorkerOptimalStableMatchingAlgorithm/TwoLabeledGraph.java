@@ -9,6 +9,7 @@ import org.jgrapht.alg.cycle.TarjanSimpleCycles;
 import org.jgrapht.graph.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -75,24 +76,20 @@ public class TwoLabeledGraph {
                     Household householdOfOtherHouse = this.matching.getHouseholdFromHouse(otherHouse.getID());
                     if (householdOfOtherHouse == null) {
                         // Add type 2 edge
-                        DefaultWeightedEdge edge;
+                        underlyingStrictGraph.addEdge(householdID, nil);
                         if (fitWithOtherHouse > fitWithCurrentHouse) {
-                            underlyingStrictGraph.addEdge(householdID, nil);
                             underlyingStrictGraph.setEdgeWeight(householdID, nil, 1);
                             break; // All nonzero weight values are treated the same since !findMax, so no need to continue.
 
                         } else { // fitWithOtherHouse == fitWithCurrentHouse
-                            underlyingStrictGraph.addEdge(householdID, nil);
                             underlyingStrictGraph.setEdgeWeight(householdID, nil, 0);
                         }
                     } else {
                         // Add type 1 edge
-                        DefaultWeightedEdge edge;
+                        underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
                         if (fitWithOtherHouse > fitWithCurrentHouse) {
-                            underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
                             underlyingStrictGraph.setEdgeWeight(householdID, householdOfOtherHouse.getID(), 1);
                         } else { // fitWithOtherHouse == fitWithCurrentHouse
-                            underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
                             underlyingStrictGraph.setEdgeWeight(householdID, householdOfOtherHouse.getID(), 0);
                         }
                     }
@@ -104,11 +101,13 @@ public class TwoLabeledGraph {
             House currentHouse = matching.getHouseFromHousehold(householdID);
             // If the household does not own a house, then the following edge will already have been added.
             if (currentHouse != null) {
-                if (underlyingStrictGraph.incomingEdgesOf(householdID).isEmpty()) {
+                if (sumWeightOfEdges(underlyingStrictGraph.incomingEdgesOf(householdID)) == 0) {
                     // Add type 3 edge, condition 2.
                     // If the above edge-additive process did not cause the current household to receive any incoming
                     // edges, then the reduced second condition -- there is no worker who strictly desires the current
                     // household's house -- is fulfilled, meaning the following edge should be added.
+                    // Note that if underlyingStrictGraph.incomingEdgesOf(householdID).isEmpty(),
+                    // then sumWeightOfEdges(underlyingStrictGraph.incomingEdgesOf(householdID)) == 0.
                     underlyingStrictGraph.addEdge(nil, householdID);
                     underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
                 }
@@ -146,13 +145,11 @@ public class TwoLabeledGraph {
                     Household householdOfOtherHouse = this.matching.getHouseholdFromHouse(otherHouse.getID());
                     if (householdOfOtherHouse == null) {
                         // Type 2 edge
-                        DefaultWeightedEdge edge;
                         if (fitWithOtherHouse > fitWithCurrentHouse && fitWithOtherHouse - fitWithCurrentHouse > highScore) {
                             highScore = fitWithOtherHouse - fitWithCurrentHouse;
                         }
                     } else {
                         // Add type 1 edge
-                        DefaultWeightedEdge edge;
                         if (fitWithOtherHouse > fitWithCurrentHouse) {
                             underlyingStrictGraph.addEdge(householdID, householdOfOtherHouse.getID());
                             underlyingStrictGraph.setEdgeWeight(householdID, householdOfOtherHouse.getID(), fitWithOtherHouse - fitWithCurrentHouse);
@@ -374,12 +371,20 @@ public class TwoLabeledGraph {
     }
 
     public double calculateCycleScore(List<Integer> cycle) {
-        double score = 0;
+        Set<DefaultWeightedEdge> edges = new HashSet<DefaultWeightedEdge>();
         for (int i = 0; i < cycle.size(); i++) {
             int source = cycle.get(i);
             int target = cycle.get((i + 1) % cycle.size());
             DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.getEdge(source, target);
-            score = score + underlyingStrictGraph.getEdgeWeight(edge);
+            edges.add(edge);
+        }
+        return sumWeightOfEdges(edges);
+    }
+
+    public double sumWeightOfEdges(Set<DefaultWeightedEdge> edges) {
+        double score = 0;
+        for (DefaultWeightedEdge edge : edges) {
+            score = score + this.underlyingStrictGraph.getEdgeWeight(edge);
         }
         return score;
     }

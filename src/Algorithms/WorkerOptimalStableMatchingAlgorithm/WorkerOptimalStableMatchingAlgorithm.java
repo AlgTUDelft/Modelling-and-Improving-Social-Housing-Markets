@@ -76,6 +76,7 @@ public class WorkerOptimalStableMatchingAlgorithm {
             i++;
         }
 
+        matching.resetHouseholdsMovedByWOSMA();
         return this.matching;
     }
 
