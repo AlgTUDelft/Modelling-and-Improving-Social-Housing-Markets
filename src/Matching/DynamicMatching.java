@@ -32,8 +32,7 @@ public class DynamicMatching {
 
     // TODO: Analyze scores.
     //       -> There isn't really any consistency to these, although fortunately they're all below optimal...
-    // TODO: Add metrics to results, such as: amount of houses and households, timesteps taken,
-    //        findMax, findMax success, etc.
+    // TODO: Add optimalities to data.
     // TODO: Double-check findMax in finding cycles; does it really capture the kinds of cycles (re: strictness of edges, etc.)
     //        that we want it to capture? -> e.g. split functions into two for easier checks.
     //        - Check functions in TwoLabeledGraph. -- DONE

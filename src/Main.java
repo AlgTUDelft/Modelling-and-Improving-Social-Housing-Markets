@@ -402,7 +402,7 @@ public class Main {
     }
 
     public static DynamicMatchingComparisonResult individualRunDynamicMatching(int startLine, int lineCount) {
-        int timestepCount = lineCount/2 -1;
+        int timestepCount = lineCount/2;
         DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {
             double connectionProb = 0.6;
@@ -431,8 +431,13 @@ public class Main {
 
             prettyPrintResults(strings, scores);
 
+            float perStepOptimality = scores[0]/scores[3];
+            float afterwardsOptimality = scores[1]/scores[3];
+            float afterwardsFindMaxOptimality = scores[2]/scores[3];
             dynamicMatchingComparisonResult
-                    = new DynamicMatchingComparisonResult(matchings[2].getFindMaxFailed(), scores[0], scores[1], scores[2], scores[3]);
+                    = new DynamicMatchingComparisonResult(timestepCount, matchings[2].getFindMaxFailed(),
+                    scores[0], scores[1], scores[2], scores[3],
+                    perStepOptimality, afterwardsOptimality, afterwardsFindMaxOptimality);
 
         } catch (HousingMarket.FreeSpaceException e) {
             e.printStackTrace();

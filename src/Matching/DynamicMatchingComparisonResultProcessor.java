@@ -20,19 +20,27 @@ public class DynamicMatchingComparisonResultProcessor {
     public void resultsToCSV(String filename) throws IOException {
         FileWriter writer = new FileWriter(filename);
         CSVUtils.writeLine(writer, Arrays.asList(
-                "FindMaxFailed",
+                "timeStepCount",
+                "findMaxFailed",
                 "solvedFinalMatchingPerStepScore",
                 "solvedFinalMatchingAfterwardsScore",
                 "solvedFinalMatchingAfterwardsFindMaxScore",
-                "superOptimalScore"), CSV_SEPARATOR);
+                "superOptimalScore",
+                "perStepOptimality",
+                "afterwardsOptimality",
+                "afterwardsFindMaxOptimality"), CSV_SEPARATOR);
 
         for (DynamicMatchingComparisonResult dynamicMatchingComparisonResult : dynamicMatchingComparisonResults) {
             List<String> list = new ArrayList<String>();
+            list.add(Integer.toString(dynamicMatchingComparisonResult.getTimestepCount()));
             list.add(Boolean.toString(dynamicMatchingComparisonResult.isFindMaxFailed()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getSolvedFinalMatchingPerStepScore()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getSolvedFinalMatchingAfterwardsScore()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getSolvedFinalMatchingAfterwardsFindMaxScore()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getSuperOptimalScore()));
+            list.add(Float.toString(dynamicMatchingComparisonResult.getPerStepOptimality()));
+            list.add(Float.toString(dynamicMatchingComparisonResult.getAfterwardsOptimality()));
+            list.add(Float.toString(dynamicMatchingComparisonResult.getAfterwardsFindMaxOptimality()));
 
             CSVUtils.writeLine(writer, list, CSV_SEPARATOR);
         }
