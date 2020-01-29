@@ -30,12 +30,12 @@ public class DynamicMatching {
 
     private boolean oneSided; // false means two-sided arrival. One-sided means houses are set and households arrive.
 
-    // TODO: Analyze scores. (findMax sometimes does worse? Why?)
-    // TODO: Test two-sided.
+    // TODO: Analyze scores.
+    //  -> We consistently find: final per step > final afterwards > final afterwards + findMax. Why?
     // TODO: Add metrics to results, such as: amount of houses and households, initial conditions, timesteps taken,
     //        findMax, findMax success, etc.
     // TODO: Double-check findMax in finding cycles; does it really capture the kinds of cycles (re: strictness of edges, etc.)
-    //        that we want it to capture?
+    //        that we want it to capture? -> e.g. split functions into two for easier checks.
     public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         inputMatching = matching;
         this.oneSided = oneSided;
@@ -59,7 +59,7 @@ public class DynamicMatching {
         WorkerOptimalStableMatchingAlgorithm wosma
                 = new WorkerOptimalStableMatchingAlgorithm(initialMatching);
         // TODO: set findMax to true?
-        this.initialMatching = wosma.findWorkerOptimalStableMatching(true,false);
+        this.initialMatching = wosma.findWorkerOptimalStableMatching(false,false);
         this.currentMatching = (Matching) deepClone(initialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(initialHouseholdsToArrive);
@@ -72,7 +72,7 @@ public class DynamicMatching {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
-            runAlgorithm(true, print);
+            runAlgorithm(false, print);
         }
         Matching resultingMatching = (Matching) deepClone(currentMatching);
 //        checkIfHouselessHouseholdsHaveNoPreferredEmptyHouse();
@@ -85,6 +85,7 @@ public class DynamicMatching {
             simulateEnvironmentTimestep();
         }
         runAlgorithm(findMax, print);
+        runAlgorithm(false, false);
         Matching resultingMatching = (Matching) deepClone(currentMatching);
         return resultingMatching;
     }

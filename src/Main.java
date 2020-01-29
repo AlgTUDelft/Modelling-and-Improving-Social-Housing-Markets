@@ -409,40 +409,31 @@ public class Main {
             Matching matching = setupMatching(connectionProb, startLine, lineCount);
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, false);
 
-            Matching matching0 = dynamicMatching.getInitialMatching();
-            Matching matching1 = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false);
+            Matching[] matchings = new Matching[5];
+            matchings[0] = dynamicMatching.getInitialMatching();
+            matchings[1] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false);
             System.out.println("Got here! 1");
             dynamicMatching.resetState();
-            Matching matching2 = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false,false);
+            matchings[2] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false,false);
             System.out.println("Got here! 2");
             dynamicMatching.resetState();
-            Matching matching3 = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, true,false);
+            matchings[3] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, true,false);
             System.out.println("Got here! 3");
-            Matching matching4 = (Matching) deepClone(dynamicMatching.getInputMatching());
-            matching4 = new MinCostPerfectMatchingAlgorithm(matching4)
+            matchings[4] = new MinCostPerfectMatchingAlgorithm((Matching) deepClone(dynamicMatching.getInputMatching()))
                     .findMinCostPerfectMatching(false);
             System.out.println("Got here! 4");
 
-            MatchingEvaluator matchingEvaluator0 = new MatchingEvaluator(matching0);
-            MatchingEvaluator matchingEvaluator1 = new MatchingEvaluator(matching1);
-            MatchingEvaluator matchingEvaluator2 = new MatchingEvaluator(matching2);
-            MatchingEvaluator matchingEvaluator3 = new MatchingEvaluator(matching3);
-            MatchingEvaluator matchingEvaluator4 = new MatchingEvaluator(matching4);
-
-            float score0 = matchingEvaluator0.evaluateAverageIndividualTotalFit(false); // Solved initial matching
-            float score1 = matchingEvaluator1.evaluateAverageIndividualTotalFit(false); // Solved final matching, per step
-            float score2 = matchingEvaluator2.evaluateAverageIndividualTotalFit(false); // Solved final matching, afterwards
-            float score3 = matchingEvaluator3.evaluateAverageIndividualTotalFit(false); // Solved final matching, afterwards, findMax
-            float score4 = matchingEvaluator4.evaluateAverageIndividualTotalFit(false); // Optimal result
-
-            String[] strings = { "Initial matching score", "Final per step score", "Final afterwards score",
-                    "Final afterwards + findMax score", "Optimal score" };
-            float[] scores = { score0, score1, score2, score3, score4};
+            float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
+            String[] strings = { "Initial matching score",
+                    "Final per step score",
+                    "Final afterwards score",
+                    "Final afterwards + findMax score",
+                    "Optimal score" };
 
             prettyPrintResults(strings, scores);
 
             dynamicMatchingComparisonResult
-                    = new DynamicMatchingComparisonResult(score0, score1, score2, score3, score4);
+                    = new DynamicMatchingComparisonResult(scores[0], scores[1], scores[2], scores[3], scores[4]);
 
         } catch (HousingMarket.FreeSpaceException e) {
             e.printStackTrace();
@@ -481,6 +472,20 @@ public class Main {
         }
 
         return dynamicMatchingComparisonResult;
+    }
+
+    public static float[] evaluateMatchingsAverageIndividualTotalFit(Matching[] matchings) throws MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
+
+        MatchingEvaluator[] matchingEvaluators = new MatchingEvaluator[matchings.length];
+        for (int i = 0; i < matchings.length; i++) {
+            matchingEvaluators[i] = new MatchingEvaluator(matchings[i]);
+        }
+
+        float[] scores = new float[matchings.length];
+        for (int i = 0; i < matchings.length; i++) {
+            scores[i] = matchingEvaluators[i].evaluateAverageIndividualTotalFit(false);
+        }
+        return scores;
     }
 
     public static void prettyPrintResults(String[] strings, float[] scores) {
