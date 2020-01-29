@@ -37,6 +37,8 @@ public class DynamicMatching {
     //        findMax, findMax success, etc.
     // TODO: Double-check findMax in finding cycles; does it really capture the kinds of cycles (re: strictness of edges, etc.)
     //        that we want it to capture? -> e.g. split functions into two for easier checks.
+    //        - Check functions in TwoLabeledGraph.
+    //        - Check functions in CycleFinder. (Are there even any though? I was scared of this but I think there are none, haha.)
     public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         inputMatching = matching;
         this.oneSided = oneSided;
