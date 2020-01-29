@@ -31,7 +31,8 @@ public class DynamicMatching {
     private boolean oneSided; // false means two-sided arrival. One-sided means houses are set and households arrive.
 
     // TODO: Analyze scores.
-    //  -> We consistently find: final per step > final afterwards > final afterwards + findMax. Why?
+    //       -> We consistently find: final per step > final afterwards,
+    //          and often also final afterwards > final afterwards + findMax. Why?
     // TODO: Add metrics to results, such as: amount of houses and households, initial conditions, timesteps taken,
     //        findMax, findMax success, etc.
     // TODO: Double-check findMax in finding cycles; does it really capture the kinds of cycles (re: strictness of edges, etc.)
