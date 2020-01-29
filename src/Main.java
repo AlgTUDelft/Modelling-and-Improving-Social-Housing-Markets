@@ -429,13 +429,18 @@ public class Main {
             MatchingEvaluator matchingEvaluator3 = new MatchingEvaluator(matching3);
             MatchingEvaluator matchingEvaluator4 = new MatchingEvaluator(matching4);
 
-            float score0 = matchingEvaluator0.evaluateAverageIndividualTotalFit(true); // Solved initial matching
-            float score1 = matchingEvaluator1.evaluateAverageIndividualTotalFit(true); // Solved final matching, per step
-            float score2 = matchingEvaluator2.evaluateAverageIndividualTotalFit(true); // Solved final matching, afterwards
-            float score3 = matchingEvaluator3.evaluateAverageIndividualTotalFit(true); // Solved final matching, afterwards, findMax
-            float score4 = matchingEvaluator4.evaluateAverageIndividualTotalFit(true); // Optimal result
+            float score0 = matchingEvaluator0.evaluateAverageIndividualTotalFit(false); // Solved initial matching
+            float score1 = matchingEvaluator1.evaluateAverageIndividualTotalFit(false); // Solved final matching, per step
+            float score2 = matchingEvaluator2.evaluateAverageIndividualTotalFit(false); // Solved final matching, afterwards
+            float score3 = matchingEvaluator3.evaluateAverageIndividualTotalFit(false); // Solved final matching, afterwards, findMax
+            float score4 = matchingEvaluator4.evaluateAverageIndividualTotalFit(false); // Optimal result
 
-            System.out.println("Initial matching, score: ");
+            String[] strings = { "Initial matching score", "Final per step score", "Final afterwards score",
+                    "Final afterwards + findMax score", "Optimal score" };
+            float[] scores = { score0, score1, score2, score3, score4};
+
+            prettyPrintResults(strings, scores);
+
             dynamicMatchingComparisonResult
                     = new DynamicMatchingComparisonResult(score0, score1, score2, score3, score4);
 
@@ -476,6 +481,18 @@ public class Main {
         }
 
         return dynamicMatchingComparisonResult;
+    }
+
+    public static void prettyPrintResults(String[] strings, float[] scores) {
+        int maxStringLength = 0;
+        for (int i = 0; i < strings.length; i++) {
+            if (strings[i].length() > maxStringLength) {
+                maxStringLength = strings[i].length();
+            }
+        }
+        for (int i = 0; i < strings.length; i++) {
+            System.out.printf("%" + maxStringLength + "s: %10f%n", strings[i], scores[i]);
+        }
     }
 
     public static Object deepClone(Object object) {
