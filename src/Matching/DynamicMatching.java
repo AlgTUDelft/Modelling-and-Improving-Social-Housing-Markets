@@ -38,8 +38,12 @@ public class DynamicMatching {
     //          So two things need to be explained:
     //          - Why does PerStep often perform better than Afterwards?
     //          - Why does PerStep sometimes perform better than even AfterwardsFindMax?
+    //          Update: I've found a case where Afterwards performs better than AfterwardsFindMax.
+    //                  -> For this, I guess the below explanation suffices.
+    //                     It only happens rarely, which roughly fits with that explanation.
+    //
     // TODO: Double-check findMax in finding cycles; does it really capture the kinds of cycles (re: strictness of edges, etc.)
-    //        that we want it to capture? -> e.g. split functions into two for easier checks.
+    //        that we want it to capture? -> e.g. split functions into two for easier checking.
     //        - Check functions in TwoLabeledGraph. -- DONE
     //        - Check functions in CycleFinder. -- DONE
     //        --> OK, so what's happening is that Tarjan finds only fully strict cycles,

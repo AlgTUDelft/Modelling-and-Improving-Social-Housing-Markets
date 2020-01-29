@@ -387,7 +387,7 @@ public class Main {
     }
 
     public static void runDynamicMatching() throws IOException {
-        String outputFilename = "../test2.csv";
+        String outputFilename = "../test3.csv";
 
         ArrayList<DynamicMatchingComparisonResult> dynamicMatchingComparisonResults
                 = new ArrayList<DynamicMatchingComparisonResult>();
@@ -407,7 +407,7 @@ public class Main {
         try {
             double connectionProb = 0.6;
             Matching matching = setupMatching(connectionProb, startLine, lineCount);
-            DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, false);
+            DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, true);
 
             Matching[] matchings = new Matching[4];
             matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false);
