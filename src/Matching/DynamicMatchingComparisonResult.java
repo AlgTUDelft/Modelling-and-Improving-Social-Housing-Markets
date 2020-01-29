@@ -2,24 +2,25 @@ package Matching;
 
 public class DynamicMatchingComparisonResult {
 
-    private float solvedInitialMatchingScore;
+    private boolean findMaxFailed;
     private float solvedFinalMatchingPerStepScore;
     private float solvedFinalMatchingAfterwardsScore;
     private float solvedFinalMatchingAfterwardsFindMaxScore;
     private float superOptimalScore;
 
-    public DynamicMatchingComparisonResult(float solvedInitialMatchingScore, float solvedFinalMatchingPerStepScore,
+    public DynamicMatchingComparisonResult(boolean findMaxFailed,
+                                           float solvedFinalMatchingPerStepScore,
                                            float solvedFinalMatchingAfterwardsScore, float solvedFinalMatchingAfterwardsFindMaxScore,
                                            float superOptimalScore) {
-        this.solvedInitialMatchingScore = solvedInitialMatchingScore;
+        this.findMaxFailed = findMaxFailed;
         this.solvedFinalMatchingPerStepScore = solvedFinalMatchingPerStepScore;
         this.solvedFinalMatchingAfterwardsScore = solvedFinalMatchingAfterwardsScore;
         this.solvedFinalMatchingAfterwardsFindMaxScore = solvedFinalMatchingAfterwardsFindMaxScore;
         this.superOptimalScore = superOptimalScore;
     }
 
-    public float getSolvedInitialMatchingScore() {
-        return solvedInitialMatchingScore;
+    public boolean isFindMaxFailed() {
+        return findMaxFailed;
     }
 
     public float getSolvedFinalMatchingPerStepScore() {

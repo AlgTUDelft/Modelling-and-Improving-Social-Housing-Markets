@@ -387,7 +387,7 @@ public class Main {
     }
 
     public static void runDynamicMatching() throws IOException {
-        String outputFilename = "../test.csv";
+        String outputFilename = "../test2.csv";
 
         ArrayList<DynamicMatchingComparisonResult> dynamicMatchingComparisonResults
                 = new ArrayList<DynamicMatchingComparisonResult>();
@@ -405,26 +405,25 @@ public class Main {
         int timestepCount = lineCount/2 -1;
         DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {
-            double connectionProb = 0.9;
+            double connectionProb = 0.6;
             Matching matching = setupMatching(connectionProb, startLine, lineCount);
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, false);
 
-            Matching[] matchings = new Matching[5];
-            matchings[0] = dynamicMatching.getInitialMatching();
-            matchings[1] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false);
-            System.out.println("Got here! 1");
+            Matching[] matchings = new Matching[4];
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false);
+            System.out.println("Got here! 0 " + matchings[0].getFindMaxFailed());
             dynamicMatching.resetState();
-            matchings[2] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false,false);
-            System.out.println("Got here! 2");
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false,false);
+            System.out.println("Got here! 1 " + matchings[1].getFindMaxFailed());
             dynamicMatching.resetState();
-            matchings[3] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, true,false);
-            System.out.println("Got here! 3");
-            matchings[4] = new MinCostPerfectMatchingAlgorithm((Matching) deepClone(dynamicMatching.getInputMatching()))
+            matchings[2] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, true,false);
+            System.out.println("Got here! 2 " + matchings[2].getFindMaxFailed());
+            matchings[3] = new MinCostPerfectMatchingAlgorithm((Matching) deepClone(dynamicMatching.getInputMatching()))
                     .findMinCostPerfectMatching(false);
-            System.out.println("Got here! 4");
+            System.out.println("Got here! 3 " + matchings[3].getFindMaxFailed());
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
-            String[] strings = { "Initial matching score",
+            String[] strings = {
                     "Final per step score",
                     "Final afterwards score",
                     "Final afterwards + findMax score",
@@ -433,7 +432,7 @@ public class Main {
             prettyPrintResults(strings, scores);
 
             dynamicMatchingComparisonResult
-                    = new DynamicMatchingComparisonResult(scores[0], scores[1], scores[2], scores[3], scores[4]);
+                    = new DynamicMatchingComparisonResult(matchings[2].getFindMaxFailed(), scores[0], scores[1], scores[2], scores[3]);
 
         } catch (HousingMarket.FreeSpaceException e) {
             e.printStackTrace();
@@ -498,6 +497,7 @@ public class Main {
         for (int i = 0; i < strings.length; i++) {
             System.out.printf("%" + maxStringLength + "s: %10f%n", strings[i], scores[i]);
         }
+        System.out.println();
     }
 
     public static Object deepClone(Object object) {

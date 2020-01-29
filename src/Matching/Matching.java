@@ -26,7 +26,8 @@ public class Matching implements Serializable {
     private ArrayList<Household> elderlyHouseholds = new ArrayList<Household>();
     private ArrayList<Integer> SWIChainLengths = new ArrayList<Integer>();
     private ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
-    private Set<Integer> householdsMovedByWOSMA = new HashSet<Integer>();
+    private Set<Integer> householdsMovedByWOSMA = new HashSet<Integer>(); // Is reset at the end of WOSMA-calls before return.
+    private boolean findMaxFailed = false; // Relevant to DynamicMatching.
 
     private HousingMarket housingMarket;
 
@@ -267,7 +268,7 @@ public class Matching implements Serializable {
         }
     }
 
-    // Part of the EfficientStableMatchingAlgorithm.
+    // Part of the WorkerOptimalStableMatchingAlgorithm.
     public void executeCycle(List<Integer> cycle, int nilValue, boolean print) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
         // TODO: Check if this needs to be changed following my modifications of WOSMA!!
         int edgesCount = cycle.size();
@@ -365,9 +366,7 @@ public class Matching implements Serializable {
         if (this.houses.size() != this.households.size()) {
             System.err.println("|Houses| != |Households|. Therefore matching can never be perfect.");
             return false;
-        } else if (this.getMatchingGraph().edgeSet().size() == this.houses.size()) {
-            return true;
-        } else { return false; }
+        } else { return this.getMatchingGraph().edgeSet().size() == this.houses.size(); }
     }
 
     public HousingMarket getHousingMarket() {
@@ -390,6 +389,18 @@ public class Matching implements Serializable {
             int chosenHouseID = rand.nextInt(householdlessHousesIDsArray.size());
             this.connect(chosenHouseID, household.getID());
         }
+    }
+
+    public void setFindMaxFailed() {
+        this.findMaxFailed = true;
+    }
+
+    public void resetFindMaxFailed() {
+        this.findMaxFailed = false;
+    }
+
+    public boolean getFindMaxFailed() {
+        return this.findMaxFailed;
     }
 
     public void resetHouseholdsMovedByWOSMA() {
