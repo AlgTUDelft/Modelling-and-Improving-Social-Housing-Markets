@@ -63,18 +63,18 @@ public class ArtificialDynamicMatching {
     }
 
 
-    public Matching advanceTimeAndSolvePerStep(int timestepCount, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
+    public ArtificialMatching advanceTimeAndSolvePerStep(int timestepCount, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
             runAlgorithm(false, print);
         }
-        Matching resultingMatching = (Matching) deepClone(currentArtificialMatching);
+        ArtificialMatching resultingMatching = (ArtificialMatching) deepClone(currentArtificialMatching);
 //        checkIfHouselessHouseholdsHaveNoPreferredEmptyHouse();
         return resultingMatching;
     }
 
-    public Matching advanceTimeFullyThenSolve(int timestepCount, boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
+    public ArtificialMatching advanceTimeFullyThenSolve(int timestepCount, boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
@@ -82,7 +82,7 @@ public class ArtificialDynamicMatching {
         runAlgorithm(findMax, print);
         // TODO: Include the following?
         runAlgorithm(false, false);
-        Matching resultingMatching = (Matching) deepClone(currentArtificialMatching);
+        ArtificialMatching resultingMatching = (ArtificialMatching) deepClone(currentArtificialMatching);
         return resultingMatching;
     }
 
@@ -103,8 +103,8 @@ public class ArtificialDynamicMatching {
     }
 
     protected void runAlgorithm(boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
-        WorkerOptimalStableMatchingAlgorithm wosma
-                = new WorkerOptimalStableMatchingAlgorithm(currentArtificialMatching);
+        ArtificialWOSMA wosma
+                = new ArtificialWOSMA(currentArtificialMatching);
         wosma.findWorkerOptimalStableMatching(findMax, print); // Modifies currentMatching.
     }
 
@@ -128,11 +128,11 @@ public class ArtificialDynamicMatching {
         this.currentTimestepsLeft = (Integer) deepClone(initialTimestepsLeft);
     }
 
-    public Matching getInitialArtificialMatching() {
+    public ArtificialMatching getInitialArtificialMatching() {
         return initialArtificialMatching;
     }
 
-    public Matching getInputArtificialMatching() {
+    public ArtificialMatching getInputArtificialMatching() {
         return inputArtificialMatching;
     }
 

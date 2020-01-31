@@ -31,7 +31,6 @@ public class ArtificialMatchingCreator {
         Household f2 = new Household("test", "test", "f2", 0, 20, HouseholdType.ONE,0, false);
         // ArtificialDynamicMatching removes houses and households in reverse of the order in which they were added.
 
-        h1.getID();
         int h2ID = artificialMatching.addHouse(h2);
         int h1ID = artificialMatching.addHouse(h1);
         int f2ID = artificialMatching.addHousehold(f2);
@@ -42,6 +41,10 @@ public class ArtificialMatchingCreator {
         scores.put(new HouseAndHouseholdIDPair(h1ID, f2ID), 1.0);
         scores.put(new HouseAndHouseholdIDPair(h2ID, f2ID), 0.2);
         artificialMatching.setScores(scores);
+        System.out.println("House 1: " + h1ID);
+        System.out.println("House 2: " + h2ID);
+        System.out.println("Household 1: " + f1ID);
+        System.out.println("Household 2: " + f2ID);
         return artificialMatching;
     }
 

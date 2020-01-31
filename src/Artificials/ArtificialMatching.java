@@ -106,16 +106,7 @@ public class ArtificialMatching extends Matching.Matching {
                     // _housesList_ houses will either go to *another* household in the chain,
                     // or this household didn't want it anyway, since this is not a cycle.
                     if (!housesList.contains(houseID)) {
-                        double candidateScore = 0; // TODO: Remove.
-                        // TODO: There's a bug. Scores only take known IDs, but when houses/households are
-                        //  removed and then re-added, they get new IDs. Meanwhile, we can't use
-                        //  HouseAndHouseholdPair instead of HouseAndHouseholdIDPair because
-                        //  we need some way to test uniqueness...
-                        try {
-                            candidateScore = scores.get(new HouseAndHouseholdIDPair(houseID, sourceVertex));
-                        } catch (NullPointerException e) {
-                            System.out.println("test");
-                        }
+                        double candidateScore = scores.get(new HouseAndHouseholdIDPair(houseID, sourceVertex));
                         if (candidateScore >= highestScore) {
                             highestScore = candidateScore;
                             bestHouse = getHouse(houseID);
