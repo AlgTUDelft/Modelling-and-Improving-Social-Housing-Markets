@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toSet;
 
 public class Matching implements Serializable {
     private SimpleGraph<HousingMarketVertex, DefaultEdge> matchingGraph;
-    private int nextID = 0;
+    private int nextID = 1; //Since default/'null' int (read: id) is 0.
     private ArrayList<House> houses = new ArrayList<House>();
     private ArrayList<Household> households = new ArrayList<Household>();
     private ArrayList<Household> householdsWithPriority = new ArrayList<Household>();
@@ -36,26 +36,64 @@ public class Matching implements Serializable {
         this.housingMarket = housingMarket;
     }
 
-    public int addHouse(House house) {
-        int newInt = getAndIncrementID();
-        house.setID(newInt);
-        this.houses.add(house);
-        this.matchingGraph.addVertex(house);
-        return newInt;
+    public int addHouse(House house) throws HouseIDAlreadyPresentException {
+        if (house.getID() != 0) {
+            if (houseIDNotAlreadyPresent(house.getID())) {
+                this.houses.add(house);
+                this.matchingGraph.addVertex(house);
+                return house.getID();
+            }
+            else { throw new HouseIDAlreadyPresentException("House ID was already present."); }
+        } else {
+            int newInt = getAndIncrementID();
+            house.setID(newInt);
+            this.houses.add(house);
+            this.matchingGraph.addVertex(house);
+            return newInt;
+        }
     }
 
-    public int addHousehold(Household household) {
-        int newInt = getAndIncrementID();
-        household.setID(newInt);
-        this.households.add(household);
-        if (household.getPriority()) {
-            this.householdsWithPriority.add(household);
+    public int addHousehold(Household household) throws HouseholdIDAlreadyPresentException {
+        if (household.getID() != 0) {
+            if (householdIDNotAlreadyPresent(household.getID())) {
+                this.households.add(household);
+                if (household.getPriority()) {
+                    this.householdsWithPriority.add(household);
+                }
+                if (household.getAge() >= 65) {
+                    this.elderlyHouseholds.add(household);
+                }
+                this.matchingGraph.addVertex(household);
+                return household.getID();
+            }
+            else { throw new HouseholdIDAlreadyPresentException("Household ID was already present."); }
+        } else {
+            int newInt = getAndIncrementID();
+            household.setID(newInt);
+            this.households.add(household);
+            if (household.getPriority()) {
+                this.householdsWithPriority.add(household);
+            }
+            if (household.getAge() >= 65) {
+                this.elderlyHouseholds.add(household);
+            }
+            this.matchingGraph.addVertex(household);
+            return newInt;
         }
-        if (household.getAge() >= 65) {
-            this.elderlyHouseholds.add(household);
-        }
-        this.matchingGraph.addVertex(household);
-        return newInt;
+    }
+
+    public boolean houseIDNotAlreadyPresent(int houseID) {
+        Optional<House> existingHouse = this.getHouses().stream().filter(h -> h.getID() == houseID).findAny();
+        if (existingHouse.isPresent()) {
+            return false;
+        } else { return true; }
+    }
+
+    public boolean householdIDNotAlreadyPresent(int householdID) {
+        Optional<Household> existingHousehold = this.getHouseholds().stream().filter(hh -> hh.getID() == householdID).findAny();
+        if (existingHousehold.isPresent()) {
+            return false;
+        } else { return true; }
     }
 
     public void removeHouse(int ID) {
@@ -475,4 +513,11 @@ public class Matching implements Serializable {
         public PreferredNoHouseholdlessHouseException(String errorMessage) { super(errorMessage); }
     }
 
+    public class HouseIDAlreadyPresentException extends Exception {
+        public HouseIDAlreadyPresentException(String errorMessage) { super(errorMessage); }
+    }
+
+    public class HouseholdIDAlreadyPresentException extends Exception {
+        public HouseholdIDAlreadyPresentException(String errorMessage) { super(errorMessage); }
+    }
 }

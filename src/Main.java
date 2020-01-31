@@ -30,7 +30,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 //        comparison_WOSMA_MCPMA();
-        runDynamicMatching();
+//        runDynamicMatching();
+        artificialDynamicMatching();
     }
 
     public static void test1() {
@@ -477,6 +478,10 @@ public class Main {
             e.printStackTrace();
         } catch (Matching.IDNotPresentException e) {
             e.printStackTrace();
+        } catch (Matching.HouseholdIDAlreadyPresentException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseIDAlreadyPresentException e) {
+            e.printStackTrace();
         }
 
         return dynamicMatchingComparisonResult;
@@ -528,6 +533,10 @@ public class Main {
         } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
             e.printStackTrace();
         } catch (ArtificialDynamicMatching.TooManyTimestepsException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdIDAlreadyPresentException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseIDAlreadyPresentException e) {
             e.printStackTrace();
         }
     }

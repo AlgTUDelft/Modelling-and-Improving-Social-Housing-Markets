@@ -106,7 +106,16 @@ public class ArtificialMatching extends Matching.Matching {
                     // _housesList_ houses will either go to *another* household in the chain,
                     // or this household didn't want it anyway, since this is not a cycle.
                     if (!housesList.contains(houseID)) {
-                        double candidateScore = scores.get(new HouseAndHouseholdIDPair(houseID, sourceVertex));
+                        double candidateScore = 0; // TODO: Remove.
+                        // TODO: There's a bug. Scores only take known IDs, but when houses/households are
+                        //  removed and then re-added, they get new IDs. Meanwhile, we can't use
+                        //  HouseAndHouseholdPair instead of HouseAndHouseholdIDPair because
+                        //  we need some way to test uniqueness...
+                        try {
+                            candidateScore = scores.get(new HouseAndHouseholdIDPair(houseID, sourceVertex));
+                        } catch (NullPointerException e) {
+                            System.out.println("test");
+                        }
                         if (candidateScore >= highestScore) {
                             highestScore = candidateScore;
                             bestHouse = getHouse(houseID);
@@ -130,4 +139,36 @@ public class ArtificialMatching extends Matching.Matching {
             SWICycleLengths.add(edgesCount);
         }
     }
+
+//    public int getHouseIDResemblingHouse(House inputHouse) {
+//        for (House house : this.getHouses()) {
+//            if (house.getRoomCount() == inputHouse.getRoomCount()
+//            && house.getAccessibility() == inputHouse.getAccessibility()
+//            && house.getMonthlyRent() == inputHouse.getMonthlyRent()
+//            && house.getLabel() == inputHouse.getLabel()
+//            && house.getMunicipality() == inputHouse.getMunicipality()
+//            && house.getYearlyRent() == inputHouse.getYearlyRent()) {
+//                return house.getID();
+//            }
+//        }
+//        System.err.println("Error: No similar house found.");
+//        return -1;
+//    }
+//
+//    public int getHouseholdIDResemblingHousehold(Household inputHousehold) {
+//        for (Household household : this.getHouseholds()) {
+//            if (household.getPriority() == inputHousehold.getPriority()
+//            && household.getTotalHouseholdCount() == inputHousehold.getTotalHouseholdCount()
+//            && household.getAge() == inputHousehold.getAge()
+//            && household.getIncome() == inputHousehold.getIncome()
+//            && household.getHouseholdType() == inputHousehold.getHouseholdType()
+//            && household.getLabel() == inputHousehold.getLabel()
+//            && household.getMunicipality() == inputHousehold.getMunicipality()
+//            && household.getPostalCode() == inputHousehold.getPostalCode()) {
+//                return household.getID();
+//            }
+//        }
+//        System.err.println("Error: No similar household found.");
+//        return -1;
+//    }
 }

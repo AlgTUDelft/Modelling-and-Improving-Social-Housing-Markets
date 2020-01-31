@@ -1,6 +1,8 @@
 package HousingMarket;
 
-public class HouseAndHouseholdIDPair {
+import java.io.Serializable;
+
+public class HouseAndHouseholdIDPair implements Serializable {
     private int house;
     private int household;
 

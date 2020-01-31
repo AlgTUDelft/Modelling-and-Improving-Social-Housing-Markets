@@ -69,6 +69,10 @@ public class DataProcessor {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (Matching.HouseIDAlreadyPresentException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdIDAlreadyPresentException e) {
+            e.printStackTrace();
         } finally {
             if (br != null) {
                 try {

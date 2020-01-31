@@ -31,7 +31,7 @@ public class ArtificialDynamicMatching {
 
     protected boolean oneSided; // false means two-sided arrival. One-sided means houses are set and households arrive.
 
-    public ArtificialDynamicMatching(ArtificialMatching artificialMatching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException {
+    public ArtificialDynamicMatching(ArtificialMatching artificialMatching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {
         inputArtificialMatching = artificialMatching;
         this.oneSided = oneSided;
         if (timestepCount > inputArtificialMatching.getHouseholds().size()) {
@@ -42,11 +42,11 @@ public class ArtificialDynamicMatching {
         }
         ArtificialMatching initialArtificialMatching = (ArtificialMatching) deepClone(inputArtificialMatching);
         for (int step = 0; step < timestepCount; step++) {
-            Household lastHousehold = initialArtificialMatching.getHouseholds().get(initialArtificialMatching.getHouseholds().size());
+            Household lastHousehold = initialArtificialMatching.getHouseholds().get(initialArtificialMatching.getHouseholds().size()-1);
             initialArtificialMatching.removeHousehold(lastHousehold.getID());
             this.initialHouseholdsToArrive.add(lastHousehold);
             if (!oneSided) {
-                House lastHouse = initialArtificialMatching.getHouses().get(initialArtificialMatching.getHouses().size());
+                House lastHouse = initialArtificialMatching.getHouses().get(initialArtificialMatching.getHouses().size()-1);
                 initialArtificialMatching.removeHouse(lastHouse.getID());
                 this.initialHousesToArrive.add(lastHouse);
             }
@@ -63,7 +63,7 @@ public class ArtificialDynamicMatching {
     }
 
 
-    public Matching advanceTimeAndSolvePerStep(int timestepCount, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
+    public Matching advanceTimeAndSolvePerStep(int timestepCount, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
@@ -74,7 +74,7 @@ public class ArtificialDynamicMatching {
         return resultingMatching;
     }
 
-    public Matching advanceTimeFullyThenSolve(int timestepCount, boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
+    public Matching advanceTimeFullyThenSolve(int timestepCount, boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
@@ -86,7 +86,7 @@ public class ArtificialDynamicMatching {
         return resultingMatching;
     }
 
-    private void simulateEnvironmentTimestep() {
+    private void simulateEnvironmentTimestep() throws Matching.HouseholdIDAlreadyPresentException, Matching.HouseIDAlreadyPresentException {
         if (currentTimestepsLeft == 0) {
             System.err.print("Simulation has ended; cannot advance time further.");
         } else {

@@ -23,13 +23,15 @@ public class ArtificialMatchingCreator {
     //       It would globally be best to match f2 and h1, and f1 and h2; but because AR picks the first cycle it finds,
     //       it matches f1 with h1, which afterwards cannot be undone.
 
-    public ArtificialMatching AFoutperformingARMatching() throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException {
+    public ArtificialMatching AFoutperformingARMatching() throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
         ArtificialMatching artificialMatching = new ArtificialMatching(new HousingMarket(2017, 100), null);
         House h1 = new House("test", "h1", 0, 0, false);
         House h2 = new House("test", "h2", 0,0, false);
-        Household f1 = new Household("test", "test", "f1", 0, 0, HouseholdType.ONE,0, false);
-        Household f2 = new Household("test", "test", "f2", 0, 0, HouseholdType.ONE,0, false);
+        Household f1 = new Household("test", "test", "f1", 0, 20, HouseholdType.ONE,0, false);
+        Household f2 = new Household("test", "test", "f2", 0, 20, HouseholdType.ONE,0, false);
         // ArtificialDynamicMatching removes houses and households in reverse of the order in which they were added.
+
+        h1.getID();
         int h2ID = artificialMatching.addHouse(h2);
         int h1ID = artificialMatching.addHouse(h1);
         int f2ID = artificialMatching.addHousehold(f2);
