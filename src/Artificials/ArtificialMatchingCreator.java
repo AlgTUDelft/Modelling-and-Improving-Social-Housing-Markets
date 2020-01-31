@@ -16,14 +16,16 @@ public class ArtificialMatchingCreator {
     // TODO:
     //  * Matching where AR is expected to outperform PR.
     //    -> Since both just pick the first cycle they find... What would this look like?
-    //  * Matching where AF is expected to outperform AR.
-    //   -> Two timesteps. Household f1 plus house h1 are added and prefer each other enough that
-    //       they, being the first cycle found, are matched. Then household f2 plus house h2 are added,
-    //       where f1 only weakly disprefers h2, but f2 very strongly prefers h1 to h2.
-    //       It would globally be best to match f2 and h1, and f1 and h2; but because AR picks the first cycle it finds,
-    //       it matches f1 with h1, which afterwards cannot be undone.
+    //  * Matching where PR is expected to outperform AR.
+    //  * Matching where AR is expected to outperform AF.
 
     public ArtificialMatching AFoutperformingARMatching() throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
+        // Matching where AF is expected to outperform AR.
+        //   -> Two timesteps. Household f1 plus house h1 are added and prefer each other enough that
+        //       they, being the first cycle found, are matched. Then household f2 plus house h2 are added,
+        //       where f1 only weakly disprefers h2, but f2 very strongly prefers h1 to h2.
+        //       It would globally be best to match f2 and h1, and f1 and h2; but because AR picks the first cycle it finds,
+        //       it matches f1 with h1, which afterwards cannot be undone.
         ArtificialMatching artificialMatching = new ArtificialMatching(new HousingMarket(2017, 100), null);
         House h1 = new House("test", "h1", 0, 0, false);
         House h2 = new House("test", "h2", 0,0, false);
