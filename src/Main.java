@@ -8,6 +8,9 @@ import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WMComparisonResult;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WMComparisonResultProcessor;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
+import Artificials.ArtificialDynamicMatching;
+import Artificials.ArtificialMatching;
+import Artificials.ArtificialMatchingCreator;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
@@ -387,13 +390,14 @@ public class Main {
     }
 
     public static void runDynamicMatching() throws IOException {
-        String outputFilename = "../test3.csv";
+        String outputFilename = "../test4.csv";
 
         ArrayList<DynamicMatchingComparisonResult> dynamicMatchingComparisonResults
                 = new ArrayList<DynamicMatchingComparisonResult>();
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 125, 250, 375, 500, 625, 750, 875));
+//        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 125, 250, 375, 500, 625, 750, 875));
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 250, 500, 750));
         for (int startLine : startLines) {
-            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 125));
+            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 250));
         }
         DynamicMatchingComparisonResultProcessor dynamicMatchingComparisonResultProcessor
                 = new DynamicMatchingComparisonResultProcessor(dynamicMatchingComparisonResults);
@@ -407,7 +411,7 @@ public class Main {
         try {
             double connectionProb = 0.6;
             Matching matching = setupMatching(connectionProb, startLine, lineCount);
-            DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, true);
+            DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, false);
 
             Matching[] matchings = new Matching[4];
             matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false);
@@ -477,6 +481,57 @@ public class Main {
 
         return dynamicMatchingComparisonResult;
     }
+
+    public static void artificialDynamicMatching() {
+        int timestepCount = 2;
+        DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
+        try {
+            ArtificialMatchingCreator artificialMatchingCreator = new ArtificialMatchingCreator();
+            ArtificialMatching artificialMatching = artificialMatchingCreator.AFoutperformingARMatching();
+            ArtificialDynamicMatching artificialDynamicMatching = new ArtificialDynamicMatching(artificialMatching, timestepCount, false);
+
+            ArtificialMatching[] artificialMatchings = new ArtificialMatching[4];
+            artificialMatchings[0] = (ArtificialMatching) artificialDynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false);
+            System.out.println("Got here! 0 " + artificialMatchings[0].getFindMaxFailed());
+            artificialDynamicMatching.resetState();
+            artificialMatchings[1] = (ArtificialMatching) artificialDynamicMatching.advanceTimeFullyThenSolve(timestepCount, false,false);
+            System.out.println("Got here! 1 " + artificialMatchings[1].getFindMaxFailed());
+            artificialDynamicMatching.resetState();
+            artificialMatchings[2] = (ArtificialMatching) artificialDynamicMatching.advanceTimeFullyThenSolve(timestepCount, true,false);
+            System.out.println("Got here! 2 " + artificialMatchings[2].getFindMaxFailed());
+
+            System.out.println();
+            System.out.println(artificialMatchings[0].calculateGlobalScore());
+            System.out.println(artificialMatchings[1].calculateGlobalScore());
+            System.out.println(artificialMatchings[2].calculateGlobalScore());
+
+        } catch (HousingMarket.FreeSpaceException e) {
+            e.printStackTrace();
+        } catch (Household.InvalidHouseholdException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseAlreadyMatchedException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdAlreadyMatchedException e) {
+            e.printStackTrace();
+        } catch (Matching.PreferredNoHouseholdlessHouseException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseLinkedToMultipleException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdLinkedToMultipleException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseLinkedToHouseException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdLinkedToHouseholdException e) {
+            e.printStackTrace();
+        } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
+            e.printStackTrace();
+        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+            e.printStackTrace();
+        } catch (ArtificialDynamicMatching.TooManyTimestepsException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public static float[] evaluateMatchingsAverageIndividualTotalFit(Matching[] matchings) throws MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
 

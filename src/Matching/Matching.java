@@ -24,9 +24,9 @@ public class Matching implements Serializable {
     private ArrayList<Household> households = new ArrayList<Household>();
     private ArrayList<Household> householdsWithPriority = new ArrayList<Household>();
     private ArrayList<Household> elderlyHouseholds = new ArrayList<Household>();
-    private ArrayList<Integer> SWIChainLengths = new ArrayList<Integer>();
-    private ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
-    private Set<Integer> householdsMovedByWOSMA = new HashSet<Integer>(); // Is reset at the end of WOSMA-calls before return.
+    protected ArrayList<Integer> SWIChainLengths = new ArrayList<Integer>();
+    protected ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
+    protected Set<Integer> householdsMovedByWOSMA = new HashSet<Integer>(); // Is reset at the end of WOSMA-calls before return.
     private boolean findMaxFailed = false; // Relevant to DynamicMatching.
 
     private HousingMarket housingMarket;
@@ -36,20 +36,15 @@ public class Matching implements Serializable {
         this.housingMarket = housingMarket;
     }
 
-    public void addHouse(House house) {
+    public int addHouse(House house) {
         int newInt = getAndIncrementID();
         house.setID(newInt);
         this.houses.add(house);
         this.matchingGraph.addVertex(house);
+        return newInt;
     }
 
-    public void addHouses(House... houses) {
-        for (House house : houses) {
-            this.addHouse(house);
-        }
-    }
-
-    public void addHousehold(Household household) {
+    public int addHousehold(Household household) {
         int newInt = getAndIncrementID();
         household.setID(newInt);
         this.households.add(household);
@@ -60,12 +55,7 @@ public class Matching implements Serializable {
             this.elderlyHouseholds.add(household);
         }
         this.matchingGraph.addVertex(household);
-    }
-
-    public void addHouseholds(Household... households) {
-        for (Household household : households) {
-            this.addHousehold(household);
-        }
+        return newInt;
     }
 
     public void removeHouse(int ID) {

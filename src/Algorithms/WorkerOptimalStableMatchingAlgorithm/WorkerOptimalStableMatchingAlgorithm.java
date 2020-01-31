@@ -66,7 +66,7 @@ public class WorkerOptimalStableMatchingAlgorithm {
             System.err.println("Tarjan found more cycles than can fit in this computer's memory.");
             System.err.println("Continuing as though _findMax_ is false...");
             findMax = false;
-            matching.setFindMaxFailed();
+            this.matching.setFindMaxFailed();
             cycle = twoLabeledGraph.findCycle(findMax, print);
         }
         while (cycle != null) {
@@ -77,7 +77,7 @@ public class WorkerOptimalStableMatchingAlgorithm {
             i++;
         }
 
-        matching.resetHouseholdsMovedByWOSMA();
+        this.matching.resetHouseholdsMovedByWOSMA();
         return this.matching;
     }
 

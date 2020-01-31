@@ -1,10 +1,11 @@
-package Matching;
+package Artificials;
 
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
-import HousingMarket.HousingMarket;
+import Matching.Matching;
+import Matching.MatchingEvaluator;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,73 +15,47 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Set;
 
-public class DynamicMatching {
+public class ArtificialDynamicMatching {
 
-    protected Matching inputMatching;
+    protected ArtificialMatching inputArtificialMatching;
 
-    private final Matching initialMatching;
+    private final ArtificialMatching initialArtificialMatching;
     private final int initialTimestepsLeft;
     private final ArrayList<House> initialHousesToArrive = new ArrayList<House>();
     private final ArrayList<Household> initialHouseholdsToArrive = new ArrayList<Household>();
 
-    private Matching currentMatching;
+    private ArtificialMatching currentArtificialMatching;
     private int currentTimestepsLeft;
     private ArrayList<House> currentHousesToArrive;
     private ArrayList<Household> currentHouseholdsToArrive;
 
     protected boolean oneSided; // false means two-sided arrival. One-sided means houses are set and households arrive.
 
-    // TODO: Analyze scores.
-    //       -> There isn't really any consistency to these, although fortunately they're all below optimal...
-    //       -> Okay, wait, it seems that at least all Afterwards scores are lower than AfterwardsFindMax,
-    //          at least with avgME. But it's still puzzling that PerStep often performs better than
-    //          Afterwards, and sometimes even better than AfterwardsFindMax.
-    //          So two things need to be explained:
-    //          - Why does PerStep often perform better than Afterwards?
-    //          - Why does PerStep sometimes perform better than even AfterwardsFindMax?
-    //          Update: I've found a (one-sided) case where Afterwards performs better than AfterwardsFindMax.
-    //                  -> For this, I guess the below explanation suffices.
-    //                     It only happens rarely, which roughly fits with that explanation.
-    //
-    // TODO: Double-check findMax in finding cycles; does it really capture the kinds of cycles (re: strictness of edges, etc.)
-    //        that we want it to capture? -> e.g. split functions into two for easier checking.
-    //        - Check functions in TwoLabeledGraph. -- DONE
-    //        - Check functions in CycleFinder. -- DONE
-    //        --> OK, so what's happening is that Tarjan finds only fully strict cycles,
-    //            whereas CycleFinder finds cycles that are either fully strict,
-    //            or, insofar as they aren't, consisting of households that have moved before
-    //            in this timestep.
-    //            So it makes sense that _this_ could work better than Tarjan/findMax,
-    //            though it's still somewhat surprising.
-    //            -> This explains why Afterwards might do better than findMax. However, at least with avgME,
-    //               this doesn't seem to be the case anymore.
-    //            -> Also, at any rate, AfterwardsFindMax is a kind of greedy solution: If you do the best cycles first,
-    //               maybe you'll miss out on a lot of average cycles which all add up over time?
-    public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
-        inputMatching = matching;
+    public ArtificialDynamicMatching(ArtificialMatching artificialMatching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException {
+        inputArtificialMatching = artificialMatching;
         this.oneSided = oneSided;
-        if (timestepCount > inputMatching.getHouseholds().size()) {
+        if (timestepCount > inputArtificialMatching.getHouseholds().size()) {
             throw new TooManyTimestepsException("Amount of timesteps exceeds amount of households.");
         }
-        if (!oneSided && timestepCount > inputMatching.getHouses().size()) {
+        if (!oneSided && timestepCount > inputArtificialMatching.getHouses().size()) {
             throw new TooManyTimestepsException("Amount of timesteps exceeds amount of houses.");
         }
-        Matching initialMatching = (Matching) deepClone(inputMatching);
+        ArtificialMatching initialArtificialMatching = (ArtificialMatching) deepClone(inputArtificialMatching);
         for (int step = 0; step < timestepCount; step++) {
-            Household randomHousehold = initialMatching.getHouseholds().get(new Random().nextInt(initialMatching.getHouseholds().size()));
-            initialMatching.removeHousehold(randomHousehold.getID());
-            this.initialHouseholdsToArrive.add(randomHousehold);
+            Household lastHousehold = initialArtificialMatching.getHouseholds().get(initialArtificialMatching.getHouseholds().size());
+            initialArtificialMatching.removeHousehold(lastHousehold.getID());
+            this.initialHouseholdsToArrive.add(lastHousehold);
             if (!oneSided) {
-                House randomHouse = initialMatching.getHouses().get(new Random().nextInt(initialMatching.getHouses().size()));
-                initialMatching.removeHouse(randomHouse.getID());
-                this.initialHousesToArrive.add(randomHouse);
+                House lastHouse = initialArtificialMatching.getHouses().get(initialArtificialMatching.getHouses().size());
+                initialArtificialMatching.removeHouse(lastHouse.getID());
+                this.initialHousesToArrive.add(lastHouse);
             }
         }
-        WorkerOptimalStableMatchingAlgorithm wosma
-                = new WorkerOptimalStableMatchingAlgorithm(initialMatching);
+        ArtificialWOSMA artificialWOSMA
+                = new ArtificialWOSMA(initialArtificialMatching);
         // TODO: set findMax to true?
-        this.initialMatching = wosma.findWorkerOptimalStableMatching(false,false);
-        this.currentMatching = (Matching) deepClone(initialMatching);
+        this.initialArtificialMatching = artificialWOSMA.findWorkerOptimalStableMatching(false,false);
+        this.currentArtificialMatching = (ArtificialMatching) deepClone(initialArtificialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(initialHouseholdsToArrive);
         this.initialTimestepsLeft = timestepCount;
@@ -94,7 +69,7 @@ public class DynamicMatching {
             simulateEnvironmentTimestep();
             runAlgorithm(false, print);
         }
-        Matching resultingMatching = (Matching) deepClone(currentMatching);
+        Matching resultingMatching = (Matching) deepClone(currentArtificialMatching);
 //        checkIfHouselessHouseholdsHaveNoPreferredEmptyHouse();
         return resultingMatching;
     }
@@ -107,7 +82,7 @@ public class DynamicMatching {
         runAlgorithm(findMax, print);
         // TODO: Include the following?
         runAlgorithm(false, false);
-        Matching resultingMatching = (Matching) deepClone(currentMatching);
+        Matching resultingMatching = (Matching) deepClone(currentArtificialMatching);
         return resultingMatching;
     }
 
@@ -117,11 +92,11 @@ public class DynamicMatching {
         } else {
             Household household = currentHouseholdsToArrive.get(0);
             currentHouseholdsToArrive.remove(household);
-            currentMatching.addHousehold(household);
+            currentArtificialMatching.addHousehold(household);
             if (!oneSided) {
                 House house = currentHousesToArrive.get(0);
                 currentHousesToArrive.remove(house);
-                currentMatching.addHouse(house);
+                currentArtificialMatching.addHouse(house);
             }
             currentTimestepsLeft--;
         }
@@ -129,14 +104,14 @@ public class DynamicMatching {
 
     protected void runAlgorithm(boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         WorkerOptimalStableMatchingAlgorithm wosma
-                = new WorkerOptimalStableMatchingAlgorithm(currentMatching);
+                = new WorkerOptimalStableMatchingAlgorithm(currentArtificialMatching);
         wosma.findWorkerOptimalStableMatching(findMax, print); // Modifies currentMatching.
     }
 
     private void checkIfHouselessHouseholdsHaveNoPreferredEmptyHouse() throws MatchingEvaluator.HouseholdIncomeTooHighException {
-        Set<Integer> houselessHouseholds = this.currentMatching.getHouselessHouseholdsIDs();
-        Set<Integer> householdlessHouses = this.currentMatching.getHouseholdlessHousesIDs();
-        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.currentMatching);
+        Set<Integer> houselessHouseholds = this.currentArtificialMatching.getHouselessHouseholdsIDs();
+        Set<Integer> householdlessHouses = this.currentArtificialMatching.getHouseholdlessHousesIDs();
+        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.currentArtificialMatching);
         for (int houselessHouseholdID : houselessHouseholds) {
             for (int householdlessHouseID : householdlessHouses) {
                 if (matchingEvaluator.evaluateIndividualTotalFit(householdlessHouseID, houselessHouseholdID) > 0) {
@@ -147,18 +122,18 @@ public class DynamicMatching {
     }
 
     public void resetState() {
-        this.currentMatching = (Matching) deepClone(this.initialMatching);
+        this.currentArtificialMatching = (ArtificialMatching) deepClone(this.initialArtificialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(this.initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(this.initialHouseholdsToArrive);
         this.currentTimestepsLeft = (Integer) deepClone(initialTimestepsLeft);
     }
 
-    public Matching getInitialMatching() {
-        return initialMatching;
+    public Matching getInitialArtificialMatching() {
+        return initialArtificialMatching;
     }
 
-    public Matching getInputMatching() {
-        return inputMatching;
+    public Matching getInputArtificialMatching() {
+        return inputArtificialMatching;
     }
 
     private static Object deepClone(Object object) {
