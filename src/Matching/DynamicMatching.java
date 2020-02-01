@@ -67,13 +67,13 @@ public class DynamicMatching {
         }
         Matching initialMatching = (Matching) deepClone(inputMatching);
         for (int step = 0; step < timestepCount; step++) {
-            Household randomHousehold = initialMatching.getHouseholds().get(new Random().nextInt(initialMatching.getHouseholds().size()));
-            initialMatching.removeHousehold(randomHousehold.getID());
-            this.initialHouseholdsToArrive.add(randomHousehold);
+            Household lastHousehold = initialMatching.getHouseholds().get(initialMatching.getHouseholds().size()-1);
+            initialMatching.removeHousehold(lastHousehold.getID());
+            this.initialHouseholdsToArrive.add(lastHousehold);
             if (!oneSided) {
-                House randomHouse = initialMatching.getHouses().get(new Random().nextInt(initialMatching.getHouses().size()));
-                initialMatching.removeHouse(randomHouse.getID());
-                this.initialHousesToArrive.add(randomHouse);
+                House lastHouse = initialMatching.getHouses().get(initialMatching.getHouses().size()-1);
+                initialMatching.removeHouse(lastHouse.getID());
+                this.initialHousesToArrive.add(lastHouse);
             }
         }
 //        WorkerOptimalStableMatchingAlgorithm wosma

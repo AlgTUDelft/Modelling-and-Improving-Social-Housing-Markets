@@ -81,7 +81,7 @@ public class ArtificialDynamicMatching {
         }
         runAlgorithm(findMax, print);
         // TODO: Include the following?
-        runAlgorithm(false, false);
+//        runAlgorithm(false, false);
         ArtificialMatching resultingMatching = (ArtificialMatching) deepClone(currentArtificialMatching);
         return resultingMatching;
     }

@@ -30,8 +30,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 //        comparison_WOSMA_MCPMA();
-//        runDynamicMatching();
-        artificialDynamicMatching();
+        runDynamicMatching();
+//        artificialDynamicMatching();
     }
 
     public static void test1() {
@@ -397,13 +397,14 @@ public class Main {
                 = new ArrayList<DynamicMatchingComparisonResult>();
 //        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 125, 250, 375, 500, 625, 750, 875));
 //        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 250, 500, 750));
-//        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 6, 12, 18, 24, 30,
-//                36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120));
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 4, 8, 12, 16, 20,
-                24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100));
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 6, 12, 18, 24, 30,
+                36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120, 126, 132, 138, 144, 150,
+                156, 162, 168, 174, 180, 186, 192, 198, 204, 210));
+//        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 4, 8, 12, 16, 20,
+//                24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100));
 
         for (int startLine : startLines) {
-            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 4));
+            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 6));
         }
         DynamicMatchingComparisonResultProcessor dynamicMatchingComparisonResultProcessor
                 = new DynamicMatchingComparisonResultProcessor(dynamicMatchingComparisonResults);
@@ -415,7 +416,7 @@ public class Main {
         int timestepCount = lineCount/2;
         DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {
-            double connectionProb = 0.6;
+            double connectionProb = 1.0;
             Matching matching = setupMatching(connectionProb, startLine, lineCount);
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, false);
 
@@ -441,18 +442,18 @@ public class Main {
 
             prettyPrintResults(strings, scores);
 
-            if (scores[2] < scores[1]) {
+            if (scores[2] < scores[1] - 0.0000001) {
                 System.err.println("Found one!");
                 Matching inputMatching = dynamicMatching.getInputMatching();
                 ArrayList<String> houseIDs = new ArrayList<String>(
-                        Arrays.asList("h1ID", "h2ID", "h3ID", "h4ID")
+                        Arrays.asList("h1ID", "h2ID", "h3ID", "h4ID", "h5ID", "h6ID")
                 );
                 ArrayList<String> householdIDs = new ArrayList<String>(
-                        Arrays.asList("f1ID", "f2ID", "f3ID", "f4ID")
+                        Arrays.asList("f1ID", "f2ID", "f3ID", "f4ID", "f5ID", "f6ID")
                 );
                 MatchingEvaluator matchingEvaluator = new MatchingEvaluator(inputMatching);
-                for (int houseID : Arrays.asList(0,1,2,3)) {
-                    for (int householdID : Arrays.asList(0,1,2,3)) {
+                for (int houseID : Arrays.asList(0,1,2,3,4,5)) {
+                    for (int householdID : Arrays.asList(0,1,2,3,4,5)) {
                         System.out.println("scores.put(new HouseAndHouseholdIDPair("+houseIDs.get(houseID)+", "
                                 + householdIDs.get(householdID)+"), "
                                 + matchingEvaluator.evaluateIndividualTotalFit(inputMatching.getHouses().get(houseID).getID(),
@@ -460,7 +461,16 @@ public class Main {
                     }
                 }
 
+                // TODO: The edges are inconsistent! Somehow. (Why?)
+                //  So also print which edges are present; print this;
+                //  and incorporate said information into ArtificialMatchingCreator.
+
             }
+
+            System.out.println();
+            System.out.println(scores[1]);
+            System.out.println(scores[2]);
+
 
             float perStepOptimality = scores[0]/scores[3];
             float afterwardsOptimality = scores[1]/scores[3];
