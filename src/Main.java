@@ -391,14 +391,19 @@ public class Main {
     }
 
     public static void runDynamicMatching() throws IOException {
-        String outputFilename = "../test4.csv";
+        String outputFilename = "../test3.csv";
 
         ArrayList<DynamicMatchingComparisonResult> dynamicMatchingComparisonResults
                 = new ArrayList<DynamicMatchingComparisonResult>();
 //        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 125, 250, 375, 500, 625, 750, 875));
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 250, 500, 750));
+//        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 250, 500, 750));
+//        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 6, 12, 18, 24, 30,
+//                36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120));
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 4, 8, 12, 16, 20,
+                24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100));
+
         for (int startLine : startLines) {
-            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 250));
+            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 4));
         }
         DynamicMatchingComparisonResultProcessor dynamicMatchingComparisonResultProcessor
                 = new DynamicMatchingComparisonResultProcessor(dynamicMatchingComparisonResults);
@@ -435,6 +440,27 @@ public class Main {
                     "Optimal score" };
 
             prettyPrintResults(strings, scores);
+
+            if (scores[2] < scores[1]) {
+                System.err.println("Found one!");
+                Matching inputMatching = dynamicMatching.getInputMatching();
+                ArrayList<String> houseIDs = new ArrayList<String>(
+                        Arrays.asList("h1ID", "h2ID", "h3ID", "h4ID")
+                );
+                ArrayList<String> householdIDs = new ArrayList<String>(
+                        Arrays.asList("f1ID", "f2ID", "f3ID", "f4ID")
+                );
+                MatchingEvaluator matchingEvaluator = new MatchingEvaluator(inputMatching);
+                for (int houseID : Arrays.asList(0,1,2,3)) {
+                    for (int householdID : Arrays.asList(0,1,2,3)) {
+                        System.out.println("scores.put(new HouseAndHouseholdIDPair("+houseIDs.get(houseID)+", "
+                                + householdIDs.get(householdID)+"), "
+                                + matchingEvaluator.evaluateIndividualTotalFit(inputMatching.getHouses().get(houseID).getID(),
+                                inputMatching.getHouseholds().get(householdID).getID()) + ");");
+                    }
+                }
+
+            }
 
             float perStepOptimality = scores[0]/scores[3];
             float afterwardsOptimality = scores[1]/scores[3];
@@ -488,21 +514,21 @@ public class Main {
     }
 
     public static void artificialDynamicMatching() {
-        int timestepCount = 2;
         DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {
             ArtificialMatchingCreator artificialMatchingCreator = new ArtificialMatchingCreator();
-            ArtificialMatching artificialMatching = artificialMatchingCreator.AFoutperformingARMatching();
-            ArtificialDynamicMatching artificialDynamicMatching = new ArtificialDynamicMatching(artificialMatching, timestepCount, false);
+//            ArtificialMatching artificialMatching = artificialMatchingCreator.AFoutperformingARMatching();
+            ArtificialMatching artificialMatching = artificialMatchingCreator.ARoutperformingAFMatching2();
+            ArtificialDynamicMatching artificialDynamicMatching = new ArtificialDynamicMatching(artificialMatching, artificialMatching.getTimestepCount(), false);
 
             ArtificialMatching[] artificialMatchings = new ArtificialMatching[4];
-            artificialMatchings[0] = (ArtificialMatching) artificialDynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false);
+            artificialMatchings[0] = (ArtificialMatching) artificialDynamicMatching.advanceTimeAndSolvePerStep(artificialMatching.getTimestepCount(), false);
             System.out.println("Got here! 0 " + artificialMatchings[0].getFindMaxFailed());
             artificialDynamicMatching.resetState();
-            artificialMatchings[1] = (ArtificialMatching) artificialDynamicMatching.advanceTimeFullyThenSolve(timestepCount, false,false);
+            artificialMatchings[1] = (ArtificialMatching) artificialDynamicMatching.advanceTimeFullyThenSolve(artificialMatching.getTimestepCount(), false,false);
             System.out.println("Got here! 1 " + artificialMatchings[1].getFindMaxFailed());
             artificialDynamicMatching.resetState();
-            artificialMatchings[2] = (ArtificialMatching) artificialDynamicMatching.advanceTimeFullyThenSolve(timestepCount, true,false);
+            artificialMatchings[2] = (ArtificialMatching) artificialDynamicMatching.advanceTimeFullyThenSolve(artificialMatching.getTimestepCount(), true,false);
             System.out.println("Got here! 2 " + artificialMatchings[2].getFindMaxFailed());
 
             System.out.println();

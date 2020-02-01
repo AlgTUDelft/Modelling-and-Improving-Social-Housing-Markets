@@ -37,6 +37,10 @@ public class Household implements HousingMarketVertex, Serializable {
         this.priority = priority;
     }
 
+    public String toString() {
+        return Integer.toString(this.id);
+    }
+
     public int getID() {
         return this.id;
     }

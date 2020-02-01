@@ -27,6 +27,10 @@ public class House implements HousingMarketVertex, Serializable {
 
     }
 
+    public String toString() {
+        return Integer.toString(this.id);
+    }
+
     public int getID() {
         return this.id;
     }

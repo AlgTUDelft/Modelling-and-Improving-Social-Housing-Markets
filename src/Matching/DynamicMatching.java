@@ -76,10 +76,10 @@ public class DynamicMatching {
                 this.initialHousesToArrive.add(randomHouse);
             }
         }
-        WorkerOptimalStableMatchingAlgorithm wosma
-                = new WorkerOptimalStableMatchingAlgorithm(initialMatching);
-        // TODO: set findMax to true?
-        this.initialMatching = wosma.findWorkerOptimalStableMatching(false,false);
+//        WorkerOptimalStableMatchingAlgorithm wosma
+//                = new WorkerOptimalStableMatchingAlgorithm(initialMatching);
+//        // TODO: set findMax to true?
+        this.initialMatching = initialMatching; //wosma.findWorkerOptimalStableMatching(false,false);
         this.currentMatching = (Matching) deepClone(initialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(initialHouseholdsToArrive);
@@ -105,8 +105,8 @@ public class DynamicMatching {
             simulateEnvironmentTimestep();
         }
         runAlgorithm(findMax, print);
-        // TODO: Include the following?
-        runAlgorithm(false, false);
+//        // TODO: Include the following?
+//        runAlgorithm(false, false);
         Matching resultingMatching = (Matching) deepClone(currentMatching);
         return resultingMatching;
     }
