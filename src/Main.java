@@ -552,7 +552,7 @@ public class Main {
         DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {
             ArtificialMatchingCreator artificialMatchingCreator = new ArtificialMatchingCreator();
-            ArtificialMatching artificialMatching = artificialMatchingCreator.ARoutperformingAFMatching();
+            ArtificialMatching artificialMatching = artificialMatchingCreator.PRoutperformingARMatching();
             ArtificialDynamicMatching artificialDynamicMatching = new ArtificialDynamicMatching(artificialMatching, artificialMatching.getTimestepCount(), false);
 
             ArtificialMatching[] artificialMatchings = new ArtificialMatching[3];
