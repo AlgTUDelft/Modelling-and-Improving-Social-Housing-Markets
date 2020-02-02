@@ -35,8 +35,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 //        comparison_WOSMA_MCPMA();
-        runDynamicMatching();
-//        artificialDynamicMatching();
+//        runDynamicMatching();
+        artificialDynamicMatching();
     }
 
     public static void test1() {
@@ -555,15 +555,16 @@ public class Main {
             ArtificialMatching artificialMatching = artificialMatchingCreator.ARoutperformingAFMatching();
             ArtificialDynamicMatching artificialDynamicMatching = new ArtificialDynamicMatching(artificialMatching, artificialMatching.getTimestepCount(), false);
 
-            ArtificialMatching[] artificialMatchings = new ArtificialMatching[4];
-            artificialMatchings[0] = (ArtificialMatching) artificialDynamicMatching.advanceTimeAndSolvePerStep(artificialMatching.getTimestepCount(), false);
-            System.out.println("Got here! 0 " + artificialMatchings[0].getFindMaxFailed());
+            ArtificialMatching[] artificialMatchings = new ArtificialMatching[3];
+            ArtificialMatching PRMatching = (ArtificialMatching) artificialDynamicMatching.advanceTimeAndSolvePerStep(artificialMatching.getTimestepCount(), false);
+            artificialMatchings[0] = (ArtificialMatching) deepClone(PRMatching);
             artificialDynamicMatching.resetState();
-            artificialMatchings[1] = (ArtificialMatching) artificialDynamicMatching.advanceTimeFullyThenSolve(artificialMatching.getTimestepCount(), false,false);
-            System.out.println("Got here! 1 " + artificialMatchings[1].getFindMaxFailed());
+            ArtificialMatching ARMatching = (ArtificialMatching) artificialDynamicMatching.advanceTimeFullyThenSolve(artificialMatching.getTimestepCount(), false,false);
+            artificialMatchings[1] = (ArtificialMatching) deepClone(ARMatching);
             artificialDynamicMatching.resetState();
-            artificialMatchings[2] = (ArtificialMatching) artificialDynamicMatching.advanceTimeFullyThenSolve(artificialMatching.getTimestepCount(), true,false);
-            System.out.println("Got here! 2 " + artificialMatchings[2].getFindMaxFailed());
+            ArtificialMatching AFMatching = (ArtificialMatching) artificialDynamicMatching.advanceTimeFullyThenSolve(artificialMatching.getTimestepCount(), true,false);
+            artificialMatchings[2] = (ArtificialMatching) deepClone(AFMatching);
+
 
             System.out.println();
             System.out.println(artificialMatchings[0].calculateGlobalScore());

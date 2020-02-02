@@ -13,7 +13,7 @@ public class ArtificialMatchingCreator {
 
     // Designed to test algorithms and assumptions.
 
-    // DONE
+    // DONE :)
     public ArtificialMatching AFoutperformingARMatching() throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
         // Matching where AF is expected to outperform AR.
         //   -> Two timesteps. Household f1 plus house h1 are added and prefer each other enough that
@@ -45,7 +45,7 @@ public class ArtificialMatchingCreator {
         return artificialMatching;
     }
 
-    // TODO
+    // DONE :)
     public ArtificialMatching ARoutperformingAFMatching() throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException {
 
         int timeStepCount = 2;
@@ -69,7 +69,27 @@ public class ArtificialMatchingCreator {
         int f3ID = artificialMatching.addHousehold(f3);
         int f4ID = artificialMatching.addHousehold(f4);
 
-
+        // State afterwards:
+        // h2-f2 are linked.
+        //
+        // - f1 prefers h4 (1/3)
+        // - f2 prefers h3/h4 (1/3)
+        // - f3 prefers h1/h4 (1/3)
+        // - f4 prefers h4 (1/3)
+        //
+        // PR: h4-f1, h1-f4, h2-f3, h3-f2. Total of: 2/3 + 1/3 + 2/3 + 2/3 = 2 1/3.
+        //
+        // AR...
+        // Cycle 1: f1 gets empty house h4. (0->2/3)
+        // Cycle 2: f4 gets empty house h3. (0->1/3)
+        // Cycle 3: f3 gets empty house h1. (0->1)
+        // Cycle 4: null. Total: 1/3 + 2 = 2 1/3.
+        //
+        // AF...
+        // Cycle 1: 6 found. Best: nil->f3->f2. So f3 gets h2, and h2 gets h4. (0->2/3 + 1/3->2/3).
+        // Cycle 2: 3 found. Best: nil->f1. So f1 gets h3. (0->1/3).
+        // Cycle 3: 2 found. Best: nil->f4. So f4 gets h1. (0->1/3).
+        // Cycle 4: null. Total: 1/3 + 1 2/3 = 2.
         HashMap<HouseAndHouseholdIDPair, Double> scores = new HashMap<>();
         scores.put(new HouseAndHouseholdIDPair(h1ID, f1ID), 0.33333334);
         scores.put(new HouseAndHouseholdIDPair(h1ID, f2ID), 0.33333334);
