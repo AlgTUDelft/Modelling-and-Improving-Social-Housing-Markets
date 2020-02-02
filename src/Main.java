@@ -35,8 +35,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 //        comparison_WOSMA_MCPMA();
-//        runDynamicMatching();
-        artificialDynamicMatching();
+        runDynamicMatching();
+//        artificialDynamicMatching();
     }
 
     public static void test1() {
@@ -409,7 +409,7 @@ public class Main {
 //                24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100));
 
         for (int startLine : startLines) {
-            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 6));
+            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 4));
         }
         DynamicMatchingComparisonResultProcessor dynamicMatchingComparisonResultProcessor
                 = new DynamicMatchingComparisonResultProcessor(dynamicMatchingComparisonResults);
@@ -447,7 +447,7 @@ public class Main {
 
             prettyPrintResults(strings, scores);
 
-            if (scores[2] < scores[0] - 0.0000001) {
+            if (scores[0] < scores[1] - 0.0000001) {
                 System.err.println("Found one!");
                 Matching inputMatching = dynamicMatching.getInputMatching();
                 ArrayList<String> houseIDs = new ArrayList<String>(
