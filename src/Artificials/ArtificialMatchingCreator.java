@@ -45,7 +45,7 @@ public class ArtificialMatchingCreator {
         return artificialMatching;
     }
 
-    // DONE :)
+    // DONE but TODO: to analyze.
     public ArtificialMatching ARoutperformingAFMatching() throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException {
         // State afterwards:
         // h2-f2 are linked.
@@ -125,14 +125,21 @@ public class ArtificialMatchingCreator {
         return artificialMatching;
     }
 
-    // TODO
+    // DONE but TODO: to analyze.
     public ArtificialMatching PRoutperformingARMatching() throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException {
         // PR...
-        // State 0: h1-f1, h2-f2.
+        // State 0: h1-f1, h2-f2. (1/3, 2/3).
         // State 1: +h4,f4.
-        // Cycle 1: nil->f4->f1. f4 gets h1, f1 gets h4.
+        // Cycle 1: nil->f4->f1. So f4 gets h1, f1 gets h4. (0->2/3, 1/3->2/3).
         // State 2: +h3,f3.
-        // Cycle 2: nil->f3->f4
+        // Cycle 2: nil->f3->f4. So f3 gets h1, and f4 gets h3. (0->2/3,2/3->1).
+        // Total: 1 -> 3.
+        //
+        // AR...
+        // State after: h1-f1, h2-f2. (1/3, 2/3).
+        // Cycle 1: nil->f4->f1. So f4 gets h1, f1 gets h4. (0->2/3, 1/3->2/3).
+        // Cycle 2: nil->f3. So f3 gets h3. (0->2/3).
+        // Total: 1 -> 2 2/3.
 
 
 

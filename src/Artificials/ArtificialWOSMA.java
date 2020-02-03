@@ -27,7 +27,8 @@ public class ArtificialWOSMA {
             cycle = artificialTwoLabeledGraph.findCycle(findMax, print);
         }
         while (cycle != null) {
-            if(print) { System.out.println("Executing cycle " + i); }
+//            if(print) { System.out.println("Executing cycle " + i); }
+            System.out.println("Executing cycle " + i);
             this.artificialMatching.executeCycle(cycle, artificialTwoLabeledGraph.getNil(), print);
             artificialTwoLabeledGraph.updateAfterCycleExecution(cycle, this.artificialMatching, findMax);
             cycle = artificialTwoLabeledGraph.findCycle(findMax, print);

@@ -64,9 +64,12 @@ public class ArtificialDynamicMatching {
 
 
     public ArtificialMatching advanceTimeAndSolvePerStep(int timestepCount, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
+        System.out.println(this.currentArtificialMatching.getMatchingGraph().toString());
         for (int i = 0; i < timestepCount; i++) {
-            if(print) { System.out.println("Timestep " + i); }
+//            if(print) { System.out.println("Timestep " + i); }
+            System.out.println("Timestep " + i);
             simulateEnvironmentTimestep();
+            System.out.println(this.currentArtificialMatching.getMatchingGraph().toString());
             runAlgorithm(false, print);
         }
         ArtificialMatching resultingMatching = (ArtificialMatching) deepClone(currentArtificialMatching);
@@ -79,6 +82,7 @@ public class ArtificialDynamicMatching {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
         }
+        System.out.println(this.currentArtificialMatching.getMatchingGraph().toString());
         runAlgorithm(findMax, print);
         // TODO: Include the following?
 //        runAlgorithm(false, false);

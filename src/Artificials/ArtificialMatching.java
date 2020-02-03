@@ -119,6 +119,7 @@ public class ArtificialMatching extends Matching.Matching {
                     throw new PreferredNoHouseholdlessHouseException("Cycle indicated that household would prefer some" +
                             " other house to their current house, but no such house was found.");
                 } else {
+                    System.out.println("Connecting " + cycle.toString() + " where nil is house " + bestHouse.getID());
                     connect(bestHouse.getID(), sourceVertex);
                 }
             }
@@ -136,4 +137,5 @@ public class ArtificialMatching extends Matching.Matching {
     public int getTimestepCount() {
         return timestepCount;
     }
+
 }

@@ -556,12 +556,15 @@ public class Main {
             ArtificialDynamicMatching artificialDynamicMatching = new ArtificialDynamicMatching(artificialMatching, artificialMatching.getTimestepCount(), false);
 
             ArtificialMatching[] artificialMatchings = new ArtificialMatching[3];
+            System.out.println("PR");
             ArtificialMatching PRMatching = (ArtificialMatching) artificialDynamicMatching.advanceTimeAndSolvePerStep(artificialMatching.getTimestepCount(), false);
             artificialMatchings[0] = (ArtificialMatching) deepClone(PRMatching);
             artificialDynamicMatching.resetState();
+            System.out.println("AR");
             ArtificialMatching ARMatching = (ArtificialMatching) artificialDynamicMatching.advanceTimeFullyThenSolve(artificialMatching.getTimestepCount(), false,false);
             artificialMatchings[1] = (ArtificialMatching) deepClone(ARMatching);
             artificialDynamicMatching.resetState();
+            System.out.println("AF");
             ArtificialMatching AFMatching = (ArtificialMatching) artificialDynamicMatching.advanceTimeFullyThenSolve(artificialMatching.getTimestepCount(), true,false);
             artificialMatchings[2] = (ArtificialMatching) deepClone(AFMatching);
 
