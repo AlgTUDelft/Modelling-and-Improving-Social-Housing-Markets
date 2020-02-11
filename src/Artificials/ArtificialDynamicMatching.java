@@ -51,10 +51,10 @@ public class ArtificialDynamicMatching {
                 this.initialHousesToArrive.add(lastHouse);
             }
         }
-        ArtificialWOSMA artificialWOSMA
-                = new ArtificialWOSMA(initialArtificialMatching);
-//        // TODO: set findMax to true?
-        this.initialArtificialMatching = artificialWOSMA.findWorkerOptimalStableMatching(false,false);
+        // TODO: Include initial WOSMA call?
+        //ArtificialWOSMA artificialWOSMA
+        //                = new ArtificialWOSMA(initialArtificialMatching);
+        this.initialArtificialMatching = initialArtificialMatching; //artificialWOSMA.findWorkerOptimalStableMatching(false,false);
         this.currentArtificialMatching = (ArtificialMatching) deepClone(initialArtificialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(initialHouseholdsToArrive);
