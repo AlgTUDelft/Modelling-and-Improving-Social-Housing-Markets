@@ -226,6 +226,7 @@ public class ArtificialTwoLabeledGraph {
     }
 
     public List<Integer> findBestCycle(List<List<Integer>> cycles) {
+        // TODO: Of cycles with the highest score, find that which is the shortest.
         double bestScore = 0.0;
         List<Integer> bestCycle = null;
         for (List<Integer> cycle : cycles) {

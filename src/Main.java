@@ -35,8 +35,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 //        comparison_WOSMA_MCPMA();
-//        runDynamicMatching();
-        artificialDynamicMatching();
+        runDynamicMatching();
+//        artificialDynamicMatching();
     }
 
     public static void test1() {
@@ -414,11 +414,9 @@ public class Main {
                 556, 560, 564, 568, 572, 576, 580, 584, 588, 592, 596, 600, 604, 608,612, 616, 620, 624, 628, 632, 636,
                 640, 644, 648, 652, 656, 660, 664, 668, 672, 676, 680, 684, 688, 692, 696, 700, 704, 708, 712, 716, 720,
                 724, 728, 732, 736, 740, 744, 748, 752, 756, 760, 764, 768, 772, 776, 780, 784, 788, 792, 796, 800, 804,
-                808, 812, 816, 820, 824, 828, 832, 836, 840, 844, 848, 852, 856, 860, 864, 868, 872, 876,880, 884, 888,
-                892, 896, 900, 904, 908, 912, 916, 920, 924, 928, 932, 936, 940, 944, 948, 952, 956, 960, 964, 968, 972,
-                976, 980, 984, 988, 992, 996));
+                808, 812, 816, 820, 824, 828, 832, 836, 840, 844));
         for (int startLine : startLines) {
-            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 7, oneSided));
+            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 100, oneSided));
         }
         DynamicMatchingComparisonResultProcessor dynamicMatchingComparisonResultProcessor
                 = new DynamicMatchingComparisonResultProcessor(dynamicMatchingComparisonResults);
@@ -432,6 +430,9 @@ public class Main {
         try {
             double connectionProb = 1.0;
             Matching matching = setupMatching(connectionProb, startLine, lineCount);
+            if (matching.getHouses().size() < timestepCount || matching.getHouseholds().size() < timestepCount) {
+                System.out.println("Got here");
+            }
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
 
             Matching[] matchings = new Matching[4];
@@ -459,12 +460,14 @@ public class Main {
             if (scores[2] < scores[0] - 0.0000001) {
                 System.err.println("Found one!");
                 Matching inputMatching = dynamicMatching.getInputMatching();
-                ArrayList<String> houseIDs = new ArrayList<String>(
-                        Arrays.asList("h1ID", "h2ID", "h3ID", "h4ID", "h5ID", "h6ID", "h7ID")
-                );
-                ArrayList<String> householdIDs = new ArrayList<String>(
-                        Arrays.asList("f1ID", "f2ID", "f3ID", "f4ID", "f5ID", "f6ID", "f7ID")
-                );
+                ArrayList<String> houseIDs = new ArrayList<String>();
+                for (int i = 0; i < inputMatching.getHouses().size(); i++) {
+                    houseIDs.add("h" + i + "ID");
+                }
+                ArrayList<String> householdIDs = new ArrayList<String>();
+                for (int i = 0; i < inputMatching.getHouseholds().size(); i++) {
+                    householdIDs.add("f" + i + "ID");
+                }
                 MatchingEvaluator matchingEvaluator = new MatchingEvaluator(inputMatching);
                 PrimitiveIterator.OfInt houseIterator = IntStream.range(0,inputMatching.getHouses().size()).iterator();
                 while (houseIterator.hasNext()) {

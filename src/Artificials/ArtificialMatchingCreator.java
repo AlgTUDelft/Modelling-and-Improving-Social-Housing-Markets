@@ -270,11 +270,12 @@ public class ArtificialMatchingCreator {
         return artificialMatching;
     }
 
-    // TODO
+    // DONE
     public ArtificialMatching PRoutperformingAFMatching() throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException {
+        // This is a case where AF's inability to move houses that have already been moved, for free,
+        // means it is unable to reach optimality.
 
-
-        int timeStepCount = 2;
+        int timeStepCount = 3;
         ArtificialMatching artificialMatching = new ArtificialMatching(new HousingMarket(2017, 100), null,timeStepCount);
 
         House h1 = new House("test", "h1", 0, 0, false);
@@ -361,9 +362,12 @@ public class ArtificialMatchingCreator {
         artificialMatching.connect(h1ID, f1ID);
         artificialMatching.connect(h2ID, f2ID);
         artificialMatching.connect(h3ID, f3ID);
+        artificialMatching.connect(h4ID, f4ID);
         artificialMatching.connect(h5ID, f5ID);
         artificialMatching.connect(h6ID, f6ID);
         artificialMatching.connect(h7ID, f7ID);
+
+
 
 
 

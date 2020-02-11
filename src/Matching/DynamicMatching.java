@@ -30,32 +30,6 @@ public class DynamicMatching {
 
     protected boolean oneSided; // false means two-sided arrival. One-sided means houses are set and households arrive.
 
-    // TODO: Analyze scores.
-    //       -> There isn't really any consistency to these, although fortunately they're all below optimal...
-    //       -> Okay, wait, it seems that at least all Afterwards scores are lower than AfterwardsFindMax,
-    //          at least with avgME. But it's still puzzling that PerStep often performs better than
-    //          Afterwards, and sometimes even better than AfterwardsFindMax.
-    //          So two things need to be explained:
-    //          - Why does PerStep often perform better than Afterwards?
-    //          - Why does PerStep sometimes perform better than even AfterwardsFindMax?
-    //          Update: I've found a (one-sided) case where Afterwards performs better than AfterwardsFindMax.
-    //                  -> For this, I guess the below explanation suffices.
-    //                     It only happens rarely, which roughly fits with that explanation.
-    //
-    // TODO: Double-check findMax in finding cycles; does it really capture the kinds of cycles (re: strictness of edges, etc.)
-    //        that we want it to capture? -> e.g. split functions into two for easier checking.
-    //        - Check functions in TwoLabeledGraph. -- DONE
-    //        - Check functions in CycleFinder. -- DONE
-    //        --> OK, so what's happening is that Tarjan finds only fully strict cycles,
-    //            whereas CycleFinder finds cycles that are either fully strict,
-    //            or, insofar as they aren't, consisting of households that have moved before
-    //            in this timestep.
-    //            So it makes sense that _this_ could work better than Tarjan/findMax,
-    //            though it's still somewhat surprising.
-    //            -> This explains why Afterwards might do better than findMax. However, at least with avgME,
-    //               this doesn't seem to be the case anymore.
-    //            -> Also, at any rate, AfterwardsFindMax is a kind of greedy solution: If you do the best cycles first,
-    //               maybe you'll miss out on a lot of average cycles which all add up over time?
     public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         inputMatching = matching;
         this.oneSided = oneSided;
