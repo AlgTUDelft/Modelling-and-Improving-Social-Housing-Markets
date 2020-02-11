@@ -8,10 +8,7 @@ import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
 import org.jgrapht.graph.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
@@ -233,16 +230,28 @@ public class TwoLabeledGraph {
     }
 
     public List<Integer> findBestCycle(List<List<Integer>> cycles) {
+        if (cycles.isEmpty()) {
+            return null;
+        }
+        // Of all cycles with the highest score...
+        ArrayList<List<Integer>> cyclesWithHighestScore = new ArrayList<List<Integer>>();
         double bestScore = 0.0;
-        List<Integer> bestCycle = null;
         for (List<Integer> cycle : cycles) {
             double candidateScore = calculateCycleScore(cycle);
             if (candidateScore > bestScore) {
+                cyclesWithHighestScore.clear();
+                cyclesWithHighestScore.add(cycle);
                 bestScore = candidateScore;
-                bestCycle = cycle;
+            }
+            if (candidateScore == bestScore) {
+                cyclesWithHighestScore.add(cycle);
             }
         }
-        return bestCycle;
+
+        // ...find that cycle which is the shortest.
+        int shortestLength = cyclesWithHighestScore.stream().mapToInt(c -> c.size()).min().getAsInt();
+        Optional<List<Integer>> opt = cyclesWithHighestScore.stream().filter(l -> l.size() == shortestLength).findAny();
+        return opt.get(); // Value is present for sure.
     }
 
     public double calculateCycleScore(List<Integer> cycle) {

@@ -35,8 +35,8 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 //        comparison_WOSMA_MCPMA();
-        runDynamicMatching();
-//        artificialDynamicMatching();
+//        runDynamicMatching();
+        artificialDynamicMatching();
     }
 
     public static void test1() {
@@ -392,7 +392,7 @@ public class Main {
         String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
         HousingMarket housingMarket = new HousingMarket(2017, 100);
         DataProcessor dataProcessor = new DataProcessor(housingMarket);
-        return dataProcessor.csvToMatching(inputFileName, 0.9, startLine, lineCount);
+        return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount);
     }
 
     public static void runDynamicMatching() throws IOException {
@@ -416,7 +416,7 @@ public class Main {
                 724, 728, 732, 736, 740, 744, 748, 752, 756, 760, 764, 768, 772, 776, 780, 784, 788, 792, 796, 800, 804,
                 808, 812, 816, 820, 824, 828, 832, 836, 840, 844));
         for (int startLine : startLines) {
-            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 100, oneSided));
+            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 6, oneSided));
         }
         DynamicMatchingComparisonResultProcessor dynamicMatchingComparisonResultProcessor
                 = new DynamicMatchingComparisonResultProcessor(dynamicMatchingComparisonResults);
@@ -457,15 +457,15 @@ public class Main {
 
             prettyPrintResults(strings, scores);
 
-            if (scores[2] < scores[0] - 0.0000001) {
+            if (scores[2] < scores[1] - 0.0000001) {
                 System.err.println("Found one!");
                 Matching inputMatching = dynamicMatching.getInputMatching();
                 ArrayList<String> houseIDs = new ArrayList<String>();
-                for (int i = 0; i < inputMatching.getHouses().size(); i++) {
+                for (int i = 1; i < inputMatching.getHouses().size() + 1; i++) {
                     houseIDs.add("h" + i + "ID");
                 }
                 ArrayList<String> householdIDs = new ArrayList<String>();
-                for (int i = 0; i < inputMatching.getHouseholds().size(); i++) {
+                for (int i = 1; i < inputMatching.getHouseholds().size() + 1; i++) {
                     householdIDs.add("f" + i + "ID");
                 }
                 MatchingEvaluator matchingEvaluator = new MatchingEvaluator(inputMatching);
@@ -564,7 +564,7 @@ public class Main {
         DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {
             ArtificialMatchingCreator artificialMatchingCreator = new ArtificialMatchingCreator();
-            ArtificialMatching artificialMatching = artificialMatchingCreator.PRoutperformingAFMatching();
+            ArtificialMatching artificialMatching = artificialMatchingCreator.ARoutperformingAFMatching();
             ArtificialDynamicMatching artificialDynamicMatching = new ArtificialDynamicMatching(artificialMatching, artificialMatching.getTimestepCount(), false);
 
             ArtificialMatching[] artificialMatchings = new ArtificialMatching[3];
