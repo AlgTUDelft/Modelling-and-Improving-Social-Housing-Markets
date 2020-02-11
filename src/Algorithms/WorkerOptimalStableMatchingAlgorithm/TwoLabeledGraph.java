@@ -185,15 +185,7 @@ public class TwoLabeledGraph {
         return nil;
     }
 
-    public void updateAfterCycleExecution(List<Integer> cycle, Matching newMatching, boolean findMax) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
-        if (findMax) {
-            updateAfterCycleExecutionFindMax(cycle, newMatching);
-        } else {
-            updateAfterCycleExecutionNormally(cycle, newMatching);
-        }
-    }
-
-    public void updateAfterCycleExecutionNormally(List<Integer> cycle, Matching newMatching) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
+    public void updateAfterCycleExecution(Matching newMatching, boolean findMax) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = newMatching;
 
         // Remove all edges
@@ -208,26 +200,9 @@ public class TwoLabeledGraph {
         // Rewire all households.
         ArrayList<Household> households = this.matching.getHouseholds();
         ArrayList<Integer> householdIDs = new ArrayList<Integer>(households.stream().map(h -> h.getID()).collect(Collectors.toList()));
-        wireHouseholdsNormally(householdIDs);
+        wireHouseholds(householdIDs, findMax);
     }
 
-    public void updateAfterCycleExecutionFindMax(List<Integer> cycle, Matching newMatching) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
-        this.matching = newMatching;
-
-        // Remove all edges
-        Set<DefaultWeightedEdge> edges = this.underlyingStrictGraph.edgeSet();
-        ArrayList<DefaultWeightedEdge> edgesToRemove = new ArrayList<DefaultWeightedEdge>();
-        for (DefaultWeightedEdge edge : edges) {
-            edgesToRemove.add(edge);
-        }
-        for (DefaultWeightedEdge edge : edgesToRemove) {
-            this.underlyingStrictGraph.removeEdge(edge);
-        }
-        // Rewire all households.
-        ArrayList<Household> households = this.matching.getHouseholds();
-        ArrayList<Integer> householdIDs = new ArrayList<Integer>(households.stream().map(h -> h.getID()).collect(Collectors.toList()));
-        wireHouseholdsFindMax(householdIDs);
-    }
 
     public List<Integer> findCycle(boolean findMax, boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, OutOfMemoryError {
         if (!findMax) {

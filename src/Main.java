@@ -561,7 +561,7 @@ public class Main {
         DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {
             ArtificialMatchingCreator artificialMatchingCreator = new ArtificialMatchingCreator();
-            ArtificialMatching artificialMatching = artificialMatchingCreator.AFoutperformingARMatching();
+            ArtificialMatching artificialMatching = artificialMatchingCreator.PRoutperformingAFMatching();
             ArtificialDynamicMatching artificialDynamicMatching = new ArtificialDynamicMatching(artificialMatching, artificialMatching.getTimestepCount(), false);
 
             ArtificialMatching[] artificialMatchings = new ArtificialMatching[3];

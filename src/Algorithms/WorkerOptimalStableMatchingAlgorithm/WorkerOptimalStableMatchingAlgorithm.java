@@ -72,7 +72,7 @@ public class WorkerOptimalStableMatchingAlgorithm {
         while (cycle != null) {
             if(print) { System.out.println("Executing cycle " + i); }
             this.matching.executeCycle(cycle, twoLabeledGraph.getNil(), print);
-            twoLabeledGraph.updateAfterCycleExecution(cycle, this.matching, findMax);
+            twoLabeledGraph.updateAfterCycleExecution(this.matching, findMax);
             cycle = twoLabeledGraph.findCycle(findMax, print);
             i++;
         }

@@ -30,7 +30,7 @@ public class ArtificialWOSMA {
 //            if(print) { System.out.println("Executing cycle " + i); }
             System.out.println("Executing cycle " + i);
             this.artificialMatching.executeCycle(cycle, artificialTwoLabeledGraph.getNil(), print);
-            artificialTwoLabeledGraph.updateAfterCycleExecution(cycle, this.artificialMatching, findMax);
+            artificialTwoLabeledGraph.updateAfterCycleExecution(this.artificialMatching, findMax);
             cycle = artificialTwoLabeledGraph.findCycle(findMax, print);
             i++;
         }

@@ -272,9 +272,8 @@ public class ArtificialMatchingCreator {
 
     // TODO
     public ArtificialMatching PRoutperformingAFMatching() throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException {
-        // TODO: Find new one!
 
-        // TODO: FindMax optimizes for values, not for improvement! Fix this.
+
         int timeStepCount = 2;
         ArtificialMatching artificialMatching = new ArtificialMatching(new HousingMarket(2017, 100), null,timeStepCount);
 
