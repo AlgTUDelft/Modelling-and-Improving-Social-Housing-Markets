@@ -23,10 +23,12 @@ public class DynamicMatchingComparisonResultProcessor {
                 "timeStepCount",
                 "findMaxFailed",
                 "solvedFinalMatchingPerStepScore",
+                "solvedFinalMatchingPerStepFindMaxScore",
                 "solvedFinalMatchingAfterwardsScore",
                 "solvedFinalMatchingAfterwardsFindMaxScore",
                 "superOptimalScore",
                 "perStepOptimality",
+                "perStepFindMaxOptimality",
                 "afterwardsOptimality",
                 "afterwardsFindMaxOptimality"), CSV_SEPARATOR);
 
@@ -35,10 +37,12 @@ public class DynamicMatchingComparisonResultProcessor {
             list.add(Integer.toString(dynamicMatchingComparisonResult.getTimestepCount()));
             list.add(Boolean.toString(dynamicMatchingComparisonResult.isFindMaxFailed()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getSolvedFinalMatchingPerStepScore()));
+            list.add(Float.toString(dynamicMatchingComparisonResult.getSolvedFinalMatchingPerStepFindMaxScore()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getSolvedFinalMatchingAfterwardsScore()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getSolvedFinalMatchingAfterwardsFindMaxScore()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getSuperOptimalScore()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getPerStepOptimality()));
+            list.add(Float.toString(dynamicMatchingComparisonResult.getPerStepFindMaxOptimality()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getAfterwardsOptimality()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getAfterwardsFindMaxOptimality()));
 

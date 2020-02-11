@@ -51,10 +51,10 @@ public class DynamicMatching {
             }
         }
         // TODO: Removing the following WOSMA-call un-syncs AR and AF when findMax fails... Why? Fix this.
-        WorkerOptimalStableMatchingAlgorithm wosma
-                = new WorkerOptimalStableMatchingAlgorithm(initialMatching);
+//        WorkerOptimalStableMatchingAlgorithm wosma
+//                = new WorkerOptimalStableMatchingAlgorithm(initialMatching);
 //        // TODO: set findMax to true?
-        this.initialMatching = wosma.findWorkerOptimalStableMatching(false,false);
+        this.initialMatching = initialMatching;//wosma.findWorkerOptimalStableMatching(false,false);
         this.currentMatching = (Matching) deepClone(initialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(initialHouseholdsToArrive);
@@ -63,11 +63,11 @@ public class DynamicMatching {
     }
 
 
-    public Matching advanceTimeAndSolvePerStep(int timestepCount, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
+    public Matching advanceTimeAndSolvePerStep(int timestepCount, boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
-            runAlgorithm(false, print);
+            runAlgorithm(findMax, print);
         }
         Matching resultingMatching = (Matching) deepClone(currentMatching);
 //        checkIfHouselessHouseholdsHaveNoPreferredEmptyHouse();
