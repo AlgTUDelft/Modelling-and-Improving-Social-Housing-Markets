@@ -396,20 +396,19 @@ public class Main {
     }
 
     public static void runDynamicMatching() throws IOException {
-        String outputFilename = "../test3.csv";
+        String outputFilename = "../dyn-12times75-minME-100prob-twosided.csv";
+        boolean oneSided = false;
 
         ArrayList<DynamicMatchingComparisonResult> dynamicMatchingComparisonResults
                 = new ArrayList<DynamicMatchingComparisonResult>();
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(75, 150, 225, 300, 375, 450, 525, 600, 675, 750, 825, 900));
 //        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 125, 250, 375, 500, 625, 750, 875));
 //        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 250, 500, 750));
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 6, 12, 18, 24, 30,
-                36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120, 126, 132, 138, 144, 150,
-                156, 162, 168, 174, 180, 186, 192, 198, 204, 210));
-//        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 4, 8, 12, 16, 20,
-//                24, 28, 32, 36, 40, 44, 48, 52, 56, 60, 64, 68, 72, 76, 80, 84, 88, 92, 96, 100));
-
+//        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 6, 12, 18, 24, 30,
+//                36, 42, 48, 54, 60, 66, 72, 78, 84, 90, 96, 102, 108, 114, 120, 126, 132, 138, 144, 150,
+//                156, 162, 168, 174, 180, 186, 192, 198, 204, 210));
         for (int startLine : startLines) {
-            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 4));
+            dynamicMatchingComparisonResults.add(individualRunDynamicMatching(startLine, 75, oneSided));
         }
         DynamicMatchingComparisonResultProcessor dynamicMatchingComparisonResultProcessor
                 = new DynamicMatchingComparisonResultProcessor(dynamicMatchingComparisonResults);
@@ -417,13 +416,13 @@ public class Main {
 
     }
 
-    public static DynamicMatchingComparisonResult individualRunDynamicMatching(int startLine, int lineCount) {
+    public static DynamicMatchingComparisonResult individualRunDynamicMatching(int startLine, int lineCount, boolean oneSided) {
         int timestepCount = lineCount/2;
         DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {
             double connectionProb = 1.0;
             Matching matching = setupMatching(connectionProb, startLine, lineCount);
-            DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, false);
+            DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
 
             Matching[] matchings = new Matching[4];
             matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false);
@@ -447,55 +446,54 @@ public class Main {
 
             prettyPrintResults(strings, scores);
 
-            if (scores[0] < scores[1] - 0.0000001) {
-                System.err.println("Found one!");
-                Matching inputMatching = dynamicMatching.getInputMatching();
-                ArrayList<String> houseIDs = new ArrayList<String>(
-                        Arrays.asList("h1ID", "h2ID", "h3ID", "h4ID", "h5ID", "h6ID")
-                );
-                ArrayList<String> householdIDs = new ArrayList<String>(
-                        Arrays.asList("f1ID", "f2ID", "f3ID", "f4ID", "f5ID", "f6ID")
-                );
-                MatchingEvaluator matchingEvaluator = new MatchingEvaluator(inputMatching);
-                PrimitiveIterator.OfInt houseIterator = IntStream.range(0,inputMatching.getHouses().size()).iterator();
-                while (houseIterator.hasNext()) {
-                    int houseIndex = houseIterator.next();
-                    PrimitiveIterator.OfInt householdIterator = IntStream.range(0,inputMatching.getHouseholds().size()).iterator();
-                    while (householdIterator.hasNext()) {
-                        int householdIndex = householdIterator.next();
-                        System.out.println("scores.put(new HouseAndHouseholdIDPair(" + houseIDs.get(houseIndex) + ", "
-                                + householdIDs.get(householdIndex) + "), "
-                                + matchingEvaluator.evaluateIndividualTotalFit(inputMatching.getHouses().get(houseIndex).getID(),
-                                inputMatching.getHouseholds().get(householdIndex).getID()) + ");");
-                    }
-                }
-
-                System.out.println();
-
-                PrimitiveIterator.OfInt newHouseIterator = IntStream.range(0,inputMatching.getHouses().size()).iterator();
-                while (newHouseIterator.hasNext()) {
-                    int houseIndex = newHouseIterator.next();
-                    Object[] edges = inputMatching.getMatchingGraph().edgesOf(inputMatching.getHouses().get(houseIndex)).toArray(); // only contains a single edge at most
-                    if (edges.length > 0) {
-                        int householdID = inputMatching.getMatchingGraph().getEdgeTarget((DefaultEdge) edges[0]).getID();
-                        int householdIndex = -1;
-                        for (int i = 0; i < inputMatching.getHouseholds().size(); i++) {
-                            if (inputMatching.getHouseholds().get(i).getID() == householdID) {
-                                householdIndex = i;
-                                break;
-                            }
-                        }
-                        System.out.println("artificialMatching.connect(" + houseIDs.get(houseIndex) + ", " + householdIDs.get(householdIndex) + ");");
-                    }
-                }
-
-            }
-
-            System.out.println();
-            System.out.println(scores[0]);
-            System.out.println(scores[1]);
-            System.out.println(scores[2]);
-
+//            if (scores[0] < scores[1] - 0.0000001) {
+//                System.err.println("Found one!");
+//                Matching inputMatching = dynamicMatching.getInputMatching();
+//                ArrayList<String> houseIDs = new ArrayList<String>(
+//                        Arrays.asList("h1ID", "h2ID", "h3ID", "h4ID", "h5ID", "h6ID")
+//                );
+//                ArrayList<String> householdIDs = new ArrayList<String>(
+//                        Arrays.asList("f1ID", "f2ID", "f3ID", "f4ID", "f5ID", "f6ID")
+//                );
+//                MatchingEvaluator matchingEvaluator = new MatchingEvaluator(inputMatching);
+//                PrimitiveIterator.OfInt houseIterator = IntStream.range(0,inputMatching.getHouses().size()).iterator();
+//                while (houseIterator.hasNext()) {
+//                    int houseIndex = houseIterator.next();
+//                    PrimitiveIterator.OfInt householdIterator = IntStream.range(0,inputMatching.getHouseholds().size()).iterator();
+//                    while (householdIterator.hasNext()) {
+//                        int householdIndex = householdIterator.next();
+//                        System.out.println("scores.put(new HouseAndHouseholdIDPair(" + houseIDs.get(houseIndex) + ", "
+//                                + householdIDs.get(householdIndex) + "), "
+//                                + matchingEvaluator.evaluateIndividualTotalFit(inputMatching.getHouses().get(houseIndex).getID(),
+//                                inputMatching.getHouseholds().get(householdIndex).getID()) + ");");
+//                    }
+//                }
+//
+//                System.out.println();
+//
+//                PrimitiveIterator.OfInt newHouseIterator = IntStream.range(0,inputMatching.getHouses().size()).iterator();
+//                while (newHouseIterator.hasNext()) {
+//                    int houseIndex = newHouseIterator.next();
+//                    Object[] edges = inputMatching.getMatchingGraph().edgesOf(inputMatching.getHouses().get(houseIndex)).toArray(); // only contains a single edge at most
+//                    if (edges.length > 0) {
+//                        int householdID = inputMatching.getMatchingGraph().getEdgeTarget((DefaultEdge) edges[0]).getID();
+//                        int householdIndex = -1;
+//                        for (int i = 0; i < inputMatching.getHouseholds().size(); i++) {
+//                            if (inputMatching.getHouseholds().get(i).getID() == householdID) {
+//                                householdIndex = i;
+//                                break;
+//                            }
+//                        }
+//                        System.out.println("artificialMatching.connect(" + houseIDs.get(houseIndex) + ", " + householdIDs.get(householdIndex) + ");");
+//                    }
+//                }
+//
+//            }
+//
+//            System.out.println();
+//            System.out.println(scores[0]);
+//            System.out.println(scores[1]);
+//            System.out.println(scores[2]);
 
             float perStepOptimality = scores[0]/scores[3];
             float afterwardsOptimality = scores[1]/scores[3];
@@ -552,7 +550,7 @@ public class Main {
         DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {
             ArtificialMatchingCreator artificialMatchingCreator = new ArtificialMatchingCreator();
-            ArtificialMatching artificialMatching = artificialMatchingCreator.PRoutperformingARMatching();
+            ArtificialMatching artificialMatching = artificialMatchingCreator.PRoutperformingAFMatching();
             ArtificialDynamicMatching artificialDynamicMatching = new ArtificialDynamicMatching(artificialMatching, artificialMatching.getTimestepCount(), false);
 
             ArtificialMatching[] artificialMatchings = new ArtificialMatching[3];

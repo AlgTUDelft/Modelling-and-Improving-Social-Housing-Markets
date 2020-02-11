@@ -202,8 +202,18 @@ public class ArtificialMatchingCreator {
         return artificialMatching;
     }
 
-    // TODO
+    // DONE but TODO: to analyze.
     public ArtificialMatching ARoutperformingPRMatching() throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException {
+        // PR:
+        // State 0: h1-f1, h2-f2
+        // Cycle 1: h4-f4
+        // Cycle 2: h3->f3->f2 ==> h1-f1, h4-f4, h3-f2, h2-f3 [1 + 1/3 + 1 + 2/3 = 3]
+        //
+        // AR:
+        // State 0: h1-f1, h2-f2
+        // Cycle 1: h3->f4->f2 ==> h1-f1, h2-f4, h3-f2
+        // Cycle 2: h4->f3 ==> h1-f1, h2-f4, h3-f2, h4-f3 [1 + 2/3 + 1 + 2/3 = 3 1/3]
+
         int timeStepCount = 2;
         ArtificialMatching artificialMatching = new ArtificialMatching(new HousingMarket(2017, 100), null,timeStepCount);
 
@@ -262,6 +272,24 @@ public class ArtificialMatchingCreator {
 
     // TODO
     public ArtificialMatching PRoutperformingAFMatching() throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException {
+        // PR:
+        // State 0: h1-f1, h2-f2
+        // Cycle 1: h4->f4->f1 [0->2/3, 1/3->2/3]
+        // Cycle 2: h3->f3->f4 [0->2/3, 2/3->1]
+        //
+        // AF:
+        // State 0: h1-f1, h2-f2
+        // Cycle 1: h4->f4->f1 [0->2/3, 1/3->2/3]
+        // State 1: h1-f4, h2-f2, h4-f1
+        // Cycle 2: h3->f3 [0->2/3]
+        // TODO: ERROR: At state 1, 7->8 is missing (but must have been present in PR)! Why?
+        //  -> Node 8 first has its outgoing AND incoming edges removed,
+        //     and then has its edges of types (nil->8, 8->nil, 8->w) added back.
+        //     But this does not add back the edge 7->8! To get this, we need to rewire households that
+        //     were not part of the cycle as well. So... let's just try and rewire all households
+        //     instead of just the cycle.
+
+        // FindMax optimizes for values, not for improvement!
         int timeStepCount = 2;
         ArtificialMatching artificialMatching = new ArtificialMatching(new HousingMarket(2017, 100), null,timeStepCount);
 
@@ -283,7 +311,8 @@ public class ArtificialMatchingCreator {
         int f3ID = artificialMatching.addHousehold(f3);
         int f4ID = artificialMatching.addHousehold(f4);
 
-        HashMap<HouseAndHouseholdIDPair, Double> scores = new HashMap<>();scores.put(new HouseAndHouseholdIDPair(h1ID, f1ID), 0.33333334);
+        HashMap<HouseAndHouseholdIDPair, Double> scores = new HashMap<>();
+        scores.put(new HouseAndHouseholdIDPair(h1ID, f1ID), 0.33333334);
         scores.put(new HouseAndHouseholdIDPair(h1ID, f2ID), 0.6666667);
         scores.put(new HouseAndHouseholdIDPair(h1ID, f3ID), 0.6666667);
         scores.put(new HouseAndHouseholdIDPair(h1ID, f4ID), 0.6666667);

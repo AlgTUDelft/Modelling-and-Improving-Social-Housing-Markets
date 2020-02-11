@@ -32,7 +32,10 @@ public class DynamicMatchingComparisonResultProcessor {
 
         for (DynamicMatchingComparisonResult dynamicMatchingComparisonResult : dynamicMatchingComparisonResults) {
             List<String> list = new ArrayList<String>();
-            list.add(Integer.toString(dynamicMatchingComparisonResult.getTimestepCount()));
+            try { list.add(Integer.toString(dynamicMatchingComparisonResult.getTimestepCount())); }
+            catch (NullPointerException e) {
+                System.out.println("Hmm");
+            }
             list.add(Boolean.toString(dynamicMatchingComparisonResult.isFindMaxFailed()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getSolvedFinalMatchingPerStepScore()));
             list.add(Float.toString(dynamicMatchingComparisonResult.getSolvedFinalMatchingAfterwardsScore()));

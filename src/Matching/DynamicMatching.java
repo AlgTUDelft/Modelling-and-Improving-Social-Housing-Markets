@@ -76,10 +76,11 @@ public class DynamicMatching {
                 this.initialHousesToArrive.add(lastHouse);
             }
         }
-//        WorkerOptimalStableMatchingAlgorithm wosma
-//                = new WorkerOptimalStableMatchingAlgorithm(initialMatching);
+        // TODO: Removing the following WOSMA-call un-syncs AR and AF when findMax fails... Why? Fix this.
+        WorkerOptimalStableMatchingAlgorithm wosma
+                = new WorkerOptimalStableMatchingAlgorithm(initialMatching);
 //        // TODO: set findMax to true?
-        this.initialMatching = initialMatching; //wosma.findWorkerOptimalStableMatching(false,false);
+        this.initialMatching = wosma.findWorkerOptimalStableMatching(false,false);
         this.currentMatching = (Matching) deepClone(initialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(initialHouseholdsToArrive);
