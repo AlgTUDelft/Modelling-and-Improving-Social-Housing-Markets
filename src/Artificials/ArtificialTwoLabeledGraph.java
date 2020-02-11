@@ -190,60 +190,6 @@ public class ArtificialTwoLabeledGraph {
     public void updateAfterCycleExecutionNormally(List<Integer> cycle, ArtificialMatching newMatching) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.artificialMatching = newMatching;
 
-//        // First update the edges of the households that were present in the cycle and which have thus been moved.
-//        removeCycleEdgesAndRewireCycle(cycle, false);
-//
-//        // Then, for all households w, re-check the edges w->nil
-//        // to see if there's still other preferred or equally-good houses for w.
-//        // Note that we technically needn't check the households that were present in the cycle,
-//        // because their edges are already A-OK due to the above _wireHouseholds_-call;
-//        // but it's little harm to re-check them anyway.
-//
-//        Set<DefaultWeightedEdge> edges = (Set<DefaultWeightedEdge>) this.underlyingStrictGraph.incomingEdgesOf(nil);
-//        ArrayList<DefaultWeightedEdge> edgesToRemove = new ArrayList<DefaultWeightedEdge>();
-//        for (DefaultWeightedEdge edge : edges) {
-//            int householdID = (int) this.underlyingStrictGraph.getEdgeSource(edge);
-//            double fitWithCurrentHouse;
-//
-//            House currentHouse = artificialMatching.getHouseFromHousehold(householdID);
-//
-//            if (currentHouse == null) {
-//                fitWithCurrentHouse = 0;
-//            } else {
-//                fitWithCurrentHouse = this.artificialMatching.getScores().get(new HouseAndHouseholdIDPair(currentHouse.getID(), householdID));
-//            }
-//            boolean foundOnlyWorseHouseholdlessHouses = true;
-//            for (House otherHouse : this.artificialMatching.getHouses()) {
-//                if (currentHouse != null) {
-//                    if (otherHouse.getID() == currentHouse.getID()) {
-//                        continue;
-//                    }
-//                }
-//                Household householdOfOtherHouse = this.artificialMatching.getHouseholdFromHouse(otherHouse.getID());
-//                if (householdOfOtherHouse == null) {
-//                    double fitWithOtherHouse = this.artificialMatching.getScores().get(new HouseAndHouseholdIDPair(otherHouse.getID(), householdID));
-//                    if (fitWithOtherHouse > fitWithCurrentHouse) {
-//                        foundOnlyWorseHouseholdlessHouses = false;
-//                        this.underlyingStrictGraph.setEdgeWeight(edge, 1);
-//                        break; // Break, because we know this edge must be strict now;
-//                        // after all, we've definitively found a preferred house.
-//                    } else if (fitWithOtherHouse == fitWithCurrentHouse) {
-//                        foundOnlyWorseHouseholdlessHouses = false;
-//                        this.underlyingStrictGraph.setEdgeWeight(edge, 0);
-//                        // No break, because we don't yet know if there is any house
-//                        // that this household strictly prefers.
-//                    }
-//                }
-//            }
-//            if (foundOnlyWorseHouseholdlessHouses) {
-//                edgesToRemove.add(edge);
-//            }
-//        }
-//
-//        for (DefaultWeightedEdge edge : edgesToRemove) {
-//            this.underlyingStrictGraph.removeEdge(edge);
-//        }
-
         // Remove all edges
         Set<DefaultWeightedEdge> edges = this.underlyingStrictGraph.edgeSet();
         ArrayList<DefaultWeightedEdge> edgesToRemove = new ArrayList<DefaultWeightedEdge>();
@@ -262,58 +208,6 @@ public class ArtificialTwoLabeledGraph {
     public void updateAfterCycleExecutionFindMax(List<Integer> cycle, ArtificialMatching newMatching) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.artificialMatching = newMatching;
 
-//        // First update the edges of the households that were present in the cycle and which have thus been moved.
-//        removeCycleEdgesAndRewireCycle(cycle, true);
-//
-//        // Then, for all households w, re-check the edges w->nil
-//        // to see if there's still other preferred or equally-good houses for w.
-//        // Note that we technically needn't check the households that were present in the cycle,
-//        // because their edges are already A-OK due to the above _wireHouseholds_-call;
-//        // but it's little harm to re-check them anyway.
-//
-//        Set<DefaultWeightedEdge> edges = (Set<DefaultWeightedEdge>) this.underlyingStrictGraph.incomingEdgesOf(nil);
-//        ArrayList<DefaultWeightedEdge> edgesToRemove = new ArrayList<DefaultWeightedEdge>();
-//        for (DefaultWeightedEdge edge : edges) {
-//            int householdID = (int) this.underlyingStrictGraph.getEdgeSource(edge);
-//            double fitWithCurrentHouse;
-//            double highScore = 0;
-//
-//            House currentHouse = artificialMatching.getHouseFromHousehold(householdID);
-//
-//            if (currentHouse == null) {
-//                fitWithCurrentHouse = 0;
-//            } else {
-//                fitWithCurrentHouse = this.artificialMatching.getScores().get(new HouseAndHouseholdIDPair(currentHouse.getID(), householdID));
-//            }
-//            boolean foundOnlyWorseHouseholdlessHouses = true;
-//            for (House otherHouse : this.artificialMatching.getHouses()) {
-//                if (currentHouse != null) {
-//                    if (otherHouse.getID() == currentHouse.getID()) {
-//                        continue;
-//                    }
-//                }
-//                Household householdOfOtherHouse = this.artificialMatching.getHouseholdFromHouse(otherHouse.getID());
-//                if (householdOfOtherHouse == null) {
-//                    double fitWithOtherHouse = this.artificialMatching.getScores().get(new HouseAndHouseholdIDPair(otherHouse.getID(), householdID));
-//                    if (fitWithOtherHouse > fitWithCurrentHouse) {
-//                        foundOnlyWorseHouseholdlessHouses = false;
-//                        if (fitWithOtherHouse - fitWithCurrentHouse > highScore) {
-//                            highScore = fitWithOtherHouse - fitWithCurrentHouse;
-//                        }
-//                    }
-//                }
-//            }
-//            if (foundOnlyWorseHouseholdlessHouses) {
-//                edgesToRemove.add(edge);
-//            } else {
-//                this.underlyingStrictGraph.setEdgeWeight(edge, highScore);
-//            }
-//        }
-//
-//        for (DefaultWeightedEdge edge : edgesToRemove) {
-//            this.underlyingStrictGraph.removeEdge(edge);
-//        }
-
         // Remove all edges
         Set<DefaultWeightedEdge> edges = this.underlyingStrictGraph.edgeSet();
         ArrayList<DefaultWeightedEdge> edgesToRemove = new ArrayList<DefaultWeightedEdge>();
@@ -327,27 +221,6 @@ public class ArtificialTwoLabeledGraph {
         ArrayList<Household> households = this.artificialMatching.getHouseholds();
         ArrayList<Integer> householdIDs = new ArrayList<Integer>(households.stream().map(h -> h.getID()).collect(Collectors.toList()));
         wireHouseholdsFindMax(householdIDs);
-    }
-
-    public void removeCycleEdgesAndRewireCycle(List<Integer> cycle, boolean findMax) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
-        ArrayList<DefaultWeightedEdge> cycleEdgesToRemove = new ArrayList<DefaultWeightedEdge>();
-        for (int householdID : cycle) {
-            if (householdID != nil) {
-                for (DefaultWeightedEdge edge : (Set<DefaultWeightedEdge>) this.underlyingStrictGraph.incomingEdgesOf(householdID)) {
-                    cycleEdgesToRemove.add(edge);
-                }
-                for (DefaultWeightedEdge edge : (Set<DefaultWeightedEdge>) this.underlyingStrictGraph.outgoingEdgesOf(householdID)) {
-                    cycleEdgesToRemove.add(edge);
-                }
-            }
-        }
-        for (DefaultWeightedEdge edge : cycleEdgesToRemove) {
-            this.underlyingStrictGraph.removeEdge(edge);
-        }
-
-        ArrayList<Integer> cycleWithoutNil = new ArrayList<Integer>(cycle);
-        cycleWithoutNil.remove(Integer.valueOf(nil));
-        this.wireHouseholds(cycleWithoutNil, findMax);
     }
 
     public List<Integer> findCycle(boolean findMax, boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, OutOfMemoryError {

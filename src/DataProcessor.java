@@ -59,6 +59,7 @@ public class DataProcessor {
                                 this.matching.connect(house.getID(), household.getID());
                             }
                         }
+                        else { linesToParse++; }
                     }
                 }
                 linesToParse--;
