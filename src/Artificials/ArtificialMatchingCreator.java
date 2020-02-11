@@ -272,22 +272,7 @@ public class ArtificialMatchingCreator {
 
     // TODO
     public ArtificialMatching PRoutperformingAFMatching() throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException {
-        // PR:
-        // State 0: h1-f1, h2-f2
-        // Cycle 1: h4->f4->f1 [0->2/3, 1/3->2/3]
-        // Cycle 2: h3->f3->f4 [0->2/3, 2/3->1]
-        //
-        // AF:
-        // State 0: h1-f1, h2-f2
-        // Cycle 1: h4->f4->f1 [0->2/3, 1/3->2/3]
-        // State 1: h1-f4, h2-f2, h4-f1
-        // Cycle 2: h3->f3 [0->2/3]
-        // TODO: ERROR: At state 1, 7->8 is missing (but must have been present in PR)! Why?
-        //  -> Node 8 first has its outgoing AND incoming edges removed,
-        //     and then has its edges of types (nil->8, 8->nil, 8->w) added back.
-        //     But this does not add back the edge 7->8! To get this, we need to rewire households that
-        //     were not part of the cycle as well. So... let's just try and rewire all households
-        //     instead of just the cycle.
+        // TODO: Find new one, this one no longer works because I fixed a bug :)
 
         // FindMax optimizes for values, not for improvement!
         int timeStepCount = 2;
