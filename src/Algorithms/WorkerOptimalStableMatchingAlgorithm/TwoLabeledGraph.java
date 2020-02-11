@@ -6,12 +6,12 @@ import Matching.Matching;
 import Matching.MatchingEvaluator;
 import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
-import org.jgrapht.graph.*;
+import org.jgrapht.graph.AsSubgraph;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toSet;
 
 public class TwoLabeledGraph {
 

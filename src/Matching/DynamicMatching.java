@@ -4,14 +4,12 @@ import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
-import HousingMarket.HousingMarket;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Set;
 
 public class DynamicMatching {
@@ -79,8 +77,6 @@ public class DynamicMatching {
             simulateEnvironmentTimestep();
         }
         runAlgorithm(findMax, print);
-//        // TODO: Include the following?
-//        runAlgorithm(false, false);
         Matching resultingMatching = (Matching) deepClone(currentMatching);
         return resultingMatching;
     }

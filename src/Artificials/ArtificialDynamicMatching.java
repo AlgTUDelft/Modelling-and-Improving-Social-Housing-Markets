@@ -1,7 +1,6 @@
 package Artificials;
 
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
-import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import Matching.Matching;
@@ -12,7 +11,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Set;
 
 public class ArtificialDynamicMatching {
@@ -84,8 +82,6 @@ public class ArtificialDynamicMatching {
         }
         System.out.println(this.currentArtificialMatching.getMatchingGraph().toString());
         runAlgorithm(findMax, print);
-        // TODO: Include the following?
-//        runAlgorithm(false, false);
         ArtificialMatching resultingMatching = (ArtificialMatching) deepClone(currentArtificialMatching);
         return resultingMatching;
     }

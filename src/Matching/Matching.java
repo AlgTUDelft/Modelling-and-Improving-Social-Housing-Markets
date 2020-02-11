@@ -298,7 +298,6 @@ public class Matching implements Serializable {
 
     // Part of the WorkerOptimalStableMatchingAlgorithm.
     public void executeCycle(List<Integer> cycle, int nilValue, boolean print) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
-        // TODO: Check if this needs to be changed following my modifications of WOSMA!!
         int edgesCount = cycle.size();
 
         boolean isChain = false;

@@ -1,9 +1,7 @@
 import Algorithms.MinCostPerfectMatchingAlgorithm.MinCostPerfectMatchingAlgorithm;
 import Algorithms.MinCostPerfectMatchingAlgorithm.MinCostPerfectMatchingResult;
 import Algorithms.MinCostPerfectMatchingAlgorithm.MinCostPerfectMatchingResultProcessor;
-import Algorithms.OptimizationAlgorithm.OptimizationAlgorithm;
-import Algorithms.OptimizationAlgorithm.OptimizationAlgorithmResult;
-import Algorithms.OptimizationAlgorithm.OptimizationAlgorithmResultProcessor;
+import Algorithms.MinCostPerfectMatchingAlgorithm.ResidualGraph;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WMComparisonResult;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WMComparisonResultProcessor;
@@ -11,25 +9,13 @@ import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchi
 import Artificials.ArtificialDynamicMatching;
 import Artificials.ArtificialMatching;
 import Artificials.ArtificialMatchingCreator;
-import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
-import Matching.Matching;
-import Matching.MatchingEvaluator;
-import Matching.DynamicMatching;
-import Matching.DynamicMatchingComparisonResult;
-import Matching.DynamicMatchingComparisonResultProcessor;
-import Algorithms.MinCostPerfectMatchingAlgorithm.ResidualGraph;
-import org.jgrapht.graph.DefaultEdge;
-import org.jgrapht.graph.DefaultWeightedEdge;
+import Matching.*;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.PrimitiveIterator;
-import java.util.stream.IntStream;
 
 public class Main {
 

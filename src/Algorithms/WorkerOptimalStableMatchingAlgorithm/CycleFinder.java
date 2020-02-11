@@ -1,7 +1,5 @@
 package Algorithms.WorkerOptimalStableMatchingAlgorithm;
 
-import Matching.Matching;
-import org.apache.poi.ss.formula.functions.Index;
 import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
@@ -10,7 +8,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class CycleFinder {
 

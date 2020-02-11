@@ -1,10 +1,10 @@
 package Artificials;
 
 import HousingMarket.House.House;
+import HousingMarket.HouseAndHouseholdIDPair;
 import HousingMarket.Household.Household;
 import HousingMarket.Household.HouseholdType;
 import HousingMarket.HousingMarket;
-import HousingMarket.HouseAndHouseholdIDPair;
 import Matching.Matching;
 
 import java.util.HashMap;

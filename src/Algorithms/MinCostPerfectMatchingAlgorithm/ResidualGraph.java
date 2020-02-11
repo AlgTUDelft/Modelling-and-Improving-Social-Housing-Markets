@@ -15,7 +15,6 @@ import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ResidualGraph {
     private SimpleDirectedWeightedGraph residualGraph;

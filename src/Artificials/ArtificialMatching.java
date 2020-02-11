@@ -1,9 +1,9 @@
 package Artificials;
 
 import HousingMarket.House.House;
+import HousingMarket.HouseAndHouseholdIDPair;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
-import HousingMarket.HouseAndHouseholdIDPair;
 import Matching.MatchingEvaluator;
 
 import java.util.ArrayList;
