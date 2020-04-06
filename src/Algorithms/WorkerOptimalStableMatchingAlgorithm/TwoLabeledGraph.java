@@ -13,6 +13,11 @@ import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import java.util.*;
 import java.util.stream.Collectors;
 
+// TODO: Instead of a findMax binary, clean up the code to have everything neatly in multiple re-usable functions,
+//  then incorporate a third way to create a graph and find cycles, namely:
+//  "Move family to house that they prefer most, which the fewest other families prefer that much or more."
+//  But any fourth method should be easy to add, given the code's structure after clean-up.
+
 public class TwoLabeledGraph {
 
     private Matching matching;
@@ -51,17 +56,9 @@ public class TwoLabeledGraph {
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
 
         for (Integer householdID : householdIDs) {
-            float fitWithCurrentHouse;
             House currentHouse = matching.getHouseFromHousehold(householdID);
+            float fitWithCurrentHouse = addType3Cond1EdgeToHousehold(householdID, currentHouse, matchingEvaluator);
 
-            if (currentHouse == null) {
-                // Add type 3 edge, condition 1.
-                underlyingStrictGraph.addEdge(nil, householdID);
-                underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
-                fitWithCurrentHouse = 0;
-            } else {
-                fitWithCurrentHouse = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
-            }
 
             for (House otherHouse : this.matching.getHouses()) {
                 if (currentHouse != null) {
@@ -118,17 +115,8 @@ public class TwoLabeledGraph {
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
 
         for (Integer householdID : householdIDs) {
-            float fitWithCurrentHouse;
             House currentHouse = matching.getHouseFromHousehold(householdID);
-
-            if (currentHouse == null) {
-                // Add type 3 edge, condition 1.
-                underlyingStrictGraph.addEdge(nil, householdID);
-                underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
-                fitWithCurrentHouse = 0;
-            } else {
-                fitWithCurrentHouse = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
-            }
+            float fitWithCurrentHouse = addType3Cond1EdgeToHousehold(householdID, currentHouse, matchingEvaluator);
 
             float highScore = 0;
 
@@ -271,5 +259,19 @@ public class TwoLabeledGraph {
             score = score + this.underlyingStrictGraph.getEdgeWeight(edge);
         }
         return score;
+    }
+
+    public float addType3Cond1EdgeToHousehold(int householdID, House currentHouse, MatchingEvaluator matchingEvaluator) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {
+        float fitWithCurrentHouse;
+
+        if (currentHouse == null) {
+            // Add type 3 edge, condition 1.
+            underlyingStrictGraph.addEdge(nil, householdID);
+            underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
+            fitWithCurrentHouse = 0;
+        } else {
+            fitWithCurrentHouse = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
+        }
+        return fitWithCurrentHouse;
     }
 }
