@@ -464,6 +464,11 @@ public class Matching implements Serializable {
         return (float) result;
     }
 
+    // Used only by ImprovementGraph class.
+    public int getNextID() {
+        return nextID;
+    }
+
     public Set<Integer> getHouseholdsMovedByWOSMA() {
         return householdsMovedByWOSMA;
     }

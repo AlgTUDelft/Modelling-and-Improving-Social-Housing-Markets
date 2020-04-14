@@ -8,18 +8,20 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleGraph;
 import Matching.MatchingEvaluator;
+import org.jgrapht.graph.SimpleWeightedGraph;
 
 import java.util.ArrayList;
 
 public class ImprovementGraph {
-    private SimpleGraph<HousingMarketVertex, DefaultWeightedEdge> improvementGraph
-            = new SimpleGraph<HousingMarketVertex, DefaultWeightedEdge>(DefaultWeightedEdge.class);
+    private SimpleWeightedGraph<HousingMarketVertex, DefaultWeightedEdge> improvementGraph
+            = new SimpleWeightedGraph<HousingMarketVertex, DefaultWeightedEdge>(DefaultWeightedEdge.class);
     private Matching matching;
     private MatchingEvaluator matchingEvaluator;
     private ArrayList<House> houses = new ArrayList<>(); // May include dummies
     private ArrayList<Household> households = new ArrayList<>(); // May include dummies
     private ArrayList<DummyHouse> dummyHouses = new ArrayList<DummyHouse>();
     private ArrayList<DummyHousehold> dummyHouseholds = new ArrayList<DummyHousehold>();
+    private int nextDummyID = -1;
 
     public ImprovementGraph(Matching matching) throws Matching.Matching.HouseholdLinkedToMultipleException, Matching.Matching.HouseholdLinkedToHouseholdException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = matching;
@@ -35,11 +37,14 @@ public class ImprovementGraph {
             improvementGraph.addVertex(household);
         }
 
+        nextDummyID = matching.getNextID();
+
         // Case |H| > |F|
         if (this.houses.size() > this.households.size()) {
             int diff = this.houses.size() - this.households.size();
             for (int i = 0; i < diff; i++) {
-                DummyHousehold dummyHousehold = new DummyHousehold();
+                DummyHousehold dummyHousehold = new DummyHousehold(nextDummyID);
+                nextDummyID++;
                 this.dummyHouseholds.add(dummyHousehold);
                 improvementGraph.addVertex(dummyHousehold);
             }
@@ -48,7 +53,8 @@ public class ImprovementGraph {
         else if (this.houses.size() < this.households.size()) {
             int diff = this.households.size() - this.houses.size();
             for (int i = 0; i < diff; i++) {
-                DummyHouse dummyHouse = new DummyHouse();
+                DummyHouse dummyHouse = new DummyHouse(nextDummyID);
+                nextDummyID++;
                 this.dummyHouses.add(dummyHouse);
                 improvementGraph.addVertex(dummyHouse);
             }
@@ -91,7 +97,50 @@ public class ImprovementGraph {
         }
     }
 
-    public SimpleGraph<HousingMarketVertex, DefaultWeightedEdge> returnGraph() {
-        return this.improvementGraph;
+    public double getEdgeWeight(HousingMarketVertex house, HousingMarketVertex household) {
+        if (this.improvementGraph.containsEdge(house, household)) {
+            return this.improvementGraph.getEdgeWeight(this.improvementGraph.getEdge(house, household));
+        }
+        else { return 1; }
+    }
+
+    public ArrayList<House> getNonDummyNeighborsOfHousehold(Household household) {
+        ArrayList<House> result = new ArrayList<House>();
+        for (DefaultWeightedEdge edge : this.improvementGraph.edgesOf(household)) {
+            HousingMarketVertex neighbor = (HousingMarketVertex) this.improvementGraph.getEdgeSource(edge);
+            // Skip DummyHouses.
+            if (neighbor instanceof House) {
+                result.add((House) neighbor);
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<Household> getNonDummyNeighborsOfHouse(House house) {
+        ArrayList<Household> result = new ArrayList<Household>();
+        for (DefaultWeightedEdge edge : this.improvementGraph.edgesOf(house)) {
+            HousingMarketVertex neighbor = (HousingMarketVertex) this.improvementGraph.getEdgeTarget(edge);
+            // Skip DummyHouseholds.
+            if (neighbor instanceof Household) {
+                result.add((Household) neighbor);
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<House> getHouses() {
+        return houses;
+    }
+
+    public ArrayList<Household> getHouseholds() {
+        return households;
+    }
+
+    public ArrayList<DummyHouse> getDummyHouses() {
+        return dummyHouses;
+    }
+
+    public ArrayList<DummyHousehold> getDummyHouseholds() {
+        return dummyHouseholds;
     }
 }
