@@ -11,6 +11,7 @@ import Matching.MatchingEvaluator;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class ImprovementGraph {
     private SimpleWeightedGraph<HousingMarketVertex, DefaultWeightedEdge> improvementGraph
@@ -23,12 +24,14 @@ public class ImprovementGraph {
     private ArrayList<DummyHousehold> dummyHouseholds = new ArrayList<DummyHousehold>();
     private int nextDummyID = -1;
 
+    // Warning: This algorithm only takes empty houses into account!
     public ImprovementGraph(Matching matching) throws Matching.Matching.HouseholdLinkedToMultipleException, Matching.Matching.HouseholdLinkedToHouseholdException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = matching;
         this.matchingEvaluator = new MatchingEvaluator(matching);
 
         // Default case |H| == |F|
-        for (House house : matching.getHouses()) {
+        for (int houseID : matching.getHouseholdlessHousesIDs()) {
+            House house = matching.getHouse(houseID);
             this.houses.add(house);
             improvementGraph.addVertex(house);
         }
@@ -134,6 +137,40 @@ public class ImprovementGraph {
 
     public ArrayList<Household> getHouseholds() {
         return households;
+    }
+
+    public HousingMarketVertex getHouseFromID(int ID) {
+        Optional<House> result = this.houses.stream()
+                .filter(h -> h.getID() == ID)
+                .findFirst();
+        if (result.isPresent()) {
+            return result.get();
+        } else {
+
+            Optional<DummyHouse> dummyResult = this.dummyHouses.stream()
+                    .filter(h -> h.getID() == ID)
+                    .findFirst();
+            if (dummyResult.isPresent()) {
+                return dummyResult.get();
+            } else { return null; }
+        }
+    }
+
+    public HousingMarketVertex getHouseholdFromID(int ID) {
+        Optional<Household> result = this.households.stream()
+                .filter(h -> h.getID() == ID)
+                .findFirst();
+        if (result.isPresent()) {
+            return result.get();
+        } else {
+
+            Optional<DummyHousehold> dummyResult = this.dummyHouseholds.stream()
+                    .filter(h -> h.getID() == ID)
+                    .findFirst();
+            if (dummyResult.isPresent()) {
+                return dummyResult.get();
+            } else { return null; }
+        }
     }
 
     public ArrayList<DummyHouse> getDummyHouses() {

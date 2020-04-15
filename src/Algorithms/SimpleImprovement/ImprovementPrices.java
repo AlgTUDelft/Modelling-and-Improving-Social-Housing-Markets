@@ -94,7 +94,7 @@ public class ImprovementPrices {
         }
     }
 
-    public SimpleGraph<HousingMarketVertex, DefaultEdge> augmentMatchGraphAndUpdateAll(GraphPath<Integer, DefaultWeightedEdge> augmentingPath) {
+    public SimpleGraph<HousingMarketVertex, DefaultEdge> augmentMatchGraphAndUpdateAll(GraphPath<Integer, DefaultWeightedEdge> augmentingPath) throws ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException {
         this.updatePrices(); // Doing this first so that the updating process still has access to the un-augmented matchGraph...
         this.matchGraph = this.residualImprovementGraph.augmentMatchingAndUpdateResidualGraph(augmentingPath, this); // ...Because this modifies the matchGraph.
         return this.matchGraph;

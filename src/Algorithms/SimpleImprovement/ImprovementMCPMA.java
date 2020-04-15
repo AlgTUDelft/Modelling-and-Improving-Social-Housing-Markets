@@ -38,7 +38,7 @@ public class ImprovementMCPMA {
     }
 
     // Find optimal matching.
-    public SimpleGraph<HousingMarketVertex, DefaultEdge> findOptimalMatching(boolean print) throws ImprovementPrices.AlreadyInitiatedException, ResidualImprovementGraph.MatchGraphNotEmptyException {
+    public SimpleGraph<HousingMarketVertex, DefaultEdge> findOptimalMatching(boolean print) throws ImprovementPrices.AlreadyInitiatedException, ResidualImprovementGraph.MatchGraphNotEmptyException, ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException {
         ImprovementPrices improvementPrices = new ImprovementPrices(improvementGraph, matchGraph);
         improvementPrices.setInitialPrices();
         int i = 0;

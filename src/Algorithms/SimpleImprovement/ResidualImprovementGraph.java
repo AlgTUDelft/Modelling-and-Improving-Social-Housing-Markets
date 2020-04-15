@@ -4,8 +4,10 @@ import Algorithms.MinCostPerfectMatchingAlgorithm.MatchingPrices;
 import HousingMarket.House.House;
 import HousingMarket.HouseAndHouseholdIDPair;
 import HousingMarket.Household.Household;
+import HousingMarket.HousingMarket;
 import HousingMarket.HousingMarketVertex;
 import Matching.Matching;
+import org.jgrapht.Graph;
 import org.jgrapht.GraphPath;
 import org.jgrapht.alg.interfaces.ShortestPathAlgorithm;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
@@ -14,7 +16,9 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import org.jgrapht.graph.SimpleGraph;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class ResidualImprovementGraph {
     // HouseID and HouseholdID values are always non-negative, so these values are free for us to use.
@@ -144,8 +148,151 @@ public class ResidualImprovementGraph {
         return bestPathFound;
     }
 
+    public SimpleGraph<HousingMarketVertex, DefaultEdge>  augmentMatchingAndUpdateResidualGraph(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, ImprovementPrices improvementPrices) throws PathEdgeNotInResidualImprovementGraphException {
+        this.augmentMatchGraph(augmentingPath);
+        this.updateGraphAfterAugmenting(augmentingPath, improvementPrices);
+        return this.matchGraph;
+    }
+
+    public void augmentMatchGraph(GraphPath<Integer, DefaultWeightedEdge> graphPath) {
+        ArrayList<HouseAndHouseholdIDPair> toConnect = new ArrayList<HouseAndHouseholdIDPair>();
+        List<DefaultWeightedEdge> edgeList = graphPath.getEdgeList();
+        // The source node, where the first edge in graphPath starts,
+        // isn't present in the regular matching. Thus we want to ignore it.
+        // Note that graphPath does not contain the final sink node.
+        for (int i = 1; i < edgeList.size(); i++) {
+            DefaultWeightedEdge edge = edgeList.get(i);
+            int sourceID = graphPath.getGraph().getEdgeSource(edge);
+            int targetID = graphPath.getGraph().getEdgeTarget(edge);
+            // Edge 0 is from source to house.
+            // Odd edges are from house to household.
+            // Even edges are from household to house.
+            if (i % 2 == 1) {
+                // Source node is house, target node is household.
+                HousingMarketVertex house = improvementGraph.getHouseFromID(sourceID);
+                HousingMarketVertex household = improvementGraph.getHouseholdFromID(targetID);
+                if (matchGraph.containsEdge(house, household)) {
+                    matchGraph.removeEdge(house, household);
+                } else {toConnect.add(new HouseAndHouseholdIDPair(sourceID, targetID));}
+            }
+            else {
+                // Target node is house, source node is household.
+                    HousingMarketVertex household = improvementGraph.getHouseholdFromID(sourceID);
+                    HousingMarketVertex house = improvementGraph.getHouseFromID(targetID);
+                    if (matchGraph.containsEdge(household, house)) {
+                        matchGraph.removeEdge(household, house);
+                    } else {toConnect.add(new HouseAndHouseholdIDPair(targetID, sourceID));}
+                }
+
+            }
+        for (HouseAndHouseholdIDPair pair : toConnect) {
+            HousingMarketVertex house = improvementGraph.getHouseFromID(pair.getHouseID());
+            HousingMarketVertex household = improvementGraph.getHouseholdFromID(pair.getHouseholdID());
+            matchGraph.addEdge(house, household);
+        }
+    }
+
+    public void updateGraphAfterAugmenting(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, ImprovementPrices newImprovementPrices) throws PathEdgeNotInResidualImprovementGraphException {
+        List<DefaultWeightedEdge> edgeList = augmentingPath.getEdgeList();
+        Graph<Integer, DefaultWeightedEdge> pathGraph = augmentingPath.getGraph();
+        for (int i = 1; i < edgeList.size(); i++) {
+            DefaultWeightedEdge edge = edgeList.get(i);
+            int source = pathGraph.getEdgeSource(edge);
+            int target = pathGraph.getEdgeTarget(edge);
+            DefaultWeightedEdge oldEdge = (DefaultWeightedEdge) this.residualImprovementGraph.getEdge(source, target);
+            // Change direction.
+            if (oldEdge != null) {
+                this.residualImprovementGraph.removeEdge(source, target);
+                this.residualImprovementGraph.addEdge(target, source);
+            } else {
+                oldEdge = (DefaultWeightedEdge) this.residualImprovementGraph.getEdge(target, source);
+                if (oldEdge != null) {
+                    this.residualImprovementGraph.removeEdge(target, source);
+                    this.residualImprovementGraph.addEdge(source, target);
+                } else {
+                    throw new PathEdgeNotInResidualImprovementGraphException("An edge from the augmenting path could not be found in the residual graph.");
+                }
+            }
+            if (i % 2 == 1) {
+                // Source is house.
+                double oldNonReducedWeight = this.nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(source, target));
+                this.nonReducedEdgeWeights.put(new HouseAndHouseholdIDPair(source, target), oldNonReducedWeight * -1);
+            } else {
+                // Source is household.
+                double oldNonReducedWeight = this.nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(target, source));
+                this.nonReducedEdgeWeights.put(new HouseAndHouseholdIDPair(target, source), oldNonReducedWeight * -1);
+            }
+        }
+
+        // Matched houses and households must lose their edges to the source and sink, respectively.
+        List<Integer> vertexList = augmentingPath.getVertexList();
+        // Skip source node, hence i = 1.
+        for (int i = 1; i < vertexList.size(); i++) {
+            int vertex = vertexList.get(i);
+            if (i % 2 == 1) {
+                // vertex is house.
+                HousingMarketVertex house = this.improvementGraph.getHouseFromID(vertex);
+                if (!matchGraph.edgesOf(house).isEmpty()) { // Matched
+                    this.residualImprovementGraph.removeEdge(sourceID, vertex);
+                }
+            } else {
+                // vertex is household.
+                HousingMarketVertex household = this.improvementGraph.getHouseholdFromID(vertex);
+                if (!matchGraph.edgesOf(household).isEmpty()) { // Matched
+                    this.residualImprovementGraph.removeEdge(vertex, sinkID);
+                }
+            }
+
+        }
+
+        updateReducedEdgeWeightsAndPrices(newImprovementPrices);
+        this.improvementPrices = newImprovementPrices;
+    }
+
+    public void updateReducedEdgeWeightsAndPrices(ImprovementPrices newImprovementPrices) {
+        // Watch out here! For some household/house, do I take only neighbors, or the entire other side?
+        for (House house : this.improvementGraph.getHouses()) {
+            for (Household household : this.improvementGraph.getHouseholds()) {
+                int houseID = house.getID();
+                int householdID = household.getID();
+                DefaultWeightedEdge edge = this.residualImprovementGraph.getEdge(houseID, householdID);
+                if (edge != null) {
+                    double nextHousePrice = newImprovementPrices.getHousePrice(house);
+                    double nextHouseholdPrice = newImprovementPrices.getHouseholdPrice(household);
+                    double oldNonReducedWeight = nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(houseID, householdID));
+                    double nextEdgeWeight = nextHousePrice +
+                            oldNonReducedWeight - nextHouseholdPrice;
+                    this.residualImprovementGraph.setEdgeWeight(edge, nextEdgeWeight);
+                }
+                else {
+                    edge = this.residualImprovementGraph.getEdge(householdID, houseID);
+                    if (edge != null) {
+                        double nextHousePrice = newImprovementPrices.getHousePrice(house);
+                        double nextHouseholdPrice = newImprovementPrices.getHouseholdPrice(household);
+                        double oldNonReducedWeight = nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(houseID, householdID));
+                        double nextEdgeWeight = nextHouseholdPrice +
+                                oldNonReducedWeight - nextHousePrice;
+                        this.residualImprovementGraph.setEdgeWeight(edge, nextEdgeWeight);
+                    }
+                    // Else edge may be null; that means it wasn't present in the original ImprovementGraph to begin with.
+                }
+            }
+            for (DummyHousehold dummyHousehold : this.improvementGraph.getDummyHouseholds()) {
+
+            }
+        }
+        for (DummyHouse dummyHouse : this.improvementGraph.getDummyHouses()) {
+            for (Household household : this.improvementGraph.getHouseholds()) {
+
+            }
+            for (DummyHousehold dummyHousehold : this.improvementGraph.getDummyHouseholds()) {
+
+            }
+        }
+    }
+
     public SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> getResidualImprovementGraph() {
-        return residualImprovementGraph;
+        return this.residualImprovementGraph;
     }
 
     public Integer getSourceID() {
@@ -154,6 +301,12 @@ public class ResidualImprovementGraph {
 
     public class MatchGraphNotEmptyException extends Exception {
         public MatchGraphNotEmptyException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
+
+    public class PathEdgeNotInResidualImprovementGraphException extends Exception {
+        public PathEdgeNotInResidualImprovementGraphException(String errorMessage) {
             super(errorMessage);
         }
     }
