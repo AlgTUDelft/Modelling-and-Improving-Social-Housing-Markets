@@ -3,6 +3,7 @@ package Algorithms.SimpleImprovement;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarketVertex;
+import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleGraph;
@@ -37,9 +38,17 @@ public class ImprovementMCPMA {
     }
 
     // Find optimal matching.
-    // TODO: Be careful: for node n, only consider neighbors in improvementGraph, not entire other side.
-    public void findOptimalMatching() {
-
+    public SimpleGraph<HousingMarketVertex, DefaultEdge> findOptimalMatching(boolean print) throws ImprovementPrices.AlreadyInitiatedException, ResidualImprovementGraph.MatchGraphNotEmptyException {
+        ImprovementPrices improvementPrices = new ImprovementPrices(improvementGraph, matchGraph);
+        improvementPrices.setInitialPrices();
+        int i = 0;
+        while (matchGraph.edgeSet().size() != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size()) {
+            if(print) { System.out.println("Augmenting path " + i); }
+            GraphPath<Integer, DefaultWeightedEdge> augmentingPath = improvementPrices.getResidualImprovementGraph().findAugmentingPath();
+            this.matchGraph = improvementPrices.augmentMatchGraphAndUpdateAll(augmentingPath);
+            i++;
+        }
+        return matchGraph;
     }
 
     public class UnequalSidesException extends Exception {
