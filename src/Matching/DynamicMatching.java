@@ -1,5 +1,9 @@
 package Matching;
 
+import Algorithms.SimpleImprovement.ImprovementMCPMA;
+import Algorithms.SimpleImprovement.ImprovementMCPMAOnMatchingRunner;
+import Algorithms.SimpleImprovement.ImprovementPrices;
+import Algorithms.SimpleImprovement.ResidualImprovementGraph;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
 import HousingMarket.House.House;
@@ -60,7 +64,7 @@ public class DynamicMatching {
     }
 
 
-    public Matching advanceTimeAndSolvePerStep(int timestepCount, boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
+    public Matching advanceTimeAndSolvePerStep(int timestepCount, boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualImprovementGraph.MatchGraphNotEmptyException, ImprovementPrices.AlreadyInitiatedException, ImprovementMCPMA.UnequalSidesException, ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
@@ -71,7 +75,7 @@ public class DynamicMatching {
         return resultingMatching;
     }
 
-    public Matching advanceTimeFullyThenSolve(int timestepCount, boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException {
+    public Matching advanceTimeFullyThenSolve(int timestepCount, boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualImprovementGraph.MatchGraphNotEmptyException, ImprovementPrices.AlreadyInitiatedException, ImprovementMCPMA.UnequalSidesException, ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
@@ -97,10 +101,13 @@ public class DynamicMatching {
         }
     }
 
-    protected void runAlgorithm(boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
-        WorkerOptimalStableMatchingAlgorithm wosma
-                = new WorkerOptimalStableMatchingAlgorithm(currentMatching);
-        wosma.findWorkerOptimalStableMatching(findMax, print); // Modifies currentMatching.
+    protected void runAlgorithm(boolean findMax, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, ImprovementMCPMA.UnequalSidesException, ImprovementPrices.AlreadyInitiatedException, ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException, ResidualImprovementGraph.MatchGraphNotEmptyException {
+//        WorkerOptimalStableMatchingAlgorithm wosma
+//                = new WorkerOptimalStableMatchingAlgorithm(currentMatching);
+//        wosma.findWorkerOptimalStableMatching(findMax, print); // Modifies currentMatching.
+        ImprovementMCPMAOnMatchingRunner improvementMCPMAOnMatchingRunner
+                = new ImprovementMCPMAOnMatchingRunner(currentMatching);
+        improvementMCPMAOnMatchingRunner.optimizeMatching(print);
     }
 
     private void checkIfHouselessHouseholdsHaveNoPreferredEmptyHouse() throws MatchingEvaluator.HouseholdIncomeTooHighException {
