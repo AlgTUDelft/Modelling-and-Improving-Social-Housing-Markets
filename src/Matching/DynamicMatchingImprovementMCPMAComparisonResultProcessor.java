@@ -21,7 +21,6 @@ public class DynamicMatchingImprovementMCPMAComparisonResultProcessor {
         FileWriter writer = new FileWriter(filename);
         CSVUtils.writeLine(writer, Arrays.asList(
                 "timeStepCount",
-                "findMaxFailed",
                 "solvedFinalMatchingPerStepScore",
                 "solvedFinalMatchingAfterwardsScore",
                 "superOptimalScore",

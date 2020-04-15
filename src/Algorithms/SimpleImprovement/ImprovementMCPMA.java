@@ -42,11 +42,18 @@ public class ImprovementMCPMA {
         ImprovementPrices improvementPrices = new ImprovementPrices(improvementGraph, matchGraph);
         improvementPrices.setInitialPrices();
         int i = 0;
-        while (matchGraph.edgeSet().size() != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size()) {
+        boolean shouldContinue = matchGraph.edgeSet().size() != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size();
+        while (shouldContinue) {
             if(print) { System.out.println("Augmenting path " + i); }
             GraphPath<Integer, DefaultWeightedEdge> augmentingPath = improvementPrices.getResidualImprovementGraph().findAugmentingPath();
-            this.matchGraph = improvementPrices.augmentMatchGraphAndUpdateAll(augmentingPath);
-            i++;
+            // TODO: Check if indeed this path may be null with non-maximal matching!
+            if (augmentingPath == null) {
+                shouldContinue = false;
+            } else {
+                this.matchGraph = improvementPrices.augmentMatchGraphAndUpdateAll(augmentingPath);
+                i++;
+                shouldContinue = matchGraph.edgeSet().size() != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size();
+            }
         }
         return matchGraph;
     }

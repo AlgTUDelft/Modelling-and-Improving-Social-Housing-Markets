@@ -60,37 +60,46 @@ public class ImprovementPrices {
                 = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.residualImprovementGraph.getResidualImprovementGraph());
         ShortestPathAlgorithm.SingleSourcePaths<Integer, DefaultWeightedEdge> sourcePaths
                 = dijkstraShortestPath.getPaths(this.residualImprovementGraph.getSourceID());
+        // TODO: check if null-path conditions here don't screw up the program.
         for (House house : this.improvementGraph.getHouses()) {
             int houseID = house.getID();
             double previousPrice = this.getHousePrice(house);
             GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(houseID);
-            double distInPreviousMatching = shortestPath.getWeight();
-            double newPrice = distInPreviousMatching + previousPrice;
-            this.setHousePrice(house, newPrice);
+            if (shortestPath != null) {
+                double distInPreviousMatching = shortestPath.getWeight();
+                double newPrice = distInPreviousMatching + previousPrice;
+                this.setHousePrice(house, newPrice);
+            }
         }
         for (DummyHouse dummyHouse : this.improvementGraph.getDummyHouses()) {
             int houseID = dummyHouse.getID();
             double previousPrice = this.getHousePrice(dummyHouse);
             GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(houseID);
-            double distInPreviousMatching = shortestPath.getWeight();
-            double newPrice = distInPreviousMatching + previousPrice;
-            this.setHousePrice(dummyHouse, newPrice);
+            if (shortestPath != null) {
+                double distInPreviousMatching = shortestPath.getWeight();
+                double newPrice = distInPreviousMatching + previousPrice;
+                this.setHousePrice(dummyHouse, newPrice);
+            }
         }
         for (Household household : this.improvementGraph.getHouseholds()) {
             int householdID = household.getID();
             double previousPrice = this.getHouseholdPrice(household);
             GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(householdID);
-            double distInPreviousMatching = shortestPath.getWeight();
-            double newPrice = distInPreviousMatching + previousPrice;
-            this.setHouseholdPrice(household, newPrice);
+            if (shortestPath != null) {
+                double distInPreviousMatching = shortestPath.getWeight();
+                double newPrice = distInPreviousMatching + previousPrice;
+                this.setHouseholdPrice(household, newPrice);
+            }
         }
         for (DummyHousehold dummyHousehold : this.improvementGraph.getDummyHouseholds()) {
             int householdID = dummyHousehold.getID();
             double previousPrice = this.getHouseholdPrice(dummyHousehold);
             GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(householdID);
-            double distInPreviousMatching = shortestPath.getWeight();
-            double newPrice = distInPreviousMatching + previousPrice;
-            this.setHouseholdPrice(dummyHousehold, newPrice);
+            if (shortestPath != null) {
+                double distInPreviousMatching = shortestPath.getWeight();
+                double newPrice = distInPreviousMatching + previousPrice;
+                this.setHouseholdPrice(dummyHousehold, newPrice);
+            }
         }
     }
 

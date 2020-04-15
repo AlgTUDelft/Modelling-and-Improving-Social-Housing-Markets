@@ -536,13 +536,14 @@ public class Main {
     }
 
     public static void runImprovement() throws IOException {
-        String outputFilename = "../dyn-improvement-12times75-minME-100prob-twosided.csv";
+        String outputFilename = "../dyn-improvement-50times10-avgME-100prob-twosided.csv";
         boolean oneSided = false;
 
         ArrayList<DynamicMatchingImprovementMCPMAComparisonResult> dynamicMatchingImprovementMCPMAComparisonResults
                 = new ArrayList<DynamicMatchingImprovementMCPMAComparisonResult>();
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(75, 150, 225, 300, 375, 450, 525, 600, 675, 750, 825, 900));
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500));
         for (int startLine : startLines) {
+            System.out.println("Startline: " + startLine);
             dynamicMatchingImprovementMCPMAComparisonResults.add(individualRunDynamicImprovementMatching(startLine, 75, oneSided));
         }
         DynamicMatchingImprovementMCPMAComparisonResultProcessor dynamicMatchingImprovementMCPMAComparisonResultProcessor
@@ -558,16 +559,16 @@ public class Main {
             Matching matching = setupMatching(connectionProb, startLine, lineCount);
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
 
-            Matching[] matchings = new Matching[5];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false, true);
-            System.out.println("Got here! 0 " + matchings[0].getFindMaxFailed());
+            Matching[] matchings = new Matching[3];
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false, false);
+            System.out.println("Got here! 0");
             dynamicMatching.resetState();
-            matchings[2] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false, true);
-            System.out.println("Got here! 1 " + matchings[2].getFindMaxFailed());
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false, false);
+            System.out.println("Got here! 1");
             dynamicMatching.resetState(); // Unnecessary but eh.
-            matchings[4] = new MinCostPerfectMatchingAlgorithm((Matching) deepClone(dynamicMatching.getInputMatching()))
+            matchings[2] = new MinCostPerfectMatchingAlgorithm((Matching) deepClone(dynamicMatching.getInputMatching()))
                     .findMinCostPerfectMatching(false);
-            System.out.println("Got here! 2 " + matchings[4].getFindMaxFailed());
+            System.out.println("Got here! 2");
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
             String[] strings = {
