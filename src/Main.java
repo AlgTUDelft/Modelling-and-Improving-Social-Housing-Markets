@@ -559,10 +559,10 @@ public class Main {
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
 
             Matching[] matchings = new Matching[5];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false, false);
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false, true);
             System.out.println("Got here! 0 " + matchings[0].getFindMaxFailed());
             dynamicMatching.resetState();
-            matchings[2] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false, false);
+            matchings[2] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false, true);
             System.out.println("Got here! 1 " + matchings[2].getFindMaxFailed());
             dynamicMatching.resetState(); // Unnecessary but eh.
             matchings[4] = new MinCostPerfectMatchingAlgorithm((Matching) deepClone(dynamicMatching.getInputMatching()))

@@ -25,7 +25,7 @@ public class ImprovementGraph {
     private int nextDummyID = -1;
 
     // Warning: This algorithm only takes empty houses into account!
-    public ImprovementGraph(Matching matching) throws Matching.Matching.HouseholdLinkedToMultipleException, Matching.Matching.HouseholdLinkedToHouseholdException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException {
+    public ImprovementGraph(Matching matching) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = matching;
         this.matchingEvaluator = new MatchingEvaluator(matching);
 

@@ -122,12 +122,16 @@ public class ResidualImprovementGraph {
             // to the sink node; matched households have no edge to the sink.
             if (matchGraph.edgesOf(household).isEmpty()) {
                 GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(household.getID());
-                double weightOfShortestPath = shortestPath.getWeight();
-                double priceOfHousehold = this.improvementPrices.getHouseholdPrice(household);
-                double candidateTotalWeight = weightOfShortestPath + priceOfHousehold;
-                if (candidateTotalWeight < minimumWeightFound) {
-                    minimumWeightFound = candidateTotalWeight;
-                    bestPathFound = shortestPath;
+                // No path to the household may exist if household connects only to dummy houses (trivially),
+                // yet all of these are already matched.
+                if (shortestPath != null) {
+                    double weightOfShortestPath = shortestPath.getWeight();
+                    double priceOfHousehold = this.improvementPrices.getHouseholdPrice(household);
+                    double candidateTotalWeight = weightOfShortestPath + priceOfHousehold;
+                    if (candidateTotalWeight < minimumWeightFound) {
+                        minimumWeightFound = candidateTotalWeight;
+                        bestPathFound = shortestPath;
+                    }
                 }
             }
         }
@@ -136,12 +140,16 @@ public class ResidualImprovementGraph {
             // to the sink node; matched households have no edge to the sink.
             if (matchGraph.edgesOf(dummyHousehold).isEmpty()) {
                 GraphPath<Integer, DefaultWeightedEdge> shortestPath = sourcePaths.getPath(dummyHousehold.getID());
-                double weightOfShortestPath = shortestPath.getWeight();
-                double priceOfHousehold = this.improvementPrices.getHouseholdPrice(dummyHousehold);
-                double candidateTotalWeight = weightOfShortestPath + priceOfHousehold;
-                if (candidateTotalWeight < minimumWeightFound) {
-                    minimumWeightFound = candidateTotalWeight;
-                    bestPathFound = shortestPath;
+                // No path to the household may exist if household connects only to dummy houses (trivially),
+                // yet all of these are already matched.
+                if (shortestPath != null) {
+                    double weightOfShortestPath = shortestPath.getWeight();
+                    double priceOfHousehold = this.improvementPrices.getHouseholdPrice(dummyHousehold);
+                    double candidateTotalWeight = weightOfShortestPath + priceOfHousehold;
+                    if (candidateTotalWeight < minimumWeightFound) {
+                        minimumWeightFound = candidateTotalWeight;
+                        bestPathFound = shortestPath;
+                    }
                 }
             }
         }

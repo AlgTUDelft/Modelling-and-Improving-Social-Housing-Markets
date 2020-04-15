@@ -4,6 +4,7 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarketVertex;
 import Matching.Matching;
+import Matching.MatchingEvaluator;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
@@ -14,14 +15,14 @@ public class ImprovementMCPMAOnMatchingRunner {
     private ImprovementMCPMA improvementMCPMA;
     private SimpleGraph<HousingMarketVertex, DefaultEdge> matchGraph;
 
-    public ImprovementMCPMAOnMatchingRunner(Matching matching) throws Matching.MatchingEvaluator.HouseholdIncomeTooHighException, Matching.Matching.HouseholdLinkedToMultipleException, Matching.Matching.HouseholdLinkedToHouseholdException, ImprovementMCPMA.UnequalSidesException {
+    public ImprovementMCPMAOnMatchingRunner(Matching matching) throws MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, ImprovementMCPMA.UnequalSidesException {
         this.matching = matching;
         improvementGraph = new ImprovementGraph(matching);
         improvementMCPMA = new ImprovementMCPMA(improvementGraph);
     }
 
     // Warning: This algorithm only takes empty houses into account!
-    public Matching optimizeMatching(boolean print) throws ImprovementPrices.AlreadyInitiatedException, ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException, ResidualImprovementGraph.MatchGraphNotEmptyException, Matching.Matching.HouseholdLinkedToMultipleException, Matching.Matching.HouseholdLinkedToHouseholdException, Matching.Matching.HouseholdAlreadyMatchedException, Matching.Matching.HouseAlreadyMatchedException {
+    public Matching optimizeMatching(boolean print) throws ImprovementPrices.AlreadyInitiatedException, ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException, ResidualImprovementGraph.MatchGraphNotEmptyException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException {
         matchGraph = improvementMCPMA.findOptimalMatching(print);
         for (DefaultEdge edge : matchGraph.edgeSet()) {
             HousingMarketVertex source = matchGraph.getEdgeSource(edge);
