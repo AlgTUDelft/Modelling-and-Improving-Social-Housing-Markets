@@ -78,7 +78,7 @@ public class DynamicMatching implements Serializable {
             simulateEnvironmentTimestep();
         }
 ////        Note: This isn't regular behaviour.
-//        for (int i = 0; i < timestepCount; i++) {
+//        for (int i = 0; i < timestepCount * 2; i++) {
 //            runAlgorithm(findMax, print);
 //        }
         runAlgorithm(findMax, print);

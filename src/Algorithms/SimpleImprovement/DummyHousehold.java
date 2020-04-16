@@ -10,6 +10,10 @@ public class DummyHousehold implements HousingMarketVertex {
         this.ID = ID;
     }
 
+    public String toString() {
+        return "DummyHousehold" + this.ID;
+    }
+
     public int getID() {
         return ID;
     }

@@ -535,6 +535,17 @@ public class Main {
         }
     }
 
+    // The fact that AfterSteps sometimes (albeit rarely) performs worse than PerStep, is due to the following.
+    // PerStep allows moves to houses that are empty at any timestep.
+    // AfterSteps only allows moves houses that are empty at the end of all environmental timesteps.
+    // This means that by the time all new families and houses have been added,
+    // PerStep will have a different matching and a different set of empty houses to move to, than AfterSteps.
+    // Hence we get different solutions. The problem spaces simply aren't equal, nor is either a subset of the other.
+    //
+    // What we can also do is to let AfterSteps run the improvement-MCPMA as many times as there are timesteps.
+    // But then we also have a slightly different problem space.
+    //
+    // An example is in order.
     public static void runImprovement() throws IOException {
         String outputFilename = "../dyn-improvement-50times50-avgME-100prob-twosided.csv";
         boolean oneSided = false;
@@ -542,9 +553,10 @@ public class Main {
         ArrayList<DynamicMatchingImprovementMCPMAComparisonResult> dynamicMatchingImprovementMCPMAComparisonResults
                 = new ArrayList<DynamicMatchingImprovementMCPMAComparisonResult>();
         ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500));
+        int lineCount = 50;
         for (int startLine : startLines) {
             System.out.println("Startline: " + startLine);
-            dynamicMatchingImprovementMCPMAComparisonResults.add(individualRunDynamicImprovementMatching(startLine, 50, oneSided));
+            dynamicMatchingImprovementMCPMAComparisonResults.add(individualRunDynamicImprovementMatching(startLine, lineCount, oneSided));
         }
         DynamicMatchingImprovementMCPMAComparisonResultProcessor dynamicMatchingImprovementMCPMAComparisonResultProcessor
                 = new DynamicMatchingImprovementMCPMAComparisonResultProcessor(dynamicMatchingImprovementMCPMAComparisonResults);
@@ -574,6 +586,16 @@ public class Main {
 
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
+
+            if (scores[1] < scores[0]) {
+                MatchingEvaluator matchingEvaluator = new MatchingEvaluator(dynamicMatching.getInputMatching());
+                System.out.println("test");
+                dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false, false);
+                dynamicMatching.resetState();
+                dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false, false);
+                System.out.println("test");
+            }
+
             String[] strings = {
                     "Final per step score",
                     "Final afterwards score",
