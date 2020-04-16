@@ -9,14 +9,11 @@ import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchi
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class DynamicMatching {
+public class DynamicMatching implements Serializable {
 
     protected Matching inputMatching;
 
@@ -80,6 +77,10 @@ public class DynamicMatching {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
         }
+////        Note: This isn't regular behaviour.
+//        for (int i = 0; i < timestepCount; i++) {
+//            runAlgorithm(findMax, print);
+//        }
         runAlgorithm(findMax, print);
         Matching resultingMatching = (Matching) deepClone(currentMatching);
         return resultingMatching;

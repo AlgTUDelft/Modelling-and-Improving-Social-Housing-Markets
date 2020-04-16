@@ -22,7 +22,7 @@ public class ImprovementGraph {
     private ArrayList<Household> households = new ArrayList<>(); // May include dummies
     private ArrayList<DummyHouse> dummyHouses = new ArrayList<DummyHouse>();
     private ArrayList<DummyHousehold> dummyHouseholds = new ArrayList<DummyHousehold>();
-    private int nextDummyID = -1;
+    private int nextDummyID = -1; // TODO: remove assignment.
 
     // Warning: This algorithm only takes empty houses into account!
     public ImprovementGraph(Matching matching) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {
@@ -68,7 +68,7 @@ public class ImprovementGraph {
             House currentHouseholdMatch = matching.getHouseFromHousehold(household.getID());
             float currentHouseholdFit = 0;
             if (currentHouseholdMatch != null) {
-                matchingEvaluator.evaluateIndividualTotalFit(currentHouseholdMatch.getID(), household.getID());
+                currentHouseholdFit = matchingEvaluator.evaluateIndividualTotalFit(currentHouseholdMatch.getID(), household.getID());
             }
             for (House house : this.houses) {
                 float fitWithHouse = matchingEvaluator.evaluateIndividualTotalFit(house.getID(), household.getID());
