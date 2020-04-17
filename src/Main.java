@@ -26,8 +26,7 @@ public class Main {
 //        comparison_WOSMA_MCPMA();
         runDynamicWOSMAMatching();
 //        artificialDynamicMatching();
-//        runImprovement(); // THIS ONE WON'T RUN ANYMORE.
-//                              // We've changed Dynamic Matching algorithm call from Improvement-MCPMA to WOSMA.
+//        runImprovement();
     }
 
     public static void test1() {

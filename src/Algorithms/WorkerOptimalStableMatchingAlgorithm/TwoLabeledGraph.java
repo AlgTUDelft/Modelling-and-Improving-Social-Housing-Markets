@@ -14,11 +14,6 @@ import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 import java.util.*;
 import java.util.stream.Collectors;
 
-// TODO: Instead of a findMax binary, clean up the code to have everything neatly in multiple re-usable functions,
-//  then incorporate a third way to create a graph and find cycles, namely:
-//  "Move family to house that they prefer most, which the fewest other families prefer that much or more."
-//  But any fourth method should be easy to add, given the code's structure after clean-up.
-
 public class TwoLabeledGraph {
 
     private Matching matching;
@@ -27,6 +22,7 @@ public class TwoLabeledGraph {
     private ArrayList<Integer> householdIDs = new ArrayList<Integer>();
     private Integer nil = -1;
     private Strategy strategy;
+    private HashMap<Integer, Integer> householdInitialHouseMap = new HashMap<Integer,Integer>();
 
     public TwoLabeledGraph(Matching matching, Strategy strategy) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = matching;
@@ -40,17 +36,26 @@ public class TwoLabeledGraph {
             householdIDs.add(householdID);
         }
 
+        if (strategy == Strategy.WOSMA_IR_CYCLES) {
+            for (Household household : this.matching.getHouseholds()) {
+                House house = this.matching.getHouseFromHousehold(household.getID());
+                if (house != null) {
+                    householdInitialHouseMap.put(household.getID(), house.getID());
+                }
+            }
+        }
+
         this.wireHouseholds(householdIDs);
     }
 
     // TODO: Note somewhere that I use edgeweights denoting exactly the preference, rather than "1 = strict".
-    //  Also note that this functionality is only implemented when findMax is true.
-    //  When findMax is false, I just use edgeweights of 1.
+    //  Also note that this functionality is only implemented when strategy is findMax.
+    //  When strategy is regular, I just use edgeweights of 1.
     public void wireHouseholds(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         switch (strategy) {
-            case WOSMA_REGULAR: wireHouseholdsNormally(householdIDs);
-            case WOSMA_FINDMAX: wireHouseholdsFindMax(householdIDs);
-            case WOSMA_IR_CYCLES: assert true; //TODO: implement.
+            case WOSMA_REGULAR: wireHouseholdsNormally(householdIDs); break;
+            case WOSMA_FINDMAX: wireHouseholdsFindMax(householdIDs); break;
+            case WOSMA_IR_CYCLES: wireHouseholdsIRCycles(householdIDs); break;
         }
     }
 
@@ -169,6 +174,105 @@ public class TwoLabeledGraph {
         }
     }
 
+    public void wireHouseholdsIRCycles(ArrayList<Integer> householdIDs) throws Matching.Matching.HouseholdLinkedToMultipleException, Matching.Matching.HouseholdLinkedToHouseholdException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, Matching.Matching.HouseLinkedToMultipleException, Matching.Matching.HouseLinkedToHouseException {
+        // Include edges between any household and any house that is either better than
+        // their initial house, or which equals their initial house.
+        // Weight of edge is improvement; may be negative.
+        // In other words: edge existence is determined w.r.t. candidateHouse - initialHouse > 0,
+        // but edge weight is determined w.r.t. candidateHouse - currentHouse.
+
+        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
+        for (Integer householdID : householdIDs) {
+            float initialFit = 0;
+            House initialHouse = null;
+
+            if (householdInitialHouseMap.containsKey(householdID)) {
+                initialHouse = matching.getHouse(householdInitialHouseMap.get(householdID));
+                initialFit = matchingEvaluator.evaluateIndividualTotalFit(initialHouse.getID(), householdID);
+            } else {
+                // Household initially had no house, so may be 'moved into houselessness' by IR-Cycles.
+                // Add type3 edge, condition 1.
+                underlyingStrictGraph.addEdge(nil, householdID);
+                underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
+            }
+
+            float currentFit = 0;
+            House currentHouse = matching.getHouseFromHousehold(householdID);
+            if (currentHouse != null) {
+                currentFit = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
+            }
+
+            // HighScoreFree eventually represents the highest improvement that may be gained by moving
+            // this household to some other householdless house, compared to the household's initial house.
+            // If initialFit is X, then any candidate house must give improvement of strictly more than -1 + X.
+            // We use initialfit here instead of currentfit,
+            // because the minimum improvement between two houses is -1, so the minimum improvement that we'd want
+            // before we'd violate the better-than-initial-house requirement, is equivalent to moving to the worst house
+            // and then moving to our initial house, which is an improvement of at least -1 + initialFit.
+            float highScoreFree = -1 + initialFit;
+
+            for (House house : this.matching.getHouses()) {
+                float candidateFit = matchingEvaluator.evaluateIndividualTotalFit(house.getID(), householdID);
+                Household householdOfCandidateHouse = matching.getHouseholdFromHouse(house.getID());
+                if (householdOfCandidateHouse != null) {
+                    if (candidateFit > initialFit) {
+                        // Add type 1 edge.
+                        underlyingStrictGraph.addEdge(householdID, householdOfCandidateHouse.getID());
+                        underlyingStrictGraph.setEdgeWeight(householdID, householdOfCandidateHouse.getID(), candidateFit - currentFit);
+                    }
+                } else {
+                    if (candidateFit > initialFit && candidateFit - currentFit > highScoreFree) {
+                        highScoreFree = candidateFit - currentFit;
+                    }
+                }
+            }
+
+            // Add type 2 edge;
+            if (highScoreFree > -1 + initialFit) {
+                underlyingStrictGraph.addEdge(householdID, nil);
+                underlyingStrictGraph.setEdgeWeight(householdID, nil, highScoreFree);
+            }
+        }
+
+        // TODO: Keep this type3cond2-addition here?
+        for (Integer householdID : householdIDs) {
+            House currentHouse = matching.getHouseFromHousehold(householdID);
+            // If the household does not own a house, then the following edge will already have been added.
+            if (currentHouse != null) {
+                if (underlyingStrictGraph.incomingEdgesOf(householdID).isEmpty()) {
+                    // Add type 3 edge, condition 2.
+                    // If the above edge-additive process did not cause the current household to receive any incoming
+                    // edges, then the reduced second condition -- there is no worker who strictly desires the current
+                    // household's house -- is fulfilled, meaning the following edge should be added.
+                    underlyingStrictGraph.addEdge(nil, householdID);
+                    underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
+                }
+            }
+
+            // Add edge to initial house, which is always allowed with weight initialFit - currentFit.
+            // Since initial house just misses the conditions for edges above,
+            // we add it separately here, either as an edge to some household currenly owning initialHouse, or to nil.
+            // However, if we already have some edge to nil, it means there is some other free house which we prefer.
+            // In that case we needn't replace that edge with this lower one.
+            if (householdInitialHouseMap.containsKey(householdID)) {
+                House initialHouse = matching.getHouse(householdInitialHouseMap.get(householdID));
+                float initialFit = matchingEvaluator.evaluateIndividualTotalFit(initialHouse.getID(), householdID);
+                float currentFit = 0;
+                if (currentHouse != null) {
+                    currentFit = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
+                }
+                Household householdOwningInitialHouse = matching.getHouseholdFromHouse(initialHouse.getID());
+                if (householdOwningInitialHouse != null) {
+                    DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, householdOwningInitialHouse.getID());
+                    underlyingStrictGraph.setEdgeWeight(edge, currentFit - initialFit);
+                } else if (!underlyingStrictGraph.containsEdge(householdID, nil)) {
+                    DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, nil);
+                    underlyingStrictGraph.setEdgeWeight(edge, currentFit - initialFit);
+                }
+            }
+        }
+    }
+
     public Integer getNil() {
         return nil;
     }
@@ -195,31 +299,41 @@ public class TwoLabeledGraph {
     public List<Integer> findCycle(boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, OutOfMemoryError {
         List<Integer> cycle = null;
         switch (strategy) {
-            case WOSMA_REGULAR:
-                GabowStrongConnectivityInspector gabowStrongConnectivityInspector = new GabowStrongConnectivityInspector(underlyingStrictGraph);
-                List<AsSubgraph<Integer, DefaultWeightedEdge>> components = gabowStrongConnectivityInspector.getStronglyConnectedComponents();
-                for (AsSubgraph<Integer, DefaultWeightedEdge> component : components) {
-                    if (component.vertexSet().size() > 1) {
-                        CycleFinder cycleFinder = new CycleFinder(component, this.matching.getHouseholdsMovedByWOSMA(), this.getNil());
-                        cycle = cycleFinder.findCycle();
-                        if (cycle != null) {
-                            break;
-                        }
-                    }
+            case WOSMA_REGULAR: cycle = findCycleRegular(print); break;
+            case WOSMA_FINDMAX: cycle = findCycleFindMax(print); break;
+            case WOSMA_IR_CYCLES: cycle = findCycleIRCycles(print); break;
+        }
+        return cycle;
+    }
+
+    public List<Integer> findCycleRegular(boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException {
+        List<Integer> cycle = null;
+        GabowStrongConnectivityInspector gabowStrongConnectivityInspector = new GabowStrongConnectivityInspector(underlyingStrictGraph);
+        List<AsSubgraph<Integer, DefaultWeightedEdge>> components = gabowStrongConnectivityInspector.getStronglyConnectedComponents();
+        for (AsSubgraph<Integer, DefaultWeightedEdge> component : components) {
+            if (component.vertexSet().size() > 1) {
+                CycleFinder cycleFinder = new CycleFinder(component, this.matching.getHouseholdsMovedByWOSMA(), this.getNil());
+                cycle = cycleFinder.findCycle();
+                if (cycle != null) {
+                    break;
                 }
-            case WOSMA_FINDMAX:
-                TarjanSimpleCycles<Integer, DefaultWeightedEdge> tarjanSimpleCycles
-                        = new TarjanSimpleCycles<>(underlyingStrictGraph);
-                try {
-                    List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
-                    if (print) {
-                        System.out.println("Tarjan found " + cycles.size() + " cycles.");
-                    }
-                    cycle = findBestCycle(cycles);
-                } catch (OutOfMemoryError e) {
-                    throw new OutOfMemoryError(e.getMessage());
-                }
-            case WOSMA_IR_CYCLES: assert true; //TODO: implement.
+            }
+        }
+        return cycle;
+    }
+
+    public List<Integer> findCycleFindMax(boolean print) {
+        List<Integer> cycle;
+        TarjanSimpleCycles<Integer, DefaultWeightedEdge> tarjanSimpleCycles
+                = new TarjanSimpleCycles<>(underlyingStrictGraph);
+        try {
+            List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
+            if (print) {
+                System.out.println("Tarjan found " + cycles.size() + " cycles.");
+            }
+            cycle = findBestCycle(cycles);
+        } catch (OutOfMemoryError e) {
+            throw new OutOfMemoryError(e.getMessage());
         }
         return cycle;
     }
@@ -268,6 +382,32 @@ public class TwoLabeledGraph {
         return score;
     }
 
+    private List<Integer> findCycleIRCycles(boolean print) {
+        List<Integer> cycle = null;
+        TarjanSimpleCycles<Integer, DefaultWeightedEdge> tarjanSimpleCycles
+                = new TarjanSimpleCycles<>(underlyingStrictGraph);
+        try {
+            List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
+            if (print) {
+                System.out.println("Tarjan found " + cycles.size() + " cycles.");
+            }
+            cycle = findAnyIRCycle(cycles);
+        } catch (OutOfMemoryError e) {
+            throw new OutOfMemoryError(e.getMessage());
+        }
+        return cycle;
+    }
+
+    private List<Integer> findAnyIRCycle(List<List<Integer>> cycles) {
+        // Just return any cycle that gives a net positive improvement.
+        Optional<List<Integer>> cycle = cycles.stream()
+                .filter(c -> calculateCycleScore(c) > 0)
+                .findAny();
+        if (cycle.isPresent()) {
+            return cycle.get();
+        } else { return null; }
+    }
+
     public float addType3Cond1EdgeToHousehold(int householdID, House currentHouse, MatchingEvaluator matchingEvaluator) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {
         float fitWithCurrentHouse;
 
@@ -280,5 +420,9 @@ public class TwoLabeledGraph {
             fitWithCurrentHouse = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
         }
         return fitWithCurrentHouse;
+    }
+
+    public HashMap<Integer, Integer> getHouseholdInitialHouseMap() {
+        return householdInitialHouseMap;
     }
 }

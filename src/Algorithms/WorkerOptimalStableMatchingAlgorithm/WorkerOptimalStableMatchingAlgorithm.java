@@ -21,14 +21,18 @@ public class WorkerOptimalStableMatchingAlgorithm {
         } catch (OutOfMemoryError e) {
             System.err.println("Tarjan found more cycles than can fit in this computer's memory.");
             System.err.println("Continuing as though _findMax_ is false...");
-//            findMax = false;
-            // TODO: WHAT NOW
+            strategy = Strategy.WOSMA_REGULAR;
             this.matching.setFindMaxFailed();
+            twoLabeledGraph = new TwoLabeledGraph(this.matching, strategy);
             cycle = twoLabeledGraph.findCycle(print);
         }
         while (cycle != null) {
             if(print) { System.out.println("Executing cycle " + i); }
-            this.matching.executeCycle(cycle, twoLabeledGraph.getNil(), print);
+            switch (strategy) {
+                case WOSMA_REGULAR:
+                case WOSMA_FINDMAX: this.matching.executeCycle(cycle, twoLabeledGraph.getNil(), print); break;
+                case WOSMA_IR_CYCLES: this.matching.executeCycleIRCycles(cycle, twoLabeledGraph.getNil(), twoLabeledGraph.getHouseholdInitialHouseMap(), print); break;
+            }
             twoLabeledGraph.updateAfterCycleExecution(this.matching);
             cycle = twoLabeledGraph.findCycle(print);
             i++;

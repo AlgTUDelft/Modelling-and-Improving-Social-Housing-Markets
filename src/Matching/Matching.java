@@ -389,6 +389,96 @@ public class Matching implements Serializable {
         }
     }
 
+    public void executeCycleIRCycles(List<Integer> cycle, int nilValue, HashMap<Integer, Integer> householdInitialHouseMap, boolean print) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
+        int edgesCount = cycle.size();
+
+        boolean isChain = false;
+
+        // Disconnect all households from whatever houses they own, and keep a list of these houses.
+        ArrayList<Integer> housesList = new ArrayList<Integer>();
+        for (int i = 0; i<edgesCount; i++) {
+            int householdID = cycle.get(i);
+            if (householdID != nilValue) {
+                House house = getHouseFromHousehold(householdID);
+                if (house != null) {
+                    housesList.add(house.getID());
+                    disconnect(house.getID(), householdID);
+                } else {
+                    housesList.add(null);
+                }
+                householdsMovedByWOSMA.add(householdID);
+            } else {
+                isChain = true;
+                housesList.add(null);
+            }
+        }
+        if(print) {
+            if (isChain) {
+                System.out.println("Chain has size: " + edgesCount);
+            } else { System.out.println("Cycle has size: " + edgesCount);
+            }
+        }
+
+        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this);
+
+        for (int i = 0; i<edgesCount; i++) {
+            int sourceVertex;
+            int targetVertex;
+            if (i == edgesCount-1) {
+                sourceVertex = cycle.get(i);
+                targetVertex = cycle.get(0);
+            } else {
+                sourceVertex = cycle.get(i);
+                targetVertex = cycle.get(i+1);
+            }
+
+            if (sourceVertex != nilValue && targetVertex != nilValue) {
+                if (i+1 < housesList.size()) {
+                    connect(housesList.get(i + 1), sourceVertex);
+                } else {
+                    connect(housesList.get(0), sourceVertex);
+                }
+            } else if (sourceVertex == nilValue) {
+                continue; // Household was already previously disconnected, so no change.
+            } else { // targetVertex == nilValue, so there is an empty house that the household may move to.
+                // We now choose to connect them with that house amongst the empty houses, that they prefer most;
+                // we trust that they will at least prefer this house to their initial house, or it equals said house;
+                // but we add a check just toe be sure.
+                Set<Integer> householdlessHouses = getHouseholdlessHousesIDs();
+                float highestScore = 0;
+                if (householdInitialHouseMap.containsKey(sourceVertex)) {
+                    highestScore = matchingEvaluator.evaluateIndividualTotalFit(householdInitialHouseMap.get(sourceVertex), sourceVertex);
+                }
+                House bestHouse = null;
+                for (int houseID : householdlessHouses) {
+                    // _housesList_ houses will either go to *another* household in the chain,
+                    // or this household didn't want it anyway, since this is not a cycle.
+                    if (!housesList.contains(houseID)) {
+                        float candidateScore = matchingEvaluator.evaluateIndividualTotalFit(houseID, sourceVertex);
+                        if (candidateScore >= highestScore) {
+                            highestScore = candidateScore;
+                            bestHouse = getHouse(houseID);
+                        }
+                    }
+                }
+                if (bestHouse == null) {
+                    throw new PreferredNoHouseholdlessHouseException("Cycle indicated that household would prefer some" +
+                            " other house to their initial house, but no such house was found.");
+                } else {
+                    connect(bestHouse.getID(), sourceVertex);
+                }
+            }
+        }
+
+        if (isChain) {
+            SWIChainLengths.add(edgesCount);
+            SWICycleLengths.add(0);
+        } else {
+            SWIChainLengths.add(0);
+            SWICycleLengths.add(edgesCount);
+        }
+    }
+
     public boolean isMaximallyMatched() {
         if (this.houses.size() != this.households.size()) {
             System.err.println("|Houses| != |Households|. Therefore matching can never be perfect.");
