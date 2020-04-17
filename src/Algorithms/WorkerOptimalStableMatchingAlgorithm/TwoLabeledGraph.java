@@ -4,6 +4,7 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
+import Matching.Strategy;
 import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
 import org.jgrapht.alg.cycle.TarjanSimpleCycles;
 import org.jgrapht.graph.AsSubgraph;
@@ -25,9 +26,11 @@ public class TwoLabeledGraph {
     private SimpleDirectedWeightedGraph underlyingStrictGraph = new SimpleDirectedWeightedGraph(DefaultWeightedEdge.class);
     private ArrayList<Integer> householdIDs = new ArrayList<Integer>();
     private Integer nil = -1;
+    private Strategy strategy;
 
-    public TwoLabeledGraph(Matching matching, boolean findMax) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
+    public TwoLabeledGraph(Matching matching, Strategy strategy) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = matching;
+        this.strategy = strategy;
 
         // Add vertices.
         underlyingStrictGraph.addVertex(nil); // _nil_ vertex.
@@ -37,17 +40,17 @@ public class TwoLabeledGraph {
             householdIDs.add(householdID);
         }
 
-        this.wireHouseholds(householdIDs, findMax);
+        this.wireHouseholds(householdIDs);
     }
 
     // TODO: Note somewhere that I use edgeweights denoting exactly the preference, rather than "1 = strict".
     //  Also note that this functionality is only implemented when findMax is true.
     //  When findMax is false, I just use edgeweights of 1.
-    public void wireHouseholds(ArrayList<Integer> householdIDs, boolean findMax) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
-        if (findMax) {
-            wireHouseholdsFindMax(householdIDs);
-        } else {
-            wireHouseholdsNormally(householdIDs);
+    public void wireHouseholds(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
+        switch (strategy) {
+            case WOSMA_REGULAR: wireHouseholdsNormally(householdIDs);
+            case WOSMA_FINDMAX: wireHouseholdsFindMax(householdIDs);
+            case WOSMA_IR_CYCLES: assert true; //TODO: implement.
         }
     }
 
@@ -170,7 +173,7 @@ public class TwoLabeledGraph {
         return nil;
     }
 
-    public void updateAfterCycleExecution(Matching newMatching, boolean findMax) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
+    public void updateAfterCycleExecution(Matching newMatching) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = newMatching;
 
         // Remove all edges
@@ -185,36 +188,40 @@ public class TwoLabeledGraph {
         // Rewire all households.
         ArrayList<Household> households = this.matching.getHouseholds();
         ArrayList<Integer> householdIDs = new ArrayList<Integer>(households.stream().map(h -> h.getID()).collect(Collectors.toList()));
-        wireHouseholds(householdIDs, findMax);
+        wireHouseholds(householdIDs);
     }
 
 
-    public List<Integer> findCycle(boolean findMax, boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, OutOfMemoryError {
-        if (!findMax) {
-            GabowStrongConnectivityInspector gabowStrongConnectivityInspector = new GabowStrongConnectivityInspector(underlyingStrictGraph);
-            List<AsSubgraph<Integer, DefaultWeightedEdge>> components = gabowStrongConnectivityInspector.getStronglyConnectedComponents();
-            List<Integer> cycle = null;
-            for (AsSubgraph<Integer, DefaultWeightedEdge> component : components) {
-                if (component.vertexSet().size() > 1) {
-                    CycleFinder cycleFinder = new CycleFinder(component, this.matching.getHouseholdsMovedByWOSMA(), this.getNil());
-                    cycle = cycleFinder.findCycle();
-                    if (cycle != null) {
-                        break;
+    public List<Integer> findCycle(boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, OutOfMemoryError {
+        List<Integer> cycle = null;
+        switch (strategy) {
+            case WOSMA_REGULAR:
+                GabowStrongConnectivityInspector gabowStrongConnectivityInspector = new GabowStrongConnectivityInspector(underlyingStrictGraph);
+                List<AsSubgraph<Integer, DefaultWeightedEdge>> components = gabowStrongConnectivityInspector.getStronglyConnectedComponents();
+                for (AsSubgraph<Integer, DefaultWeightedEdge> component : components) {
+                    if (component.vertexSet().size() > 1) {
+                        CycleFinder cycleFinder = new CycleFinder(component, this.matching.getHouseholdsMovedByWOSMA(), this.getNil());
+                        cycle = cycleFinder.findCycle();
+                        if (cycle != null) {
+                            break;
+                        }
                     }
                 }
-            }
-            return cycle;
-        } else {
-            TarjanSimpleCycles<Integer, DefaultWeightedEdge> tarjanSimpleCycles
-                    = new TarjanSimpleCycles<>(underlyingStrictGraph);
-            try {
-                List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
-                if (print) { System.out.println("Tarjan found " + cycles.size() + " cycles."); }
-                return findBestCycle(cycles);
-            } catch (OutOfMemoryError e) {
-                throw new OutOfMemoryError(e.getMessage());
-            }
+            case WOSMA_FINDMAX:
+                TarjanSimpleCycles<Integer, DefaultWeightedEdge> tarjanSimpleCycles
+                        = new TarjanSimpleCycles<>(underlyingStrictGraph);
+                try {
+                    List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
+                    if (print) {
+                        System.out.println("Tarjan found " + cycles.size() + " cycles.");
+                    }
+                    cycle = findBestCycle(cycles);
+                } catch (OutOfMemoryError e) {
+                    throw new OutOfMemoryError(e.getMessage());
+                }
+            case WOSMA_IR_CYCLES: assert true; //TODO: implement.
         }
+        return cycle;
     }
 
     public List<Integer> findBestCycle(List<List<Integer>> cycles) {

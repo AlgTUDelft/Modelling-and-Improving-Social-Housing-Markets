@@ -24,10 +24,10 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 //        comparison_WOSMA_MCPMA();
-//        runDynamicMatching(); // THIS ONE WON'T RUN ANYMORE.
-//                              // We've briefly changed Dynamic Matching algorithm call from WOSMA to Improvement-MCPMA.
+        runDynamicWOSMAMatching();
 //        artificialDynamicMatching();
-        runImprovement();
+//        runImprovement(); // THIS ONE WON'T RUN ANYMORE.
+//                              // We've changed Dynamic Matching algorithm call from Improvement-MCPMA to WOSMA.
     }
 
     public static void test1() {
@@ -158,7 +158,7 @@ public class Main {
             float oldAverageLocalResult = oldMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
 
             WorkerOptimalStableMatchingAlgorithm workerOptimalStableMatchingAlgorithm = new WorkerOptimalStableMatchingAlgorithm(matching);
-            Matching newMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(false,true);
+            Matching newMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(Strategy.WOSMA_REGULAR,true);
             MatchingEvaluator newMatchingEvaluator = new MatchingEvaluator(newMatching);
             float newOverallResult =newMatchingEvaluator.evaluateTotal(true);
             float newAverageLocalResult = newMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
@@ -234,7 +234,7 @@ public class Main {
                     = new MinCostPerfectMatchingAlgorithm(matchingCopy);
 
 
-            Matching workerOptimalStableMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(false,true);
+            Matching workerOptimalStableMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(Strategy.WOSMA_REGULAR,true);
             MatchingEvaluator workerOptimalMatchingEvaluator = new MatchingEvaluator(workerOptimalStableMatching);
             float WOSMA_OverallResult = workerOptimalMatchingEvaluator.evaluateTotal(true);
             float WOSMA_AverageLocalResult = workerOptimalMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
@@ -346,16 +346,16 @@ public class Main {
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
 
             Matching[] matchings = new Matching[5];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false, false);
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, Strategy.WOSMA_REGULAR, false);
             System.out.println("Got here! 0 " + matchings[0].getFindMaxFailed());
             dynamicMatching.resetState();
-            matchings[1] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, true, false);
+            matchings[1] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, Strategy.WOSMA_FINDMAX, false);
             System.out.println("Got here! 1 " + matchings[1].getFindMaxFailed());
             dynamicMatching.resetState();
-            matchings[2] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false,false);
+            matchings[2] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.WOSMA_REGULAR,false);
             System.out.println("Got here! 2 " + matchings[2].getFindMaxFailed());
             dynamicMatching.resetState();
-            matchings[3] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, true,false);
+            matchings[3] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.WOSMA_FINDMAX,false);
             System.out.println("Got here! 3 " + matchings[3].getFindMaxFailed());
             matchings[4] = new MinCostPerfectMatchingAlgorithm((Matching) deepClone(dynamicMatching.getInputMatching()))
                     .findMinCostPerfectMatching(false);
@@ -572,11 +572,11 @@ public class Main {
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
 
             Matching[] matchings = new Matching[3];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false, false);
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, Strategy.MCPMA_IMPROVEMENT, false);
             System.out.println("Got here! 0");
             DynamicMatching dynamicMatching0 = (DynamicMatching) deepClone(dynamicMatching);
             dynamicMatching.resetState();
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false, false);
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.MCPMA_IMPROVEMENT, false);
             System.out.println("Got here! 1");
             DynamicMatching dynamicMatching1 = (DynamicMatching) deepClone(dynamicMatching);
             dynamicMatching.resetState(); // Unnecessary but eh.
@@ -586,15 +586,6 @@ public class Main {
 
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
-
-            if (scores[1] < scores[0]) {
-                MatchingEvaluator matchingEvaluator = new MatchingEvaluator(dynamicMatching.getInputMatching());
-                System.out.println("test");
-                dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, false, false);
-                dynamicMatching.resetState();
-                dynamicMatching.advanceTimeFullyThenSolve(timestepCount, false, false);
-                System.out.println("test");
-            }
 
             String[] strings = {
                     "Final per step score",
