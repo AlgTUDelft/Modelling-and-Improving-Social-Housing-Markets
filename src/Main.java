@@ -24,9 +24,10 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 //        comparison_WOSMA_MCPMA();
-        runDynamicWOSMAMatching();
+//        runDynamicWOSMAMatching();
 //        artificialDynamicMatching();
 //        runImprovement();
+        runDynamicIRCycles();
     }
 
     public static void test1() {
@@ -543,8 +544,6 @@ public class Main {
     //
     // What we can also do is to let AfterSteps run the improvement-MCPMA as many times as there are timesteps.
     // But then we also have a slightly different problem space.
-    //
-    // An example is in order.
     public static void runImprovement() throws IOException {
         String outputFilename = "../dyn-improvement-50times50-avgME-100prob-twosided.csv";
         boolean oneSided = false;
@@ -649,6 +648,112 @@ public class Main {
         }
 
         return dynamicMatchingImprovementMCPMAComparisonResult;
+    }
+
+    public static void runDynamicIRCycles() throws IOException {
+        String outputFilename = "../dyn-IRCycles-50times50-avgME-100prob-twosided.csv";
+        boolean oneSided = false;
+
+        ArrayList<DynamicMatchingIRCyclesComparisonResult> dynamicMatchingIRCyclesComparisonResults
+                = new ArrayList<DynamicMatchingIRCyclesComparisonResult>();
+        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500));
+        int lineCount = 50;
+        for (int startLine : startLines) {
+            System.out.println("Startline: " + startLine);
+            dynamicMatchingIRCyclesComparisonResults.add(individualRunDynamicIRCyclesMatching(startLine, lineCount, oneSided));
+        }
+        DynamicMatchingIRCyclesComparisonResultProcessor dynamicMatchingIRCyclesComparisonResultProcessor
+                = new DynamicMatchingIRCyclesComparisonResultProcessor(dynamicMatchingIRCyclesComparisonResults);
+        dynamicMatchingIRCyclesComparisonResultProcessor.resultsToCSV(outputFilename);
+    }
+
+    public static DynamicMatchingIRCyclesComparisonResult individualRunDynamicIRCyclesMatching(int startLine, int lineCount, boolean oneSided) {
+        int timestepCount = lineCount/2;
+        DynamicMatchingIRCyclesComparisonResult dynamicMatchingIRCyclesComparisonResult = null;
+        try {
+            double connectionProb = 1.0;
+            Matching matching = setupMatching(connectionProb, startLine, lineCount);
+            DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
+
+            Matching[] matchings = new Matching[3];
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, Strategy.WOSMA_IR_CYCLES, false);
+            System.out.println("Got here! 0");
+            DynamicMatching dynamicMatching0 = (DynamicMatching) deepClone(dynamicMatching);
+            dynamicMatching.resetState();
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.WOSMA_IR_CYCLES, false);
+            System.out.println("Got here! 1");
+            DynamicMatching dynamicMatching1 = (DynamicMatching) deepClone(dynamicMatching);
+            dynamicMatching.resetState(); // Unnecessary but eh.
+            matchings[2] = new MinCostPerfectMatchingAlgorithm((Matching) deepClone(dynamicMatching.getInputMatching()))
+                    .findMinCostPerfectMatching(false);
+            System.out.println("Got here! 2");
+
+
+            float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
+
+            String[] strings = {
+                    "Final per step score",
+                    "Final afterwards score",
+                    "Optimal (but non-IR) score"};
+
+            prettyPrintResults(strings, scores);
+
+            float perStepOptimality = scores[0]/scores[2];
+            float afterwardsOptimality = scores[1]/scores[2];
+            dynamicMatchingIRCyclesComparisonResult
+                    = new DynamicMatchingIRCyclesComparisonResult(timestepCount,
+                    scores[0], scores[1], scores[2],
+                    perStepOptimality, afterwardsOptimality);
+
+        } catch (Matching.HouseLinkedToHouseException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (DynamicMatching.TooManyTimestepsException e) {
+            e.printStackTrace();
+        } catch (Matching.PreferredNoHouseholdlessHouseException e) {
+            e.printStackTrace();
+        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseIDAlreadyPresentException e) {
+            e.printStackTrace();
+        } catch (HousingMarket.FreeSpaceException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseAlreadyMatchedException e) {
+            e.printStackTrace();
+        } catch (Household.InvalidHouseholdException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdAlreadyMatchedException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdLinkedToHouseholdException e) {
+            e.printStackTrace();
+        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSizeException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdLinkedToMultipleException e) {
+            e.printStackTrace();
+        } catch (ResidualGraph.MatchingNotEmptyException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseholdIDAlreadyPresentException e) {
+            e.printStackTrace();
+        } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
+            e.printStackTrace();
+        } catch (Matching.IDNotPresentException e) {
+            e.printStackTrace();
+        } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
+            e.printStackTrace();
+        } catch (Matching.HouseLinkedToMultipleException e) {
+            e.printStackTrace();
+        } catch (ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException e) {
+            e.printStackTrace();
+        } catch (ImprovementPrices.AlreadyInitiatedException e) {
+            e.printStackTrace();
+        } catch (ResidualImprovementGraph.MatchGraphNotEmptyException e) {
+            e.printStackTrace();
+        } catch (ImprovementMCPMA.UnequalSidesException e) {
+            e.printStackTrace();
+        }
+
+        return dynamicMatchingIRCyclesComparisonResult;
     }
 
     public static float[] evaluateMatchingsAverageIndividualTotalFit(Matching[] matchings) throws MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
