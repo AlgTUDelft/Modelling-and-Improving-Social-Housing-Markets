@@ -389,7 +389,7 @@ public class Matching implements Serializable {
         }
     }
 
-    public void executeCycleIRCycles(List<Integer> cycle, int nilValue, HashMap<Integer, Integer> householdInitialHouseMap, boolean print) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
+    public void executeCycleIRCycles(List<Integer> cycle, int nilValue, HashMap<Integer, Integer> householdInitialHouseMap, boolean print) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
         int edgesCount = cycle.size();
 
         boolean isChain = false;

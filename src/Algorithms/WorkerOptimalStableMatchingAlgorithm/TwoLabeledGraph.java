@@ -174,7 +174,7 @@ public class TwoLabeledGraph {
         }
     }
 
-    public void wireHouseholdsIRCycles(ArrayList<Integer> householdIDs) throws Matching.Matching.HouseholdLinkedToMultipleException, Matching.Matching.HouseholdLinkedToHouseholdException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, Matching.Matching.HouseLinkedToMultipleException, Matching.Matching.HouseLinkedToHouseException {
+    public void wireHouseholdsIRCycles(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         // Include edges between any household and any house that is either better than
         // their initial house, or which equals their initial house.
         // Weight of edge is improvement; may be negative.
@@ -214,14 +214,14 @@ public class TwoLabeledGraph {
             for (House house : this.matching.getHouses()) {
                 float candidateFit = matchingEvaluator.evaluateIndividualTotalFit(house.getID(), householdID);
                 Household householdOfCandidateHouse = matching.getHouseholdFromHouse(house.getID());
-                if (householdOfCandidateHouse != null) {
+                if (householdOfCandidateHouse != null && householdOfCandidateHouse.getID() != householdID) {
                     if (candidateFit > initialFit) {
                         // Add type 1 edge.
                         underlyingStrictGraph.addEdge(householdID, householdOfCandidateHouse.getID());
                         underlyingStrictGraph.setEdgeWeight(householdID, householdOfCandidateHouse.getID(), candidateFit - currentFit);
                     }
                 } else {
-                    if (candidateFit > initialFit && candidateFit - currentFit > highScoreFree) {
+                    if (candidateFit > initialFit && candidateFit - currentFit > highScoreFree && (currentHouse == null || house.getID() != currentHouse.getID())) {
                         highScoreFree = candidateFit - currentFit;
                     }
                 }
@@ -262,13 +262,18 @@ public class TwoLabeledGraph {
                     currentFit = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
                 }
                 Household householdOwningInitialHouse = matching.getHouseholdFromHouse(initialHouse.getID());
-                if (householdOwningInitialHouse != null) {
+                if (householdOwningInitialHouse != null && householdOwningInitialHouse.getID() != householdID) {
                     DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, householdOwningInitialHouse.getID());
-                    underlyingStrictGraph.setEdgeWeight(edge, currentFit - initialFit);
-                } else if (!underlyingStrictGraph.containsEdge(householdID, nil)) {
-                    DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, nil);
-                    underlyingStrictGraph.setEdgeWeight(edge, currentFit - initialFit);
-                }
+                    underlyingStrictGraph.setEdgeWeight(edge, initialFit - currentFit);
+                } else
+                    try {
+                        if (!underlyingStrictGraph.containsEdge(householdID, nil) && (householdOwningInitialHouse == null || householdOwningInitialHouse.getID() != householdID)) {
+                            DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, nil);
+                            underlyingStrictGraph.setEdgeWeight(edge, initialFit - currentFit);
+                        }
+                    } catch (NullPointerException e) {
+                        System.out.println("test");
+            }
             }
         }
     }

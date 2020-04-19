@@ -657,7 +657,7 @@ public class Main {
         ArrayList<DynamicMatchingIRCyclesComparisonResult> dynamicMatchingIRCyclesComparisonResults
                 = new ArrayList<DynamicMatchingIRCyclesComparisonResult>();
         ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500));
-        int lineCount = 50;
+        int lineCount = 20;
         for (int startLine : startLines) {
             System.out.println("Startline: " + startLine);
             dynamicMatchingIRCyclesComparisonResults.add(individualRunDynamicIRCyclesMatching(startLine, lineCount, oneSided));
@@ -676,11 +676,11 @@ public class Main {
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
 
             Matching[] matchings = new Matching[3];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, Strategy.WOSMA_IR_CYCLES, false);
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, Strategy.WOSMA_IR_CYCLES, true);
             System.out.println("Got here! 0");
             DynamicMatching dynamicMatching0 = (DynamicMatching) deepClone(dynamicMatching);
             dynamicMatching.resetState();
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.WOSMA_IR_CYCLES, false);
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.WOSMA_IR_CYCLES, true);
             System.out.println("Got here! 1");
             DynamicMatching dynamicMatching1 = (DynamicMatching) deepClone(dynamicMatching);
             dynamicMatching.resetState(); // Unnecessary but eh.
