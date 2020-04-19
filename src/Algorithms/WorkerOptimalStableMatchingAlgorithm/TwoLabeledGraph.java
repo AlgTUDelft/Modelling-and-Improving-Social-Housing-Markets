@@ -6,7 +6,7 @@ import Matching.Matching;
 import Matching.MatchingEvaluator;
 import Matching.Strategy;
 import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
-import org.jgrapht.alg.cycle.TarjanSimpleCycles;
+import org.jgrapht.alg.cycle.SzwarcfiterLauerSimpleCycles;
 import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
@@ -329,12 +329,12 @@ public class TwoLabeledGraph {
 
     public List<Integer> findCycleFindMax(boolean print) {
         List<Integer> cycle;
-        TarjanSimpleCycles<Integer, DefaultWeightedEdge> tarjanSimpleCycles
-                = new TarjanSimpleCycles<>(underlyingStrictGraph);
+        SzwarcfiterLauerSimpleCycles<Integer, DefaultWeightedEdge> szwarcfiterLauerSimpleCycles
+                = new SzwarcfiterLauerSimpleCycles<>(underlyingStrictGraph);
         try {
-            List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
+            List<List<Integer>> cycles = szwarcfiterLauerSimpleCycles.findSimpleCycles();
             if (print) {
-                System.out.println("Tarjan found " + cycles.size() + " cycles.");
+                System.out.println("SL found " + cycles.size() + " cycles.");
             }
             cycle = findBestCycle(cycles);
         } catch (OutOfMemoryError e) {
@@ -389,14 +389,11 @@ public class TwoLabeledGraph {
 
     private List<Integer> findCycleIRCycles(boolean print) {
         List<Integer> cycle = null;
-        TarjanSimpleCycles<Integer, DefaultWeightedEdge> tarjanSimpleCycles
-                = new TarjanSimpleCycles<>(underlyingStrictGraph);
         try {
-            List<List<Integer>> cycles = tarjanSimpleCycles.findSimpleCycles();
-            if (print) {
-                System.out.println("Tarjan found " + cycles.size() + " cycles.");
-            }
-            cycle = findAnyIRCycle(cycles);
+            CustomSLSimpleCycles customSLSimpleCycles
+                    = new CustomSLSimpleCycles(underlyingStrictGraph);
+            cycle = customSLSimpleCycles.findSimpleCycle();
+            System.out.println("Denied cycles count: " + customSLSimpleCycles.getDeniedCyclesCount());
         } catch (OutOfMemoryError e) {
             throw new OutOfMemoryError(e.getMessage());
         }
