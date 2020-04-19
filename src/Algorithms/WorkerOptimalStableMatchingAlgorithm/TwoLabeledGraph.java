@@ -406,7 +406,7 @@ public class TwoLabeledGraph {
     private List<Integer> findAnyIRCycle(List<List<Integer>> cycles) {
         // Just return any cycle that gives a net positive improvement.
         Optional<List<Integer>> cycle = cycles.stream()
-                .filter(c -> calculateCycleScore(c) > 0)
+                .filter(c -> calculateCycleScore(c) > 0.00001) // 0.00001 because double calculation can break a little at more precise numbers.
                 .findAny();
         if (cycle.isPresent()) {
             return cycle.get();

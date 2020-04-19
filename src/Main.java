@@ -651,13 +651,13 @@ public class Main {
     }
 
     public static void runDynamicIRCycles() throws IOException {
-        String outputFilename = "../dyn-IRCycles-50times50-avgME-100prob-twosided.csv";
+        String outputFilename = "../dyn-IRCycles-50times13-avgME-100prob-twosided.csv";
         boolean oneSided = false;
 
         ArrayList<DynamicMatchingIRCyclesComparisonResult> dynamicMatchingIRCyclesComparisonResults
                 = new ArrayList<DynamicMatchingIRCyclesComparisonResult>();
         ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500));
-        int lineCount = 20;
+        int lineCount = 13;
         for (int startLine : startLines) {
             System.out.println("Startline: " + startLine);
             dynamicMatchingIRCyclesComparisonResults.add(individualRunDynamicIRCyclesMatching(startLine, lineCount, oneSided));
