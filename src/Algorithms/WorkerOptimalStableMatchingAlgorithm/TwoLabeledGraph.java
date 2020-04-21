@@ -37,9 +37,10 @@ public class TwoLabeledGraph {
         }
 
         if (strategy == Strategy.WOSMA_IR_CYCLES) {
+            MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
             for (Household household : this.matching.getHouseholds()) {
                 House house = this.matching.getHouseFromHousehold(household.getID());
-                if (house != null) {
+                if (house != null && matchingEvaluator.evaluateIndividualTotalFit(house.getID(), household.getID()) > 0) {
                     householdInitialHouseMap.put(household.getID(), house.getID());
                 }
             }
@@ -398,16 +399,6 @@ public class TwoLabeledGraph {
             throw new OutOfMemoryError(e.getMessage());
         }
         return cycle;
-    }
-
-    private List<Integer> findAnyIRCycle(List<List<Integer>> cycles) {
-        // Just return any cycle that gives a net positive improvement.
-        Optional<List<Integer>> cycle = cycles.stream()
-                .filter(c -> calculateCycleScore(c) > 0.00001) // 0.00001 because double calculation can break a little at more precise numbers.
-                .findAny();
-        if (cycle.isPresent()) {
-            return cycle.get();
-        } else { return null; }
     }
 
     public float addType3Cond1EdgeToHousehold(int householdID, House currentHouse, MatchingEvaluator matchingEvaluator) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {

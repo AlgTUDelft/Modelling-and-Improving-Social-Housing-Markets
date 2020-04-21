@@ -161,6 +161,10 @@ public class DynamicMatching implements Serializable {
         }
     }
 
+    public Matching getCurrentMatching() {
+        return currentMatching;
+    }
+
     public class TooManyTimestepsException extends Exception {
         public TooManyTimestepsException(String errorMessage) { super(errorMessage); }
     }

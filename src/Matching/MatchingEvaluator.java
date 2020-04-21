@@ -104,10 +104,10 @@ public class MatchingEvaluator {
         float accessibilityIndividualFit = evaluateIndividualAccessibilityFit(houseID, householdID);
 
 //         TODO: _individualTotalFit_ calculation method open to revision and addition; currently based on nothing.
-//        float individualTotalFit = Math.min(Math.min(
-//                financialIndividualFit, roomIndividualFit),
-//                accessibilityIndividualFit);
-        float individualTotalFit = (financialIndividualFit + roomIndividualFit + accessibilityIndividualFit)/3;
+        float individualTotalFit = Math.min(Math.min(
+                financialIndividualFit, roomIndividualFit),
+                accessibilityIndividualFit);
+//        float individualTotalFit = (financialIndividualFit + roomIndividualFit + accessibilityIndividualFit)/3;
         return individualTotalFit;
     }
 
