@@ -13,6 +13,7 @@ import java.util.List;
 
 public class WorkerOptimalStableMatchingAlgorithm {
     private Matching matching;
+    private TwoLabeledGraph twoLabeledGraph;
 
     public WorkerOptimalStableMatchingAlgorithm(Matching matching) {
         this.matching = matching;
@@ -27,9 +28,27 @@ public class WorkerOptimalStableMatchingAlgorithm {
             case MCPMA_IMPROVEMENT: inputStrategy = Strategy.MCPMA_IMPROVEMENT; break;
         }
         int i = 1;
-        TwoLabeledGraph twoLabeledGraph = new TwoLabeledGraph(this.matching, strategy);
+        twoLabeledGraph = new TwoLabeledGraph(this.matching, strategy);
         List<Integer> cycle;
-        boolean justFailed = false;
+        cycle = tryToFindCycle(strategy, print);
+        while (cycle != null) {
+            if(print) { System.out.println("Executing cycle " + i); }
+            switch (strategy) {
+                case WOSMA_REGULAR:
+                case WOSMA_FINDMAX: this.matching.executeCycle(cycle, twoLabeledGraph.getNil(), print); break;
+                case WOSMA_IR_CYCLES: this.matching.executeCycleIRCycles(cycle, twoLabeledGraph.getNil(), twoLabeledGraph.getHouseholdInitialHouseMap(), print); break;
+            }
+            twoLabeledGraph.updateAfterCycleExecution(this.matching);
+            cycle = tryToFindCycle(strategy, print);
+            i++;
+        }
+
+        this.matching.resetHouseholdsMovedByWOSMA();
+        return this.matching;
+    }
+
+    public List<Integer> tryToFindCycle(Strategy strategy, boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException {
+        List<Integer> cycle;
         try {
             cycle = twoLabeledGraph.findCycle(print);
         } catch (OutOfMemoryError e) {
@@ -41,27 +60,10 @@ public class WorkerOptimalStableMatchingAlgorithm {
                 strategy = Strategy.WOSMA_REGULAR;
             }
             this.matching.setFindMaxFailed();
-            twoLabeledGraph = new TwoLabeledGraph(this.matching, strategy);
-            cycle = twoLabeledGraph.findCycle(print);
-            justFailed = true;
+            twoLabeledGraph = new TwoLabeledGraph(matching, strategy);
+            cycle = tryToFindCycle(strategy, print);
         }
-        while (cycle != null) {
-            if(print) { System.out.println("Executing cycle " + i); }
-            switch (strategy) {
-                case WOSMA_REGULAR:
-                case WOSMA_FINDMAX: this.matching.executeCycle(cycle, twoLabeledGraph.getNil(), print); break;
-                case WOSMA_IR_CYCLES: this.matching.executeCycleIRCycles(cycle, twoLabeledGraph.getNil(), twoLabeledGraph.getHouseholdInitialHouseMap(), print); break;
-            }
-            if (justFailed) {
-                strategy = inputStrategy;
-            }
-            twoLabeledGraph.updateAfterCycleExecution(this.matching);
-            cycle = twoLabeledGraph.findCycle(print);
-            i++;
-        }
-
-        this.matching.resetHouseholdsMovedByWOSMA();
-        return this.matching;
+        return cycle;
     }
 
 }
