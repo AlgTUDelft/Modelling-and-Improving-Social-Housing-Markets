@@ -563,6 +563,34 @@ public class Matching implements Serializable {
         return householdsMovedByWOSMA;
     }
 
+    public String toString() {
+        String result = this.households + " -- (";
+        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this);
+        int i = 0;
+        for (Household household : households) {
+            try {
+                House house = getHouseFromHousehold(household.getID());
+                if (house != null) {
+                    String string = "{" + house.getID() + "," + household.getID() + ":" + matchingEvaluator.evaluateIndividualTotalFit(house.getID(), household.getID()) + "}";
+                    if (i == 0) {
+                        result += string;
+                        i++;
+                    } else {
+                        result += ", " + string;
+                    }
+                }
+            } catch (HouseholdLinkedToHouseholdException e) {
+                e.printStackTrace();
+            } catch (HouseholdLinkedToMultipleException e) {
+                e.printStackTrace();
+            } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+                e.printStackTrace();
+            }
+        }
+        result += ")";
+        return result;
+    }
+
     public class HouseLinkedToHouseException extends Exception {
         public HouseLinkedToHouseException(String errorMessage) {
             super(errorMessage);

@@ -27,7 +27,8 @@ public class Main {
 //        runDynamicWOSMAMatching();
 //        artificialDynamicMatching();
 //        runImprovement();
-        runDynamicIRCycles();
+        runDynamicIRCycles(10);
+//        totalComparison();
     }
 
     public static void test1() {
@@ -308,8 +309,8 @@ public class Main {
         return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount);
     }
 
-    public static void runDynamicWOSMAMatching() throws IOException {
-        String outputFilename = "../dyn-50times125-minME-100prob-twosided.csv";
+    public static void runDynamicWOSMAMatching(int lineCount) throws IOException {
+        String outputFilename = "../dyn-50times" + lineCount + "-avgME-100prob-twosided.csv";
         boolean oneSided = false;
 
         ArrayList<DynamicMatchingComparisonResult> dynamicMatchingComparisonResults
@@ -328,7 +329,6 @@ public class Main {
 //                640, 644, 648, 652, 656, 660, 664, 668, 672, 676, 680, 684, 688, 692, 696, 700, 704, 708, 712, 716, 720,
 //                724, 728, 732, 736, 740, 744, 748, 752, 756, 760, 764, 768, 772, 776, 780, 784, 788, 792, 796, 800, 804,
 //                808, 812, 816, 820, 824, 828, 832, 836, 840, 844));
-        int lineCount = 125;
         for (int startLine : startLines) {
             dynamicMatchingComparisonResults.add(individualRunDynamicWOSMAMatching(startLine, lineCount, oneSided));
         }
@@ -545,14 +545,13 @@ public class Main {
     //
     // What we can also do is to let AfterSteps run the improvement-MCPMA as many times as there are timesteps.
     // But then we also have a slightly different problem space.
-    public static void runImprovement() throws IOException {
-        String outputFilename = "../dyn-improvement-50times150-minME-100prob-twosided.csv";
+    public static void runImprovement(int lineCount) throws IOException {
+        String outputFilename = "../dyn-improvement-50times" + lineCount + "-avgME-100prob-twosided.csv";
         boolean oneSided = false;
 
         ArrayList<DynamicMatchingImprovementMCPMAComparisonResult> dynamicMatchingImprovementMCPMAComparisonResults
                 = new ArrayList<DynamicMatchingImprovementMCPMAComparisonResult>();
         ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500));
-        int lineCount = 150;
         for (int startLine : startLines) {
             System.out.println("Startline: " + startLine);
             dynamicMatchingImprovementMCPMAComparisonResults.add(individualRunDynamicImprovementMatching(startLine, lineCount, oneSided));
@@ -651,17 +650,14 @@ public class Main {
         return dynamicMatchingImprovementMCPMAComparisonResult;
     }
 
-    public static void runDynamicIRCycles() throws IOException {
-//        String outputFilename = "../dyn-IRCycles-50times35-minME-100prob-twosided.csv";
-        String outputFilename = "../test.csv";
+    public static void runDynamicIRCycles(int lineCount) throws IOException {
+        String outputFilename = "../dyn-IRCycles-50times" + lineCount + "-avgME-100prob-twosided.csv";
         boolean oneSided = false;
 
         ArrayList<DynamicMatchingIRCyclesComparisonResult> dynamicMatchingIRCyclesComparisonResults
                 = new ArrayList<DynamicMatchingIRCyclesComparisonResult>();
         ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500));
-        int lineCount = 8;
         for (int startLine : startLines) {
-            startLine = 90;
             System.out.println("Startline: " + startLine);
             dynamicMatchingIRCyclesComparisonResults.add(individualRunDynamicIRCyclesMatching(startLine, lineCount, oneSided));
         }
@@ -684,11 +680,12 @@ public class Main {
             dynamicMatching.resetState();
             matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.WOSMA_IR_CYCLES, true);
             System.out.println("Got here! 1");
-            DynamicMatching dynamicMatching1 = (DynamicMatching) deepClone(dynamicMatching);
             dynamicMatching.resetState(); // Unnecessary but eh.
             matchings[2] = new MinCostPerfectMatchingAlgorithm((Matching) deepClone(dynamicMatching.getInputMatching()))
                     .findMinCostPerfectMatching(false);
             System.out.println("Got here! 2");
+
+
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
 
@@ -769,6 +766,21 @@ public class Main {
             scores[i] = matchingEvaluators[i].evaluateAverageIndividualTotalFit(false);
         }
         return scores;
+    }
+
+    public static void totalComparison() throws IOException {
+        for (int lineCount : new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150))) {
+            if (lineCount < 15) {
+                runDynamicIRCycles(lineCount);
+            }
+            if (lineCount < 76) {
+                runDynamicWOSMAMatching(lineCount);
+            }
+            if (lineCount < 151) {
+                runImprovement(lineCount);
+            }
+            System.out.println("------DONE WITH " + lineCount);
+        }
     }
 
     public static void prettyPrintResults(String[] strings, float[] scores) {

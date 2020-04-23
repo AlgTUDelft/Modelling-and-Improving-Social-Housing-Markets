@@ -190,8 +190,9 @@ public class TwoLabeledGraph {
             if (householdInitialHouseMap.containsKey(householdID)) {
                 initialHouse = matching.getHouse(householdInitialHouseMap.get(householdID));
                 initialFit = matchingEvaluator.evaluateIndividualTotalFit(initialHouse.getID(), householdID);
-            } else {
-                // Household initially had no house, so may be 'moved into houselessness' by IR-Cycles.
+            }
+            if (initialFit == 0){
+                // Household initially had no house or had a worthless house, so may be 'moved into houselessness' by IR-Cycles.
                 // Add type3 edge, condition 1.
                 underlyingStrictGraph.addEdge(nil, householdID);
                 underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
@@ -232,7 +233,12 @@ public class TwoLabeledGraph {
             if (highScoreFree > -1 + initialFit) {
                 underlyingStrictGraph.addEdge(householdID, nil);
                 underlyingStrictGraph.setEdgeWeight(householdID, nil, highScoreFree);
+            } else if (initialFit == 0.0) { // However, with an initialFit of 0, we should be okay with moving anywhere.
+                underlyingStrictGraph.addEdge(householdID, nil);
+                underlyingStrictGraph.setEdgeWeight(householdID, nil, 0 - currentFit);
             }
+
+
         }
 
         // TODO: Keep this type3cond2-addition here?
@@ -267,14 +273,10 @@ public class TwoLabeledGraph {
                     DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, householdOwningInitialHouse.getID());
                     underlyingStrictGraph.setEdgeWeight(edge, initialFit - currentFit);
                 } else
-                    try {
-                        if (!underlyingStrictGraph.containsEdge(householdID, nil) && (householdOwningInitialHouse == null || householdOwningInitialHouse.getID() != householdID)) {
-                            DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, nil);
-                            underlyingStrictGraph.setEdgeWeight(edge, initialFit - currentFit);
-                        }
-                    } catch (NullPointerException e) {
-                        System.out.println("test");
-            }
+                    if (!underlyingStrictGraph.containsEdge(householdID, nil) && (householdOwningInitialHouse == null || householdOwningInitialHouse.getID() != householdID)) {
+                        DefaultWeightedEdge edge = (DefaultWeightedEdge) underlyingStrictGraph.addEdge(householdID, nil);
+                        underlyingStrictGraph.setEdgeWeight(edge, initialFit - currentFit);
+                    }
             }
         }
     }
@@ -413,6 +415,10 @@ public class TwoLabeledGraph {
             fitWithCurrentHouse = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
         }
         return fitWithCurrentHouse;
+    }
+
+    public String toString() {
+        return this.underlyingStrictGraph.toString();
     }
 
     public HashMap<Integer, Integer> getHouseholdInitialHouseMap() {
