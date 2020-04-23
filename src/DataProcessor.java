@@ -4,6 +4,7 @@ import HousingMarket.Household.HouseholdType;
 import HousingMarket.HousingMarket;
 import HousingMarket.HouseAndHouseholdPair;
 import Matching.Matching;
+import Matching.MatchingEvaluatorStrategy;
 
 import java.io.*;
 import java.util.Random;
@@ -15,8 +16,8 @@ public class DataProcessor {
 
     private Matching matching;
 
-    public DataProcessor(HousingMarket housingMarket) {
-        this.matching = new Matching(housingMarket);
+    public DataProcessor(HousingMarket housingMarket, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
+        this.matching = new Matching(housingMarket, matchingEvaluatorStrategy);
     }
 
     public Matching csvToMatching(String csvFileName, double connectionProb, int startLine, int linesToParse)

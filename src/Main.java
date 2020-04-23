@@ -27,290 +27,295 @@ public class Main {
 //        runDynamicWOSMAMatching();
 //        artificialDynamicMatching();
 //        runImprovement();
-        runDynamicIRCycles(10);
-//        totalComparison();
+//        runDynamicIRCycles(10);
+        totalComparison();
     }
 
-    public static void test1() {
-        Matching matching;
-        try {
-            HousingMarket housingMarket = new HousingMarket(2017, 100);
-            DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            try {
-                matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test (small).csv", 0.96, 0, 100);
+//    public static void test1() {
+//        Matching matching;
+//        try {
+//            HousingMarket housingMarket = new HousingMarket(2017, 100);
+//            DataProcessor dataProcessor = new DataProcessor(housingMarket);
+//            try {
+//                matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test (small).csv", 0.96, 0, 100);
+//
+//                MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
+//
+//                matchingEvaluator.evaluateOverallHouseholdlessHouses();
+//                matchingEvaluator.evaluateOverallHouselessHouseholds();
+//                matchingEvaluator.evaluateTotal(true);
+//
+//            } catch (Matching.HouseAlreadyMatchedException e) {
+//                System.err.println(e.getMessage());
+//            } catch (Household.InvalidHouseholdException e) {
+//                System.err.println(e.getMessage());
+//            } catch (Matching.HouseholdAlreadyMatchedException e) {
+//                System.err.println(e.getMessage());
+//            } catch (Matching.HouseholdLinkedToMultipleException e) {
+//                e.printStackTrace();
+//            } catch (Matching.HouseholdLinkedToHouseholdException e) {
+//                e.printStackTrace();
+//            } catch (MatchingEvaluator.InvalidMatchingException e) {
+//                e.printStackTrace();
+//            } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+//                e.printStackTrace();
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        } catch (HousingMarket.FreeSpaceException e) {
+//            System.err.println(e.getMessage());
+//        }
+//    }
 
-                MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
+//    public static MinCostPerfectMatchingResult test4(String filename, int startLine, int lineCount) {
+//        Matching matching;
+//        HousingMarket housingMarket = null;
+//        MinCostPerfectMatchingResult minCostPerfectMatchingResult = null;
+//
+//        try {
+//            housingMarket = new HousingMarket(2017, 100);
+//            DataProcessor dataProcessor = new DataProcessor(housingMarket);
+//            matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
+//
+//            MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
+//            float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
+//            float oldAverageLocalResult = oldMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+//
+//            MinCostPerfectMatchingAlgorithm minCostPerfectMatchingAlgorithm
+//                    = new MinCostPerfectMatchingAlgorithm(matching);
+//
+//            Matching minCostPerfectMatching = minCostPerfectMatchingAlgorithm.findMinCostPerfectMatching(true);
+//            MatchingEvaluator newMatchingEvaluator = new MatchingEvaluator(minCostPerfectMatching);
+//            float newOverallResult = newMatchingEvaluator.evaluateTotal(true);
+//            float newAverageLocalResult = newMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+//
+//            float overallPercentageIncrease = (newOverallResult - oldOverallResult)/oldOverallResult * 100;
+//            float averageLocalPercentageIncrease = (newAverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
+//
+//            minCostPerfectMatchingResult = new MinCostPerfectMatchingResult(oldOverallResult, newOverallResult, overallPercentageIncrease, oldAverageLocalResult, newAverageLocalResult, averageLocalPercentageIncrease);
+//
+//        } catch (HousingMarket.FreeSpaceException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseAlreadyMatchedException e) {
+//            e.printStackTrace();
+//        } catch (Household.InvalidHouseholdException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseholdAlreadyMatchedException e) {
+//            e.printStackTrace();
+//        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseLinkedToMultipleException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseLinkedToHouseException e) {
+//            e.printStackTrace();
+//        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSizeException e) {
+//            e.printStackTrace();
+//        } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
+//            e.printStackTrace();
+//        } catch (Matching.IDNotPresentException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseholdLinkedToMultipleException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseholdLinkedToHouseholdException e) {
+//            e.printStackTrace();
+//        } catch (ResidualGraph.MatchingNotEmptyException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return minCostPerfectMatchingResult;
+//    }
 
-                matchingEvaluator.evaluateOverallHouseholdlessHouses();
-                matchingEvaluator.evaluateOverallHouselessHouseholds();
-                matchingEvaluator.evaluateTotal(true);
+//    public static void test5() throws IOException {
+//        String filename = "../1times500MinCostPerfectMatchingRun.csv";
+//
+//        ArrayList<MinCostPerfectMatchingResult> results = new ArrayList<MinCostPerfectMatchingResult>();
+////        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 0, 100));
+////        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 100, 100));
+////        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 200, 100));
+////        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 300, 100));
+////        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 400, 100));
+////        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 500, 100));
+////        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 600, 100));
+////        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 700, 100));
+////        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 800, 100));
+////        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 900, 100));
+//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 0, 500));
+//
+//        MinCostPerfectMatchingResultProcessor minCostPerfectMatchingResultProcessor
+//                = new MinCostPerfectMatchingResultProcessor(results);
+//        minCostPerfectMatchingResultProcessor.resultsToCSV(filename);
+//    }
 
-            } catch (Matching.HouseAlreadyMatchedException e) {
-                System.err.println(e.getMessage());
-            } catch (Household.InvalidHouseholdException e) {
-                System.err.println(e.getMessage());
-            } catch (Matching.HouseholdAlreadyMatchedException e) {
-                System.err.println(e.getMessage());
-            } catch (Matching.HouseholdLinkedToMultipleException e) {
-                e.printStackTrace();
-            } catch (Matching.HouseholdLinkedToHouseholdException e) {
-                e.printStackTrace();
-            } catch (MatchingEvaluator.InvalidMatchingException e) {
-                e.printStackTrace();
-            } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } catch (HousingMarket.FreeSpaceException e) {
-            System.err.println(e.getMessage());
-        }
-    }
+//    public static void test6() {
+//        HousingMarket housingMarket = null;
+//        try {
+//            housingMarket = new HousingMarket(2017, 100);
+//            DataProcessor dataProcessor = new DataProcessor(housingMarket);
+//            Matching matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test2.csv", 1, 500, 100);
+//
+//            MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
+//            float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
+//            float oldAverageLocalResult = oldMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+//
+//            WorkerOptimalStableMatchingAlgorithm workerOptimalStableMatchingAlgorithm = new WorkerOptimalStableMatchingAlgorithm(matching);
+//            Matching newMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(Strategy.WOSMA_REGULAR,true);
+//            MatchingEvaluator newMatchingEvaluator = new MatchingEvaluator(newMatching);
+//            float newOverallResult =newMatchingEvaluator.evaluateTotal(true);
+//            float newAverageLocalResult = newMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+//
+//            float overallPercentageIncrease = (newOverallResult - oldOverallResult)/oldOverallResult * 100;
+//            float averageLocalPercentageIncrease = (newAverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
+//            System.out.println("Overall percentage increase is: " + overallPercentageIncrease);
+//            System.out.println("Average local percentage increase is: " + averageLocalPercentageIncrease);
+//
+//        } catch (HousingMarket.FreeSpaceException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseholdLinkedToHouseholdException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseholdAlreadyMatchedException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseholdLinkedToMultipleException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseAlreadyMatchedException e) {
+//            e.printStackTrace();
+//        } catch (Household.InvalidHouseholdException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+//            e.printStackTrace();
+//        } catch (Matching.PreferredNoHouseholdlessHouseException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseLinkedToMultipleException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseLinkedToHouseException e) {
+//            e.printStackTrace();
+//        } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
 
-    public static MinCostPerfectMatchingResult test4(String filename, int startLine, int lineCount) {
-        Matching matching;
-        HousingMarket housingMarket = null;
-        MinCostPerfectMatchingResult minCostPerfectMatchingResult = null;
-
-        try {
-            housingMarket = new HousingMarket(2017, 100);
-            DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
-
-            MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
-            float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
-            float oldAverageLocalResult = oldMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
-
-            MinCostPerfectMatchingAlgorithm minCostPerfectMatchingAlgorithm
-                    = new MinCostPerfectMatchingAlgorithm(matching);
-
-            Matching minCostPerfectMatching = minCostPerfectMatchingAlgorithm.findMinCostPerfectMatching(true);
-            MatchingEvaluator newMatchingEvaluator = new MatchingEvaluator(minCostPerfectMatching);
-            float newOverallResult = newMatchingEvaluator.evaluateTotal(true);
-            float newAverageLocalResult = newMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
-
-            float overallPercentageIncrease = (newOverallResult - oldOverallResult)/oldOverallResult * 100;
-            float averageLocalPercentageIncrease = (newAverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
-
-            minCostPerfectMatchingResult = new MinCostPerfectMatchingResult(oldOverallResult, newOverallResult, overallPercentageIncrease, oldAverageLocalResult, newAverageLocalResult, averageLocalPercentageIncrease);
-
-        } catch (HousingMarket.FreeSpaceException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (Household.InvalidHouseholdException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToHouseException e) {
-            e.printStackTrace();
-        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSizeException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
-            e.printStackTrace();
-        } catch (Matching.IDNotPresentException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToHouseholdException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.MatchingNotEmptyException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return minCostPerfectMatchingResult;
-    }
-
-    public static void test5() throws IOException {
-        String filename = "../1times500MinCostPerfectMatchingRun.csv";
-
-        ArrayList<MinCostPerfectMatchingResult> results = new ArrayList<MinCostPerfectMatchingResult>();
-//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 0, 100));
-//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 100, 100));
-//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 200, 100));
-//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 300, 100));
-//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 400, 100));
-//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 500, 100));
-//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 600, 100));
-//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 700, 100));
-//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 800, 100));
-//        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 900, 100));
-        results.add(test4("../../../Olivier Data [On Laptop]//test2.csv", 0, 500));
-
-        MinCostPerfectMatchingResultProcessor minCostPerfectMatchingResultProcessor
-                = new MinCostPerfectMatchingResultProcessor(results);
-        minCostPerfectMatchingResultProcessor.resultsToCSV(filename);
-    }
-
-    public static void test6() {
-        HousingMarket housingMarket = null;
-        try {
-            housingMarket = new HousingMarket(2017, 100);
-            DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            Matching matching = dataProcessor.csvToMatching("../../../Olivier Data [On Laptop]//test2.csv", 1, 500, 100);
-
-            MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
-            float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
-            float oldAverageLocalResult = oldMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
-
-            WorkerOptimalStableMatchingAlgorithm workerOptimalStableMatchingAlgorithm = new WorkerOptimalStableMatchingAlgorithm(matching);
-            Matching newMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(Strategy.WOSMA_REGULAR,true);
-            MatchingEvaluator newMatchingEvaluator = new MatchingEvaluator(newMatching);
-            float newOverallResult =newMatchingEvaluator.evaluateTotal(true);
-            float newAverageLocalResult = newMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
-
-            float overallPercentageIncrease = (newOverallResult - oldOverallResult)/oldOverallResult * 100;
-            float averageLocalPercentageIncrease = (newAverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
-            System.out.println("Overall percentage increase is: " + overallPercentageIncrease);
-            System.out.println("Average local percentage increase is: " + averageLocalPercentageIncrease);
-
-        } catch (HousingMarket.FreeSpaceException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToHouseholdException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (Household.InvalidHouseholdException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
-            e.printStackTrace();
-        } catch (Matching.PreferredNoHouseholdlessHouseException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToHouseException e) {
-            e.printStackTrace();
-        } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public static void comparison_WOSMA_MCPMA() throws IOException {
-
-        String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
-        String outputFilename = "../test.csv";
-
-        ArrayList<WMComparisonResult> results = new ArrayList<WMComparisonResult>();
-        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 500));
-        for (int startLine : startLines) {
-            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 500));
-        }
-
-        WMComparisonResultProcessor wmComparisonResultProcessor
-                = new WMComparisonResultProcessor(results);
-        wmComparisonResultProcessor.resultsToCSV(outputFilename);
-    }
-
-
-    public static WMComparisonResult individualComparison_WOSMA_MCPMA(String filename, int startLine, int lineCount) {
-        Matching matching;
-        HousingMarket housingMarket;
-        WMComparisonResult wmComparisonResult = null;
-
-        try {
-            housingMarket = new HousingMarket(2017, 100);
-            DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
-
-            MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
-            float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
-            float oldAverageLocalResult = oldMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
-
-            Matching matchingCopy = (Matching) deepClone(matching);
-            WorkerOptimalStableMatchingAlgorithm workerOptimalStableMatchingAlgorithm
-                    = new WorkerOptimalStableMatchingAlgorithm(matching);
-            MinCostPerfectMatchingAlgorithm minCostPerfectMatchingAlgorithm
-                    = new MinCostPerfectMatchingAlgorithm(matchingCopy);
+//    public static void comparison_WOSMA_MCPMA() throws IOException {
+//
+//        String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
+//        String outputFilename = "../test.csv";
+//
+//        ArrayList<WMComparisonResult> results = new ArrayList<WMComparisonResult>();
+//        ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(0, 500));
+//        for (int startLine : startLines) {
+//            results.add(individualComparison_WOSMA_MCPMA(inputFileName,startLine, 500));
+//        }
+//
+//        WMComparisonResultProcessor wmComparisonResultProcessor
+//                = new WMComparisonResultProcessor(results);
+//        wmComparisonResultProcessor.resultsToCSV(outputFilename);
+//    }
 
 
-            Matching workerOptimalStableMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(Strategy.WOSMA_REGULAR,true);
-            MatchingEvaluator workerOptimalMatchingEvaluator = new MatchingEvaluator(workerOptimalStableMatching);
-            float WOSMA_OverallResult = workerOptimalMatchingEvaluator.evaluateTotal(true);
-            float WOSMA_AverageLocalResult = workerOptimalMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+//    public static WMComparisonResult individualComparison_WOSMA_MCPMA(String filename, int startLine, int lineCount) {
+//        Matching matching;
+//        HousingMarket housingMarket;
+//        WMComparisonResult wmComparisonResult = null;
+//
+//        try {
+//            housingMarket = new HousingMarket(2017, 100);
+//            DataProcessor dataProcessor = new DataProcessor(housingMarket);
+//            matching = dataProcessor.csvToMatching(filename, 1, startLine, lineCount);
+//
+//            MatchingEvaluator oldMatchingEvaluator = new MatchingEvaluator(matching);
+//            float oldOverallResult = oldMatchingEvaluator.evaluateTotal(true);
+//            float oldAverageLocalResult = oldMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+//
+//            Matching matchingCopy = (Matching) deepClone(matching);
+//            WorkerOptimalStableMatchingAlgorithm workerOptimalStableMatchingAlgorithm
+//                    = new WorkerOptimalStableMatchingAlgorithm(matching);
+//            MinCostPerfectMatchingAlgorithm minCostPerfectMatchingAlgorithm
+//                    = new MinCostPerfectMatchingAlgorithm(matchingCopy);
+//
+//
+//            Matching workerOptimalStableMatching = workerOptimalStableMatchingAlgorithm.findWorkerOptimalStableMatching(Strategy.WOSMA_REGULAR,true);
+//            MatchingEvaluator workerOptimalMatchingEvaluator = new MatchingEvaluator(workerOptimalStableMatching);
+//            float WOSMA_OverallResult = workerOptimalMatchingEvaluator.evaluateTotal(true);
+//            float WOSMA_AverageLocalResult = workerOptimalMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+//
+//            Matching minCostPerfectMatching = minCostPerfectMatchingAlgorithm.findMinCostPerfectMatching(true);
+//            MatchingEvaluator minCostPerfectMatchingEvaluator = new MatchingEvaluator(minCostPerfectMatching);
+//            float MCPMA_OverallResult = minCostPerfectMatchingEvaluator.evaluateTotal(true);
+//            float MCPMA_AverageLocalResult = minCostPerfectMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
+//
+//            float WOSMA_OverallPercentageIncrease = (WOSMA_OverallResult - oldOverallResult)/oldOverallResult * 100;
+//            float WOSMA_AverageLocalPercentageIncrease = (WOSMA_AverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
+//            float MCPMA_OverallPercentageIncrease = (MCPMA_OverallResult - oldOverallResult)/oldOverallResult * 100;
+//            float MCPMA_AverageLocalPercentageIncrease = (MCPMA_AverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
+//            float WOSMA_OverallScoreOptimality = WOSMA_OverallResult/MCPMA_OverallResult;
+//            float WOSMA_AverageLocalScoreOptimality = WOSMA_AverageLocalResult/MCPMA_AverageLocalResult;
+//
+//            int WOSMA_amtSWIChainsExecuted = matching.getAmtSWIChainsExecuted();
+//            int WOSMA_amtSWICyclesExecuted = matching.getAmtSWICyclesExecuted();
+//            float WOSMA_averageSWIChainLength = matching.getAverageSWIChainLength();
+//            float WOSMA_averageSWICycleLength = matching.getAverageSWICycleLength();
+//
+//            wmComparisonResult = new WMComparisonResult(oldOverallResult, WOSMA_OverallResult,
+//                    WOSMA_OverallPercentageIncrease, MCPMA_OverallResult, MCPMA_OverallPercentageIncrease,
+//                    oldAverageLocalResult, WOSMA_AverageLocalResult, WOSMA_AverageLocalPercentageIncrease,
+//                    MCPMA_AverageLocalResult, MCPMA_AverageLocalPercentageIncrease, WOSMA_amtSWIChainsExecuted,
+//                    WOSMA_amtSWICyclesExecuted, WOSMA_averageSWIChainLength, WOSMA_averageSWICycleLength,
+//                    WOSMA_OverallScoreOptimality,
+//                    WOSMA_AverageLocalScoreOptimality);
+//
+//        } catch (HousingMarket.FreeSpaceException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseholdLinkedToHouseholdException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseLinkedToMultipleException e) {
+//            e.printStackTrace();
+//        } catch (Matching.IDNotPresentException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseAlreadyMatchedException e) {
+//            e.printStackTrace();
+//        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSizeException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseLinkedToHouseException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseholdAlreadyMatchedException e) {
+//            e.printStackTrace();
+//        } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
+//            e.printStackTrace();
+//        } catch (Household.InvalidHouseholdException e) {
+//            e.printStackTrace();
+//        } catch (Matching.HouseholdLinkedToMultipleException e) {
+//            e.printStackTrace();
+//        } catch (ResidualGraph.MatchingNotEmptyException e) {
+//            e.printStackTrace();
+//        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+//            e.printStackTrace();
+//        } catch (Matching.PreferredNoHouseholdlessHouseException e) {
+//            e.printStackTrace();
+//        } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return wmComparisonResult;
+//    }
 
-            Matching minCostPerfectMatching = minCostPerfectMatchingAlgorithm.findMinCostPerfectMatching(true);
-            MatchingEvaluator minCostPerfectMatchingEvaluator = new MatchingEvaluator(minCostPerfectMatching);
-            float MCPMA_OverallResult = minCostPerfectMatchingEvaluator.evaluateTotal(true);
-            float MCPMA_AverageLocalResult = minCostPerfectMatchingEvaluator.evaluateAverageIndividualTotalFit(false);
-
-            float WOSMA_OverallPercentageIncrease = (WOSMA_OverallResult - oldOverallResult)/oldOverallResult * 100;
-            float WOSMA_AverageLocalPercentageIncrease = (WOSMA_AverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
-            float MCPMA_OverallPercentageIncrease = (MCPMA_OverallResult - oldOverallResult)/oldOverallResult * 100;
-            float MCPMA_AverageLocalPercentageIncrease = (MCPMA_AverageLocalResult - oldAverageLocalResult)/oldAverageLocalResult * 100;
-            float WOSMA_OverallScoreOptimality = WOSMA_OverallResult/MCPMA_OverallResult;
-            float WOSMA_AverageLocalScoreOptimality = WOSMA_AverageLocalResult/MCPMA_AverageLocalResult;
-
-            int WOSMA_amtSWIChainsExecuted = matching.getAmtSWIChainsExecuted();
-            int WOSMA_amtSWICyclesExecuted = matching.getAmtSWICyclesExecuted();
-            float WOSMA_averageSWIChainLength = matching.getAverageSWIChainLength();
-            float WOSMA_averageSWICycleLength = matching.getAverageSWICycleLength();
-
-            wmComparisonResult = new WMComparisonResult(oldOverallResult, WOSMA_OverallResult,
-                    WOSMA_OverallPercentageIncrease, MCPMA_OverallResult, MCPMA_OverallPercentageIncrease,
-                    oldAverageLocalResult, WOSMA_AverageLocalResult, WOSMA_AverageLocalPercentageIncrease,
-                    MCPMA_AverageLocalResult, MCPMA_AverageLocalPercentageIncrease, WOSMA_amtSWIChainsExecuted,
-                    WOSMA_amtSWICyclesExecuted, WOSMA_averageSWIChainLength, WOSMA_averageSWICycleLength,
-                    WOSMA_OverallScoreOptimality,
-                    WOSMA_AverageLocalScoreOptimality);
-
-        } catch (HousingMarket.FreeSpaceException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToHouseholdException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (Matching.IDNotPresentException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSizeException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToHouseException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
-            e.printStackTrace();
-        } catch (Household.InvalidHouseholdException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.MatchingNotEmptyException e) {
-            e.printStackTrace();
-        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
-            e.printStackTrace();
-        } catch (Matching.PreferredNoHouseholdlessHouseException e) {
-            e.printStackTrace();
-        } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
-            e.printStackTrace();
-        }
-
-        return wmComparisonResult;
-    }
-
-    public static Matching setupMatching(double connectionProb, int startLine, int lineCount) throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, IOException {
+    public static Matching setupMatching(double connectionProb, int startLine, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, IOException {
         String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
         HousingMarket housingMarket = new HousingMarket(2017, 100);
-        DataProcessor dataProcessor = new DataProcessor(housingMarket);
+        DataProcessor dataProcessor = new DataProcessor(housingMarket, matchingEvaluatorStrategy);
         return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount);
     }
 
-    public static void runDynamicWOSMAMatching(int lineCount) throws IOException {
-        String outputFilename = "../dyn-50times" + lineCount + "-avgME-100prob-twosided.csv";
+    public static void runDynamicWOSMAMatching(int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws IOException {
+        String outputFilename = "../dyn-50times" + lineCount + "-";
+        switch (matchingEvaluatorStrategy) {
+            case AVG: outputFilename += "avgME-"; break;
+            case MIN: outputFilename += "minME-"; break;
+        }
+        outputFilename += "100prob-twosided.csv";
         boolean oneSided = false;
 
         ArrayList<DynamicMatchingComparisonResult> dynamicMatchingComparisonResults
@@ -330,7 +335,7 @@ public class Main {
 //                724, 728, 732, 736, 740, 744, 748, 752, 756, 760, 764, 768, 772, 776, 780, 784, 788, 792, 796, 800, 804,
 //                808, 812, 816, 820, 824, 828, 832, 836, 840, 844));
         for (int startLine : startLines) {
-            dynamicMatchingComparisonResults.add(individualRunDynamicWOSMAMatching(startLine, lineCount, oneSided));
+            dynamicMatchingComparisonResults.add(individualRunDynamicWOSMAMatching(startLine, lineCount, oneSided, matchingEvaluatorStrategy));
         }
         DynamicMatchingComparisonResultProcessor dynamicMatchingComparisonResultProcessor
                 = new DynamicMatchingComparisonResultProcessor(dynamicMatchingComparisonResults);
@@ -338,12 +343,12 @@ public class Main {
 
     }
 
-    public static DynamicMatchingComparisonResult individualRunDynamicWOSMAMatching(int startLine, int lineCount, boolean oneSided) {
+    public static DynamicMatchingComparisonResult individualRunDynamicWOSMAMatching(int startLine, int lineCount, boolean oneSided, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
         int timestepCount = lineCount/2;
         DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {
             double connectionProb = 1.0;
-            Matching matching = setupMatching(connectionProb, startLine, lineCount);
+            Matching matching = setupMatching(connectionProb, startLine, lineCount, matchingEvaluatorStrategy);
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
 
             Matching[] matchings = new Matching[5];
@@ -545,8 +550,13 @@ public class Main {
     //
     // What we can also do is to let AfterSteps run the improvement-MCPMA as many times as there are timesteps.
     // But then we also have a slightly different problem space.
-    public static void runImprovement(int lineCount) throws IOException {
-        String outputFilename = "../dyn-improvement-50times" + lineCount + "-avgME-100prob-twosided.csv";
+    public static void runImprovement(int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws IOException {
+        String outputFilename = "../dyn-improvement-50times" + lineCount + "-";
+        switch (matchingEvaluatorStrategy) {
+            case AVG: outputFilename += "avgME-"; break;
+            case MIN: outputFilename += "minME-"; break;
+        }
+        outputFilename += "100prob-twosided.csv";
         boolean oneSided = false;
 
         ArrayList<DynamicMatchingImprovementMCPMAComparisonResult> dynamicMatchingImprovementMCPMAComparisonResults
@@ -554,19 +564,19 @@ public class Main {
         ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500));
         for (int startLine : startLines) {
             System.out.println("Startline: " + startLine);
-            dynamicMatchingImprovementMCPMAComparisonResults.add(individualRunDynamicImprovementMatching(startLine, lineCount, oneSided));
+            dynamicMatchingImprovementMCPMAComparisonResults.add(individualRunDynamicImprovementMatching(startLine, lineCount, oneSided, matchingEvaluatorStrategy));
         }
         DynamicMatchingImprovementMCPMAComparisonResultProcessor dynamicMatchingImprovementMCPMAComparisonResultProcessor
                 = new DynamicMatchingImprovementMCPMAComparisonResultProcessor(dynamicMatchingImprovementMCPMAComparisonResults);
         dynamicMatchingImprovementMCPMAComparisonResultProcessor.resultsToCSV(outputFilename);
     }
 
-    public static DynamicMatchingImprovementMCPMAComparisonResult individualRunDynamicImprovementMatching(int startLine, int lineCount, boolean oneSided) {
+    public static DynamicMatchingImprovementMCPMAComparisonResult individualRunDynamicImprovementMatching(int startLine, int lineCount, boolean oneSided, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
         int timestepCount = lineCount/2;
         DynamicMatchingImprovementMCPMAComparisonResult dynamicMatchingImprovementMCPMAComparisonResult = null;
         try {
             double connectionProb = 1.0;
-            Matching matching = setupMatching(connectionProb, startLine, lineCount);
+            Matching matching = setupMatching(connectionProb, startLine, lineCount, matchingEvaluatorStrategy);
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
 
             Matching[] matchings = new Matching[3];
@@ -650,8 +660,13 @@ public class Main {
         return dynamicMatchingImprovementMCPMAComparisonResult;
     }
 
-    public static void runDynamicIRCycles(int lineCount) throws IOException {
-        String outputFilename = "../dyn-IRCycles-50times" + lineCount + "-avgME-100prob-twosided.csv";
+    public static void runDynamicIRCycles(int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws IOException {
+        String outputFilename = "../dyn-IRCycles-50times" + lineCount + "-";
+        switch (matchingEvaluatorStrategy) {
+            case AVG: outputFilename += "avgME-"; break;
+            case MIN: outputFilename += "minME-"; break;
+        }
+        outputFilename += "100prob-twosided.csv";
         boolean oneSided = false;
 
         ArrayList<DynamicMatchingIRCyclesComparisonResult> dynamicMatchingIRCyclesComparisonResults
@@ -659,26 +674,26 @@ public class Main {
         ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(10,20,30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200,210,220,230,240,250,260,270,280,290,300,310,320,330,340,350,360,370,380,390,400,410,420,430,440,450,460,470,480,490,500));
         for (int startLine : startLines) {
             System.out.println("Startline: " + startLine);
-            dynamicMatchingIRCyclesComparisonResults.add(individualRunDynamicIRCyclesMatching(startLine, lineCount, oneSided));
+            dynamicMatchingIRCyclesComparisonResults.add(individualRunDynamicIRCyclesMatching(startLine, lineCount, oneSided, matchingEvaluatorStrategy));
         }
         DynamicMatchingIRCyclesComparisonResultProcessor dynamicMatchingIRCyclesComparisonResultProcessor
                 = new DynamicMatchingIRCyclesComparisonResultProcessor(dynamicMatchingIRCyclesComparisonResults);
         dynamicMatchingIRCyclesComparisonResultProcessor.resultsToCSV(outputFilename);
     }
 
-    public static DynamicMatchingIRCyclesComparisonResult individualRunDynamicIRCyclesMatching(int startLine, int lineCount, boolean oneSided) {
+    public static DynamicMatchingIRCyclesComparisonResult individualRunDynamicIRCyclesMatching(int startLine, int lineCount, boolean oneSided, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
         int timestepCount = lineCount/2;
         DynamicMatchingIRCyclesComparisonResult dynamicMatchingIRCyclesComparisonResult = null;
         try {
             double connectionProb = 1.0;
-            Matching matching = setupMatching(connectionProb, startLine, lineCount);
+            Matching matching = setupMatching(connectionProb, startLine, lineCount, matchingEvaluatorStrategy);
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
 
             Matching[] matchings = new Matching[3];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, Strategy.WOSMA_IR_CYCLES, true);
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, Strategy.WOSMA_IR_CYCLES, false);
             System.out.println("Got here! 0");
             dynamicMatching.resetState();
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.WOSMA_IR_CYCLES, true);
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.WOSMA_IR_CYCLES, false);
             System.out.println("Got here! 1");
             dynamicMatching.resetState(); // Unnecessary but eh.
             matchings[2] = new MinCostPerfectMatchingAlgorithm((Matching) deepClone(dynamicMatching.getInputMatching()))
@@ -769,17 +784,21 @@ public class Main {
     }
 
     public static void totalComparison() throws IOException {
-        for (int lineCount : new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150))) {
-            if (lineCount < 15) {
-                runDynamicIRCycles(lineCount);
+        for (MatchingEvaluatorStrategy matchingEvaluatorStrategy : MatchingEvaluatorStrategy.values()) {
+            for (int lineCount : new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150))) {
+                if ((lineCount < 15 && matchingEvaluatorStrategy == MatchingEvaluatorStrategy.AVG)
+                    || lineCount < 36 && matchingEvaluatorStrategy == MatchingEvaluatorStrategy.MIN) {
+                    runDynamicIRCycles(lineCount, matchingEvaluatorStrategy);
+                }
+                if ((lineCount < 76 && matchingEvaluatorStrategy == MatchingEvaluatorStrategy.AVG)
+                || lineCount < 126 && matchingEvaluatorStrategy == MatchingEvaluatorStrategy.MIN) {
+                    runDynamicWOSMAMatching(lineCount, matchingEvaluatorStrategy);
+                }
+                if (lineCount < 151) {
+                    runImprovement(lineCount, matchingEvaluatorStrategy);
+                }
+                System.out.println("------DONE WITH " + lineCount);
             }
-            if (lineCount < 76) {
-                runDynamicWOSMAMatching(lineCount);
-            }
-            if (lineCount < 151) {
-                runImprovement(lineCount);
-            }
-            System.out.println("------DONE WITH " + lineCount);
         }
     }
 

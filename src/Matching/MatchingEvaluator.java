@@ -10,9 +10,11 @@ import java.text.DecimalFormat;
 public class MatchingEvaluator {
 
     private Matching matching;
+    private MatchingEvaluatorStrategy matchingEvaluatorStrategy;
 
     public MatchingEvaluator(Matching matching) {
         this.matching = matching;
+        this.matchingEvaluatorStrategy = matching.getMatchingEvaluatorStrategy();
     }
 
 
@@ -106,10 +108,13 @@ public class MatchingEvaluator {
         float accessibilityIndividualFit = evaluateIndividualAccessibilityFit(houseID, householdID);
 
 //         TODO: _individualTotalFit_ calculation method open to revision and addition; currently based on nothing.
-        float individualTotalFit = Math.min(Math.min(
-                financialIndividualFit, roomIndividualFit),
-                accessibilityIndividualFit);
-//        float individualTotalFit = (financialIndividualFit + roomIndividualFit + accessibilityIndividualFit)/3;
+        float individualTotalFit = 0;
+        switch (this.matchingEvaluatorStrategy) {
+            case MIN: individualTotalFit = Math.min(Math.min(
+                    financialIndividualFit, roomIndividualFit),
+                    accessibilityIndividualFit); break;
+            case AVG: individualTotalFit = (financialIndividualFit + roomIndividualFit + accessibilityIndividualFit) / 3; break;
+        }
         return individualTotalFit;
     }
 

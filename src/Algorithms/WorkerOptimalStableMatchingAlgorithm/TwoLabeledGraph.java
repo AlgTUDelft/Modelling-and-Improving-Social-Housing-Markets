@@ -233,9 +233,12 @@ public class TwoLabeledGraph {
             if (highScoreFree > -1 + initialFit) {
                 underlyingStrictGraph.addEdge(householdID, nil);
                 underlyingStrictGraph.setEdgeWeight(householdID, nil, highScoreFree);
-            } else if (initialFit == 0.0) { // However, with an initialFit of 0, we should be okay with moving anywhere.
-                underlyingStrictGraph.addEdge(householdID, nil);
-                underlyingStrictGraph.setEdgeWeight(householdID, nil, 0 - currentFit);
+            } else if (initialFit == 0.0) { // However, with an initialFit of 0, we should be okay with moving elsewhere,
+                // so long as there exists another unowned house.
+                if (!this.matching.getHouseholdlessHousesIDs().isEmpty()) {
+                    underlyingStrictGraph.addEdge(householdID, nil);
+                    underlyingStrictGraph.setEdgeWeight(householdID, nil, 0 - currentFit);
+                }
             }
 
 
@@ -396,7 +399,7 @@ public class TwoLabeledGraph {
             CustomSLSimpleCycles customSLSimpleCycles
                     = new CustomSLSimpleCycles(underlyingStrictGraph);
             cycle = customSLSimpleCycles.findSimpleCycle();
-            System.out.println("Denied cycles count: " + customSLSimpleCycles.getDeniedCyclesCount());
+            if (print) { System.out.println("Denied cycles count: " + customSLSimpleCycles.getDeniedCyclesCount()); }
         } catch (OutOfMemoryError e) {
             throw new OutOfMemoryError(e.getMessage());
         }

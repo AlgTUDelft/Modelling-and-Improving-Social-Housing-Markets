@@ -28,12 +28,14 @@ public class Matching implements Serializable {
     protected ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
     protected Set<Integer> householdsMovedByWOSMA = new HashSet<Integer>(); // Is reset at the end of WOSMA-calls before return.
     private boolean findMaxFailed = false; // Relevant to DynamicMatching.
+    private MatchingEvaluatorStrategy matchingEvaluatorStrategy;
 
     private HousingMarket housingMarket;
 
-    public Matching(HousingMarket housingMarket) {
+    public Matching(HousingMarket housingMarket, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
         this.matchingGraph = new SimpleGraph<>(DefaultEdge.class);
         this.housingMarket = housingMarket;
+        this.matchingEvaluatorStrategy = matchingEvaluatorStrategy;
     }
 
     public int addHouse(House house) throws HouseIDAlreadyPresentException {
@@ -443,7 +445,7 @@ public class Matching implements Serializable {
             } else { // targetVertex == nilValue, so there is an empty house that the household may move to.
                 // We now choose to connect them with that house amongst the empty houses, that they prefer most;
                 // we trust that they will at least prefer this house to their initial house, or it equals said house;
-                // but we add a check just toe be sure.
+                // but we add a check just to be sure.
                 Set<Integer> householdlessHouses = getHouseholdlessHousesIDs();
                 float highestScore = 0;
                 if (householdInitialHouseMap.containsKey(sourceVertex)) {
@@ -589,6 +591,10 @@ public class Matching implements Serializable {
         }
         result += ")";
         return result;
+    }
+
+    public MatchingEvaluatorStrategy getMatchingEvaluatorStrategy() {
+        return matchingEvaluatorStrategy;
     }
 
     public class HouseLinkedToHouseException extends Exception {

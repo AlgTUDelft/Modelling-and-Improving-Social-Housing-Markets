@@ -5,6 +5,7 @@ import HousingMarket.HouseAndHouseholdIDPair;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.MatchingEvaluator;
+import Matching.MatchingEvaluatorStrategy;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +18,7 @@ public class ArtificialMatching extends Matching.Matching {
     private int timestepCount;
 
     public ArtificialMatching(HousingMarket housingMarket, HashMap<HouseAndHouseholdIDPair, Double> scores, int timestepCount) {
-        super(housingMarket);
+        super(housingMarket, MatchingEvaluatorStrategy.MIN);
         this.scores = scores;
         this.timestepCount = timestepCount;
     }
