@@ -1,14 +1,5 @@
-import Algorithms.MinCostPerfectMatchingAlgorithm.MinCostPerfectMatchingAlgorithm;
-import Algorithms.MinCostPerfectMatchingAlgorithm.MinCostPerfectMatchingResult;
-import Algorithms.MinCostPerfectMatchingAlgorithm.MinCostPerfectMatchingResultProcessor;
-import Algorithms.MinCostPerfectMatchingAlgorithm.ResidualGraph;
-import Algorithms.SimpleImprovement.ImprovementMCPMA;
-import Algorithms.SimpleImprovement.ImprovementPrices;
-import Algorithms.SimpleImprovement.ResidualImprovementGraph;
+import Algorithms.MCPMA.*;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
-import Algorithms.WorkerOptimalStableMatchingAlgorithm.WMComparisonResult;
-import Algorithms.WorkerOptimalStableMatchingAlgorithm.WMComparisonResultProcessor;
-import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
 import Artificials.ArtificialDynamicMatching;
 import Artificials.ArtificialMatching;
 import Artificials.ArtificialMatchingCreator;
@@ -363,8 +354,8 @@ public class Main {
             dynamicMatching.resetState();
             matchings[3] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.WOSMA_FINDMAX,false);
             System.out.println("Got here! 3 " + matchings[3].getFindMaxFailed());
-            matchings[4] = new MinCostPerfectMatchingAlgorithm((Matching) deepClone(dynamicMatching.getInputMatching()))
-                    .findMinCostPerfectMatching(false);
+            matchings[4] = new MCPMAOnMatchingRunner((Matching) deepClone(dynamicMatching.getInputMatching()), MCPMAStrategy.REGULAR)
+                    .optimizeMatching(false);
             System.out.println("Got here! 4 " + matchings[4].getFindMaxFailed());
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
@@ -458,25 +449,17 @@ public class Main {
             e.printStackTrace();
         } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
             e.printStackTrace();
-        } catch (ResidualGraph.MatchingNotEmptyException e) {
-            e.printStackTrace();
-        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSizeException e) {
-            e.printStackTrace();
         } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
-            e.printStackTrace();
-        } catch (Matching.IDNotPresentException e) {
             e.printStackTrace();
         } catch (Matching.HouseholdIDAlreadyPresentException e) {
             e.printStackTrace();
         } catch (Matching.HouseIDAlreadyPresentException e) {
             e.printStackTrace();
-        } catch (ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException e) {
+        } catch (MCPMAPrices.AlreadyInitiatedException e) {
             e.printStackTrace();
-        } catch (ImprovementPrices.AlreadyInitiatedException e) {
+        } catch (ResidualGraph.MatchGraphNotEmptyException e) {
             e.printStackTrace();
-        } catch (ResidualImprovementGraph.MatchGraphNotEmptyException e) {
-            e.printStackTrace();
-        } catch (ImprovementMCPMA.UnequalSidesException e) {
+        } catch (MCPMA.UnequalSidesException e) {
             e.printStackTrace();
         }
 
@@ -588,8 +571,8 @@ public class Main {
             System.out.println("Got here! 1");
             DynamicMatching dynamicMatching1 = (DynamicMatching) deepClone(dynamicMatching);
             dynamicMatching.resetState(); // Unnecessary but eh.
-            matchings[2] = new MinCostPerfectMatchingAlgorithm((Matching) deepClone(dynamicMatching.getInputMatching()))
-                    .findMinCostPerfectMatching(false);
+            matchings[2] = new MCPMAOnMatchingRunner((Matching) deepClone(dynamicMatching.getInputMatching()), MCPMAStrategy.REGULAR)
+                    .optimizeMatching(false);
             System.out.println("Got here! 2");
 
 
@@ -631,29 +614,21 @@ public class Main {
             e.printStackTrace();
         } catch (Matching.HouseholdLinkedToHouseholdException e) {
             e.printStackTrace();
-        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSizeException e) {
-            e.printStackTrace();
         } catch (Matching.HouseholdLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.MatchingNotEmptyException e) {
             e.printStackTrace();
         } catch (Matching.HouseholdIDAlreadyPresentException e) {
             e.printStackTrace();
         } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
             e.printStackTrace();
-        } catch (Matching.IDNotPresentException e) {
-            e.printStackTrace();
         } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
             e.printStackTrace();
         } catch (Matching.HouseLinkedToMultipleException e) {
             e.printStackTrace();
-        } catch (ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException e) {
+        } catch (MCPMAPrices.AlreadyInitiatedException e) {
             e.printStackTrace();
-        } catch (ImprovementPrices.AlreadyInitiatedException e) {
+        } catch (ResidualGraph.MatchGraphNotEmptyException e) {
             e.printStackTrace();
-        } catch (ResidualImprovementGraph.MatchGraphNotEmptyException e) {
-            e.printStackTrace();
-        } catch (ImprovementMCPMA.UnequalSidesException e) {
+        } catch (MCPMA.UnequalSidesException e) {
             e.printStackTrace();
         }
 
@@ -696,8 +671,8 @@ public class Main {
             matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.WOSMA_IR_CYCLES, false);
             System.out.println("Got here! 1");
             dynamicMatching.resetState(); // Unnecessary but eh.
-            matchings[2] = new MinCostPerfectMatchingAlgorithm((Matching) deepClone(dynamicMatching.getInputMatching()))
-                    .findMinCostPerfectMatching(false);
+            matchings[2] = new MCPMAOnMatchingRunner((Matching) deepClone(dynamicMatching.getInputMatching()), MCPMAStrategy.REGULAR)
+                    .optimizeMatching(false);
             System.out.println("Got here! 2");
 
 
@@ -740,29 +715,21 @@ public class Main {
             e.printStackTrace();
         } catch (Matching.HouseholdLinkedToHouseholdException e) {
             e.printStackTrace();
-        } catch (MinCostPerfectMatchingAlgorithm.BipartiteSidesUnequalSizeException e) {
-            e.printStackTrace();
         } catch (Matching.HouseholdLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.MatchingNotEmptyException e) {
             e.printStackTrace();
         } catch (Matching.HouseholdIDAlreadyPresentException e) {
             e.printStackTrace();
         } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
             e.printStackTrace();
-        } catch (Matching.IDNotPresentException e) {
-            e.printStackTrace();
         } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
             e.printStackTrace();
         } catch (Matching.HouseLinkedToMultipleException e) {
             e.printStackTrace();
-        } catch (ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException e) {
+        } catch (MCPMAPrices.AlreadyInitiatedException e) {
             e.printStackTrace();
-        } catch (ImprovementPrices.AlreadyInitiatedException e) {
+        } catch (ResidualGraph.MatchGraphNotEmptyException e) {
             e.printStackTrace();
-        } catch (ResidualImprovementGraph.MatchGraphNotEmptyException e) {
-            e.printStackTrace();
-        } catch (ImprovementMCPMA.UnequalSidesException e) {
+        } catch (MCPMA.UnequalSidesException e) {
             e.printStackTrace();
         }
 

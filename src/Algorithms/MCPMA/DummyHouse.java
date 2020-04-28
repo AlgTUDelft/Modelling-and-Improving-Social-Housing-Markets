@@ -1,17 +1,17 @@
-package Algorithms.SimpleImprovement;
+package Algorithms.MCPMA;
 
 import HousingMarket.HousingMarketVertex;
 
-public class DummyHousehold implements HousingMarketVertex {
+public class DummyHouse implements HousingMarketVertex {
 
     private int ID;
 
-    public DummyHousehold(int ID) {
+    public DummyHouse(int ID) {
         this.ID = ID;
     }
 
     public String toString() {
-        return "DummyHousehold" + this.ID;
+        return "DummyHouse" + this.ID;
     }
 
     public int getID() {

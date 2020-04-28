@@ -1,14 +1,10 @@
 package Matching;
 
-import Algorithms.SimpleImprovement.ImprovementMCPMA;
-import Algorithms.SimpleImprovement.ImprovementMCPMAOnMatchingRunner;
-import Algorithms.SimpleImprovement.ImprovementPrices;
-import Algorithms.SimpleImprovement.ResidualImprovementGraph;
+import Algorithms.MCPMA.*;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
-import org.apache.commons.collections4.EnumerationUtils;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -62,7 +58,7 @@ public class DynamicMatching implements Serializable {
     }
 
 
-    public Matching advanceTimeAndSolvePerStep(int timestepCount, Strategy strategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualImprovementGraph.MatchGraphNotEmptyException, ImprovementPrices.AlreadyInitiatedException, ImprovementMCPMA.UnequalSidesException, ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException {
+    public Matching advanceTimeAndSolvePerStep(int timestepCount, Strategy strategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualGraph.MatchGraphNotEmptyException, MCPMAPrices.AlreadyInitiatedException, MCPMA.UnequalSidesException, ResidualGraph.PathEdgeNotInResidualGraphException {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
@@ -73,7 +69,7 @@ public class DynamicMatching implements Serializable {
         return resultingMatching;
     }
 
-    public Matching advanceTimeFullyThenSolve(int timestepCount, Strategy strategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualImprovementGraph.MatchGraphNotEmptyException, ImprovementPrices.AlreadyInitiatedException, ImprovementMCPMA.UnequalSidesException, ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException {
+    public Matching advanceTimeFullyThenSolve(int timestepCount, Strategy strategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualGraph.MatchGraphNotEmptyException, MCPMAPrices.AlreadyInitiatedException, MCPMA.UnequalSidesException, ResidualGraph.PathEdgeNotInResidualGraphException {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
@@ -103,7 +99,7 @@ public class DynamicMatching implements Serializable {
         }
     }
 
-    protected void runAlgorithm(Strategy strategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, ImprovementMCPMA.UnequalSidesException, ImprovementPrices.AlreadyInitiatedException, ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException, ResidualImprovementGraph.MatchGraphNotEmptyException {
+    protected void runAlgorithm(Strategy strategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, MCPMA.UnequalSidesException, MCPMAPrices.AlreadyInitiatedException, ResidualGraph.PathEdgeNotInResidualGraphException, ResidualGraph.MatchGraphNotEmptyException {
         switch (strategy) {
             case WOSMA_REGULAR:
             case WOSMA_FINDMAX:
@@ -112,9 +108,9 @@ public class DynamicMatching implements Serializable {
                     = new WorkerOptimalStableMatchingAlgorithm(currentMatching);
                 currentMatching = wosma.findWorkerOptimalStableMatching(strategy, print); break;
             case MCPMA_IMPROVEMENT:
-                ImprovementMCPMAOnMatchingRunner improvementMCPMAOnMatchingRunner
-                    = new ImprovementMCPMAOnMatchingRunner(currentMatching);
-                improvementMCPMAOnMatchingRunner.optimizeMatching(print); break;
+                MCPMAOnMatchingRunner mcpmaOnMatchingRunner
+                    = new MCPMAOnMatchingRunner(currentMatching, MCPMAStrategy.IMPROVEMENT);
+                currentMatching = mcpmaOnMatchingRunner.optimizeMatching(print); break;
         }
     }
 

@@ -1,4 +1,4 @@
-package Algorithms.SimpleImprovement;
+package Algorithms.MCPMA;
 
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
@@ -7,15 +7,19 @@ import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleGraph;
-import org.jgrapht.graph.SimpleWeightedGraph;
 
-public class ImprovementMCPMA {
+public class MCPMA {
 
     private ImprovementGraph improvementGraph;
     private SimpleGraph<HousingMarketVertex, DefaultEdge> matchGraph;
+    // Algorithm is functionally agnostic to strategy variant, which matters only to the improvement graph.
+    // The only reason it's included here is because it's useful to throw an error at some point in ResidualGraph
+    // when this strategy is REGULAR.
+    private MCPMAStrategy mcpmaStrategy;
 
-    public ImprovementMCPMA(ImprovementGraph improvementGraph) throws UnequalSidesException {
+    public MCPMA(ImprovementGraph improvementGraph, MCPMAStrategy mcpmaStrategy) throws UnequalSidesException {
         this.improvementGraph = improvementGraph;
+        this.mcpmaStrategy = mcpmaStrategy;
         if (improvementGraph.getHouses().size() + improvementGraph.getDummyHouses().size()
         != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size()) {
             throw new UnequalSidesException("Error: Improvement graph does not contain equal amount of houses and households.");
@@ -38,19 +42,18 @@ public class ImprovementMCPMA {
     }
 
     // Find optimal matching.
-    public SimpleGraph<HousingMarketVertex, DefaultEdge> findOptimalMatching(boolean print) throws ImprovementPrices.AlreadyInitiatedException, ResidualImprovementGraph.MatchGraphNotEmptyException, ResidualImprovementGraph.PathEdgeNotInResidualImprovementGraphException {
-        ImprovementPrices improvementPrices = new ImprovementPrices(improvementGraph, matchGraph);
-        improvementPrices.setInitialPrices();
+    public SimpleGraph<HousingMarketVertex, DefaultEdge> findOptimalMatching(boolean print) throws MCPMAPrices.AlreadyInitiatedException, ResidualGraph.MatchGraphNotEmptyException, ResidualGraph.PathEdgeNotInResidualGraphException {
+        MCPMAPrices MCPMAPrices = new MCPMAPrices(improvementGraph, matchGraph, mcpmaStrategy);
+        MCPMAPrices.setInitialPrices();
         int i = 0;
         boolean shouldContinue = matchGraph.edgeSet().size() != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size();
         while (shouldContinue) {
             if(print) { System.out.println("Augmenting path " + i); }
-            GraphPath<Integer, DefaultWeightedEdge> augmentingPath = improvementPrices.getResidualImprovementGraph().findAugmentingPath();
-            // TODO: Check if indeed this path may be null with non-maximal matching!
+            GraphPath<Integer, DefaultWeightedEdge> augmentingPath = MCPMAPrices.getResidualGraph().findAugmentingPath();
             if (augmentingPath == null) {
                 shouldContinue = false;
             } else {
-                this.matchGraph = improvementPrices.augmentMatchGraphAndUpdateAll(augmentingPath);
+                this.matchGraph = MCPMAPrices.augmentMatchGraphAndUpdateAll(augmentingPath);
                 i++;
                 shouldContinue = matchGraph.edgeSet().size() != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size();
             }
