@@ -22,7 +22,7 @@ public class ImprovementGraph {
     private ArrayList<DummyHousehold> dummyHouseholds = new ArrayList<DummyHousehold>();
     private int nextDummyID;
 
-    // Warning: This algorithm only takes empty houses into account if MCPMAStrategy == Improvement.
+    // Warning: This algorithm takes only empty houses into account if MCPMAStrategy == Improvement.
     public ImprovementGraph(Matching matching, MCPMAStrategy mcpmaStrategy) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = matching;
         this.matchingEvaluator = new MatchingEvaluator(matching);
@@ -83,13 +83,15 @@ public class ImprovementGraph {
                 DefaultWeightedEdge edge = this.improvementGraph.addEdge(house, household);
                 switch (mcpmaStrategy) {
                     case REGULAR:
-                        // "1 - X" because we want to maximize, not minimize; and difference between fits is no more than 1.
-                        improvementGraph.setEdgeWeight(edge, 1 - fitWithHouse);
+                        // "1.00 - X" because we want to maximize, not minimize;
+                        // and difference between fits is no more than 1.00 (in the case of dummies).
+                        improvementGraph.setEdgeWeight(edge, 1.00 - fitWithHouse);
                         break;
                     case IMPROVEMENT:
                         if (fitWithHouse > currentHouseholdFit) {
-                            // "1 - X" because we want to maximize, not minimize; and difference between fits is no more than 1.
-                            improvementGraph.setEdgeWeight(edge, 1 - (fitWithHouse - currentHouseholdFit));
+                            // "1.00 - X" because we want to maximize, not minimize;
+                            // and difference between fits is no more than 1.00 (in the case of dummies).
+                            improvementGraph.setEdgeWeight(edge, 1.00 - (fitWithHouse - currentHouseholdFit));
                         } break;
                 }
             }
@@ -97,7 +99,6 @@ public class ImprovementGraph {
 
         // Create edges and assign weights for dummy houses and households
         // For dummy houses...
-        // TODO: modify descrs re: 1.00
         for (DummyHouse dummyHouse : this.dummyHouses) {
             for (Household household : this.households) {
                 DefaultWeightedEdge edge = this.improvementGraph.addEdge(dummyHouse, household);

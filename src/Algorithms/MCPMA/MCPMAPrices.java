@@ -39,7 +39,7 @@ public class MCPMAPrices {
             }
 
             for (Household household : this.improvementGraph.getHouseholds()) {
-                double minScore = 1;
+                double minScore = 1.00;
                 for (House neighbor : this.improvementGraph.getNonDummyNeighborsOfHousehold(household)) {
                     if (this.improvementGraph.getEdgeWeight(neighbor, household) < minScore) {
                         minScore = this.improvementGraph.getEdgeWeight(neighbor, household);
@@ -56,7 +56,7 @@ public class MCPMAPrices {
         this.residualGraph = new ResidualGraph(this.improvementGraph, this.matchGraph, this);
     }
 
-    public void updatePrices() {
+    private void updatePrices() {
         // This process indeed does not require the new matching M' and instead depends wholly on the old matching.
         DijkstraShortestPath<Integer, DefaultWeightedEdge> dijkstraShortestPath
                 = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.residualGraph.getResidualImprovementGraph());
@@ -111,11 +111,11 @@ public class MCPMAPrices {
         return this.matchGraph;
     }
 
-    public void setHousePrice(HousingMarketVertex house, double newPrice) {
+    private void setHousePrice(HousingMarketVertex house, double newPrice) {
         this.housePrices.put(house, newPrice);
     }
 
-    public void setHouseholdPrice(HousingMarketVertex household, double newPrice) {
+    private void setHouseholdPrice(HousingMarketVertex household, double newPrice) {
         this.householdPrices.put(household, newPrice);
     }
 

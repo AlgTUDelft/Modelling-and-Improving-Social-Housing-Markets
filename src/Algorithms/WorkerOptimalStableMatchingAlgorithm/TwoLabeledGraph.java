@@ -52,7 +52,7 @@ public class TwoLabeledGraph {
     // TODO: Note somewhere that I use edgeweights denoting exactly the preference, rather than "1 = strict".
     //  Also note that this functionality is only implemented when strategy is findMax.
     //  When strategy is regular, I just use edgeweights of 1.
-    public void wireHouseholds(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
+    private void wireHouseholds(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         switch (strategy) {
             case WOSMA_REGULAR: wireHouseholdsNormally(householdIDs); break;
             case WOSMA_FINDMAX: wireHouseholdsFindMax(householdIDs); break;
@@ -60,7 +60,7 @@ public class TwoLabeledGraph {
         }
     }
 
-    public void wireHouseholdsNormally(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
+    private void wireHouseholdsNormally(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         // Add edges. Types here refer to the first three types noted in the paper's description of the WOSMA-algorithm.
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
 
@@ -119,7 +119,7 @@ public class TwoLabeledGraph {
         }
     }
 
-    public void wireHouseholdsFindMax(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
+    private void wireHouseholdsFindMax(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         // Add edges. Types here refer to the first three types noted in the paper's description of the WOSMA-algorithm.
         MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
 
@@ -175,7 +175,7 @@ public class TwoLabeledGraph {
         }
     }
 
-    public void wireHouseholdsIRCycles(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
+    private void wireHouseholdsIRCycles(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         // Include edges between any household and any house that is either better than
         // their initial house, or which equals their initial house.
         // Weight of edge is improvement; may be negative.
@@ -317,7 +317,7 @@ public class TwoLabeledGraph {
         return cycle;
     }
 
-    public List<Integer> findCycleRegular(boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException {
+    private List<Integer> findCycleRegular(boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException {
         List<Integer> cycle = null;
         GabowStrongConnectivityInspector gabowStrongConnectivityInspector = new GabowStrongConnectivityInspector(underlyingStrictGraph);
         List<AsSubgraph<Integer, DefaultWeightedEdge>> components = gabowStrongConnectivityInspector.getStronglyConnectedComponents();
@@ -333,7 +333,7 @@ public class TwoLabeledGraph {
         return cycle;
     }
 
-    public List<Integer> findCycleFindMax(boolean print) {
+    private List<Integer> findCycleFindMax(boolean print) {
         List<Integer> cycle;
         SzwarcfiterLauerSimpleCycles<Integer, DefaultWeightedEdge> szwarcfiterLauerSimpleCycles
                 = new SzwarcfiterLauerSimpleCycles<>(underlyingStrictGraph);
@@ -349,7 +349,7 @@ public class TwoLabeledGraph {
         return cycle;
     }
 
-    public List<Integer> findBestCycle(List<List<Integer>> cycles) {
+    private List<Integer> findBestCycle(List<List<Integer>> cycles) {
         if (cycles.isEmpty()) {
             return null;
         }
@@ -374,7 +374,7 @@ public class TwoLabeledGraph {
         return opt.get(); // Value is present for sure.
     }
 
-    public double calculateCycleScore(List<Integer> cycle) {
+    private double calculateCycleScore(List<Integer> cycle) {
         Set<DefaultWeightedEdge> edges = new HashSet<DefaultWeightedEdge>();
         for (int i = 0; i < cycle.size(); i++) {
             int source = cycle.get(i);
@@ -385,7 +385,7 @@ public class TwoLabeledGraph {
         return sumWeightOfEdges(edges);
     }
 
-    public double sumWeightOfEdges(Set<DefaultWeightedEdge> edges) {
+    private double sumWeightOfEdges(Set<DefaultWeightedEdge> edges) {
         double score = 0;
         for (DefaultWeightedEdge edge : edges) {
             score = score + this.underlyingStrictGraph.getEdgeWeight(edge);
@@ -406,7 +406,7 @@ public class TwoLabeledGraph {
         return cycle;
     }
 
-    public float addType3Cond1EdgeToHousehold(int householdID, House currentHouse, MatchingEvaluator matchingEvaluator) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {
+    private float addType3Cond1EdgeToHousehold(int householdID, House currentHouse, MatchingEvaluator matchingEvaluator) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {
         float fitWithCurrentHouse;
 
         if (currentHouse == null) {
