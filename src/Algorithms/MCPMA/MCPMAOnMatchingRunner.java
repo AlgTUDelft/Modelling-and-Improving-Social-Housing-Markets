@@ -16,7 +16,7 @@ public class MCPMAOnMatchingRunner {
     private SimpleGraph<HousingMarketVertex, DefaultEdge> matchGraph;
     private MCPMA MCPMA;
 
-    public MCPMAOnMatchingRunner(Matching matching, MCPMAStrategy mcpmaStrategy) throws MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MCPMA.UnequalSidesException {
+    public MCPMAOnMatchingRunner(Matching matching, MCPMAStrategy mcpmaStrategy) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MCPMA.UnequalSidesException {
         this.matching = matching;
         this.mcpmaStrategy = mcpmaStrategy;
         improvementGraph = new ImprovementGraph(matching, mcpmaStrategy);

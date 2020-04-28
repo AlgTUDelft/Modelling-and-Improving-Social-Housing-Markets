@@ -10,6 +10,7 @@ import Matching.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.function.BiFunction;
 
 public class Main {
 
@@ -662,6 +663,7 @@ public class Main {
         try {
             double connectionProb = 1.0;
             Matching matching = setupMatching(connectionProb, startLine, lineCount, matchingEvaluatorStrategy);
+
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
 
             Matching[] matchings = new Matching[3];

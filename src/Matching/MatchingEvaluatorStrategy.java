@@ -1,6 +1,8 @@
 package Matching;
 
-public enum MatchingEvaluatorStrategy {
+import java.io.Serializable;
+
+public enum MatchingEvaluatorStrategy implements Serializable {
     AVG,
     MIN
 }

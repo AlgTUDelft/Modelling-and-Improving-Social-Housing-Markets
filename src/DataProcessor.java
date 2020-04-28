@@ -4,15 +4,18 @@ import HousingMarket.Household.HouseholdType;
 import HousingMarket.HousingMarket;
 import HousingMarket.HouseAndHouseholdPair;
 import Matching.Matching;
+import Matching.MatchingEvaluator;
 import Matching.MatchingEvaluatorStrategy;
+import Matching.Grader;
 
 import java.io.*;
 import java.util.Random;
+import java.util.function.BiFunction;
 
 // Adapted from: https://www.mkyong.com/java/how-to-read-and-parse-csv-file-in-java/
 
 
-public class DataProcessor {
+public class DataProcessor implements Serializable {
 
     private Matching matching;
 
@@ -84,6 +87,20 @@ public class DataProcessor {
                 }
             }
         }
+
+        BiFunction<Integer, Integer, Float> grader = (BiFunction<Integer, Integer, Float> & Serializable)
+                (Integer id1, Integer id2) -> {
+                    float result = 0;
+                    try {
+                        // TODO: Isolate ME.
+                        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
+                        result = matchingEvaluator.evaluateIndividualTotalFit(id1, id2);
+                    } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+                        e.printStackTrace();
+                    }
+                    return result;
+                };
+        matching.setGrader(new Grader(grader));
         return this.matching;
     }
 

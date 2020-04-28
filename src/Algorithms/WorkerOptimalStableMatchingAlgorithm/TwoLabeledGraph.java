@@ -37,10 +37,9 @@ public class TwoLabeledGraph {
         }
 
         if (strategy == Strategy.WOSMA_IR_CYCLES) {
-            MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
             for (Household household : this.matching.getHouseholds()) {
                 House house = this.matching.getHouseFromHousehold(household.getID());
-                if (house != null && matchingEvaluator.evaluateIndividualTotalFit(house.getID(), household.getID()) > 0) {
+                if (house != null && matching.getGrader().apply(house.getID(), household.getID()) > 0) {
                     householdInitialHouseMap.put(household.getID(), house.getID());
                 }
             }
@@ -62,11 +61,10 @@ public class TwoLabeledGraph {
 
     private void wireHouseholdsNormally(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         // Add edges. Types here refer to the first three types noted in the paper's description of the WOSMA-algorithm.
-        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
 
         for (Integer householdID : householdIDs) {
             House currentHouse = matching.getHouseFromHousehold(householdID);
-            float fitWithCurrentHouse = addType3Cond1EdgeToHousehold(householdID, currentHouse, matchingEvaluator);
+            float fitWithCurrentHouse = addType3Cond1EdgeToHousehold(householdID, currentHouse);
 
 
             for (House otherHouse : this.matching.getHouses()) {
@@ -75,7 +73,7 @@ public class TwoLabeledGraph {
                         continue;
                     }
                 }
-                float fitWithOtherHouse = matchingEvaluator.evaluateIndividualTotalFit(otherHouse.getID(), householdID);
+                float fitWithOtherHouse = this.matching.getGrader().apply(otherHouse.getID(), householdID);
                 if (fitWithOtherHouse >= fitWithCurrentHouse) {
                     Household householdOfOtherHouse = this.matching.getHouseholdFromHouse(otherHouse.getID());
                     if (householdOfOtherHouse == null) {
@@ -121,11 +119,10 @@ public class TwoLabeledGraph {
 
     private void wireHouseholdsFindMax(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         // Add edges. Types here refer to the first three types noted in the paper's description of the WOSMA-algorithm.
-        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
 
         for (Integer householdID : householdIDs) {
             House currentHouse = matching.getHouseFromHousehold(householdID);
-            float fitWithCurrentHouse = addType3Cond1EdgeToHousehold(householdID, currentHouse, matchingEvaluator);
+            float fitWithCurrentHouse = addType3Cond1EdgeToHousehold(householdID, currentHouse);
 
             float highScore = 0;
 
@@ -135,7 +132,7 @@ public class TwoLabeledGraph {
                         continue;
                     }
                 }
-                float fitWithOtherHouse = matchingEvaluator.evaluateIndividualTotalFit(otherHouse.getID(), householdID);
+                float fitWithOtherHouse = this.matching.getGrader().apply(otherHouse.getID(), householdID);
                 if (fitWithOtherHouse >= fitWithCurrentHouse) {
                     Household householdOfOtherHouse = this.matching.getHouseholdFromHouse(otherHouse.getID());
                     if (householdOfOtherHouse == null) {
@@ -182,14 +179,13 @@ public class TwoLabeledGraph {
         // In other words: edge existence is determined w.r.t. candidateHouse - initialHouse > 0,
         // but edge weight is determined w.r.t. candidateHouse - currentHouse.
 
-        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.matching);
         for (Integer householdID : householdIDs) {
             float initialFit = 0;
             House initialHouse = null;
 
             if (householdInitialHouseMap.containsKey(householdID)) {
                 initialHouse = matching.getHouse(householdInitialHouseMap.get(householdID));
-                initialFit = matchingEvaluator.evaluateIndividualTotalFit(initialHouse.getID(), householdID);
+                initialFit = this.matching.getGrader().apply(initialHouse.getID(), householdID);
             }
             if (initialFit == 0){
                 // Household initially had no house or had a worthless house, so may be 'moved into houselessness' by IR-Cycles.
@@ -201,7 +197,7 @@ public class TwoLabeledGraph {
             float currentFit = 0;
             House currentHouse = matching.getHouseFromHousehold(householdID);
             if (currentHouse != null) {
-                currentFit = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
+                currentFit = this.matching.getGrader().apply(currentHouse.getID(), householdID);
             }
 
             // HighScoreFree eventually represents the highest improvement that may be gained by moving
@@ -214,7 +210,7 @@ public class TwoLabeledGraph {
             float highScoreFree = -1 + initialFit;
 
             for (House house : this.matching.getHouses()) {
-                float candidateFit = matchingEvaluator.evaluateIndividualTotalFit(house.getID(), householdID);
+                float candidateFit = this.matching.getGrader().apply(house.getID(), householdID);
                 Household householdOfCandidateHouse = matching.getHouseholdFromHouse(house.getID());
                 if (householdOfCandidateHouse != null && householdOfCandidateHouse.getID() != householdID) {
                     if (candidateFit > initialFit) {
@@ -266,10 +262,10 @@ public class TwoLabeledGraph {
             // In that case we needn't replace that edge with this lower one.
             if (householdInitialHouseMap.containsKey(householdID)) {
                 House initialHouse = matching.getHouse(householdInitialHouseMap.get(householdID));
-                float initialFit = matchingEvaluator.evaluateIndividualTotalFit(initialHouse.getID(), householdID);
+                float initialFit = this.matching.getGrader().apply(initialHouse.getID(), householdID);
                 float currentFit = 0;
                 if (currentHouse != null) {
-                    currentFit = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
+                    currentFit = this.matching.getGrader().apply(currentHouse.getID(), householdID);
                 }
                 Household householdOwningInitialHouse = matching.getHouseholdFromHouse(initialHouse.getID());
                 if (householdOwningInitialHouse != null && householdOwningInitialHouse.getID() != householdID) {
@@ -406,7 +402,7 @@ public class TwoLabeledGraph {
         return cycle;
     }
 
-    private float addType3Cond1EdgeToHousehold(int householdID, House currentHouse, MatchingEvaluator matchingEvaluator) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {
+    private float addType3Cond1EdgeToHousehold(int householdID, House currentHouse) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {
         float fitWithCurrentHouse;
 
         if (currentHouse == null) {
@@ -415,7 +411,7 @@ public class TwoLabeledGraph {
             underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
             fitWithCurrentHouse = 0;
         } else {
-            fitWithCurrentHouse = matchingEvaluator.evaluateIndividualTotalFit(currentHouse.getID(), householdID);
+            fitWithCurrentHouse = this.matching.getGrader().apply(currentHouse.getID(), householdID);
         }
         return fitWithCurrentHouse;
     }

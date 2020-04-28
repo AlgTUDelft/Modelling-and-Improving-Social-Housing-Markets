@@ -114,19 +114,6 @@ public class DynamicMatching implements Serializable {
         }
     }
 
-    private void checkIfHouselessHouseholdsHaveNoPreferredEmptyHouse() throws MatchingEvaluator.HouseholdIncomeTooHighException {
-        Set<Integer> houselessHouseholds = this.currentMatching.getHouselessHouseholdsIDs();
-        Set<Integer> householdlessHouses = this.currentMatching.getHouseholdlessHousesIDs();
-        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this.currentMatching);
-        for (int houselessHouseholdID : houselessHouseholds) {
-            for (int householdlessHouseID : householdlessHouses) {
-                if (matchingEvaluator.evaluateIndividualTotalFit(householdlessHouseID, houselessHouseholdID) > 0) {
-                    System.out.println("Got here!");
-                }
-            }
-        }
-    }
-
     public void resetState() {
         this.currentMatching = (Matching) deepClone(this.initialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(this.initialHousesToArrive);

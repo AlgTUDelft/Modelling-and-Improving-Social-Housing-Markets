@@ -3,11 +3,12 @@ package Matching;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 
 
 //    Takes Matching and evaluates based on several criteria.
-public class MatchingEvaluator {
+public class MatchingEvaluator implements Serializable {
 
     private Matching matching;
     private MatchingEvaluatorStrategy matchingEvaluatorStrategy;

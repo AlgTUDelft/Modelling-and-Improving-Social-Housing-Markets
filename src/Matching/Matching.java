@@ -8,6 +8,7 @@ import HousingMarket.HouseAndHouseholdIDPair;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import org.jgrapht.GraphPath;
@@ -30,12 +31,22 @@ public class Matching implements Serializable {
     private boolean findMaxFailed = false; // Relevant to DynamicMatching.
     private MatchingEvaluatorStrategy matchingEvaluatorStrategy;
 
+    private Grader grader;
+
     private HousingMarket housingMarket;
 
     public Matching(HousingMarket housingMarket, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
         this.matchingGraph = new SimpleGraph<>(DefaultEdge.class);
         this.housingMarket = housingMarket;
         this.matchingEvaluatorStrategy = matchingEvaluatorStrategy;
+    }
+
+    public void setGrader(Grader grader) {
+        this.grader = grader;
+    }
+
+    public Grader getGrader() {
+        return grader;
     }
 
     public int addHouse(House house) throws HouseIDAlreadyPresentException {
@@ -329,8 +340,6 @@ public class Matching implements Serializable {
             }
         }
 
-        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this);
-
         for (int i = 0; i<edgesCount; i++) {
             int sourceVertex;
             int targetVertex;
@@ -359,14 +368,14 @@ public class Matching implements Serializable {
                 if (housesList.get(i) == null) {
                     highestScore = 0;
                 } else {
-                    highestScore = matchingEvaluator.evaluateIndividualTotalFit(housesList.get(i), sourceVertex);
+                    highestScore = grader.apply(housesList.get(i), sourceVertex);
                 }
                 House bestHouse = null;
                 for (int houseID : householdlessHouses) {
                     // _housesList_ houses will either go to *another* household in the chain,
                     // or this household didn't want it anyway, since this is not a cycle.
                     if (!housesList.contains(houseID)) {
-                        float candidateScore = matchingEvaluator.evaluateIndividualTotalFit(houseID, sourceVertex);
+                        float candidateScore = grader.apply(houseID, sourceVertex);
                         if (candidateScore >= highestScore) {
                             highestScore = candidateScore;
                             bestHouse = getHouse(houseID);
@@ -421,8 +430,6 @@ public class Matching implements Serializable {
             }
         }
 
-        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this);
-
         for (int i = 0; i<edgesCount; i++) {
             int sourceVertex;
             int targetVertex;
@@ -449,14 +456,14 @@ public class Matching implements Serializable {
                 Set<Integer> householdlessHouses = getHouseholdlessHousesIDs();
                 float highestScore = 0;
                 if (householdInitialHouseMap.containsKey(sourceVertex)) {
-                    highestScore = matchingEvaluator.evaluateIndividualTotalFit(householdInitialHouseMap.get(sourceVertex), sourceVertex);
+                    highestScore = grader.apply(householdInitialHouseMap.get(sourceVertex), sourceVertex);
                 }
                 House bestHouse = null;
                 for (int houseID : householdlessHouses) {
                     // _housesList_ houses will either go to *another* household in the chain,
                     // or this household didn't want it anyway, since this is not a cycle.
                     if (!housesList.contains(houseID)) {
-                        float candidateScore = matchingEvaluator.evaluateIndividualTotalFit(houseID, sourceVertex);
+                        float candidateScore = grader.apply(houseID, sourceVertex);
                         if (candidateScore >= highestScore) {
                             highestScore = candidateScore;
                             bestHouse = getHouse(houseID);
@@ -567,13 +574,12 @@ public class Matching implements Serializable {
 
     public String toString() {
         String result = this.households + " -- (";
-        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(this);
         int i = 0;
         for (Household household : households) {
             try {
                 House house = getHouseFromHousehold(household.getID());
                 if (house != null) {
-                    String string = "{" + house.getID() + "," + household.getID() + ":" + matchingEvaluator.evaluateIndividualTotalFit(house.getID(), household.getID()) + "}";
+                    String string = "{" + house.getID() + "," + household.getID() + ":" + grader.apply(house.getID(), household.getID()) + "}";
                     if (i == 0) {
                         result += string;
                         i++;
@@ -584,8 +590,6 @@ public class Matching implements Serializable {
             } catch (HouseholdLinkedToHouseholdException e) {
                 e.printStackTrace();
             } catch (HouseholdLinkedToMultipleException e) {
-                e.printStackTrace();
-            } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
                 e.printStackTrace();
             }
         }

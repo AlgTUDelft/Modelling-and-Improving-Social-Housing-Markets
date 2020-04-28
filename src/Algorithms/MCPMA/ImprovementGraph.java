@@ -4,28 +4,30 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarketVertex;
 import Matching.Matching;
+import Matching.Grader;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import Matching.MatchingEvaluator;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 public class ImprovementGraph {
     private SimpleWeightedGraph<HousingMarketVertex, DefaultWeightedEdge> improvementGraph
             = new SimpleWeightedGraph<HousingMarketVertex, DefaultWeightedEdge>(DefaultWeightedEdge.class);
     private Matching matching;
-    private MatchingEvaluator matchingEvaluator;
     private ArrayList<House> houses = new ArrayList<>(); // Does not include dummies
     private ArrayList<Household> households = new ArrayList<>(); // Does not include dummies
     private ArrayList<DummyHouse> dummyHouses = new ArrayList<DummyHouse>();
     private ArrayList<DummyHousehold> dummyHouseholds = new ArrayList<DummyHousehold>();
     private int nextDummyID;
+    Grader grader;
 
     // Warning: This algorithm takes only empty houses into account if MCPMAStrategy == Improvement.
-    public ImprovementGraph(Matching matching, MCPMAStrategy mcpmaStrategy) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {
+    public ImprovementGraph(Matching matching, MCPMAStrategy mcpmaStrategy) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         this.matching = matching;
-        this.matchingEvaluator = new MatchingEvaluator(matching);
+        this.grader = matching.getGrader();
 
         // Default case |H| == |F|
         switch (mcpmaStrategy) {
@@ -76,10 +78,10 @@ public class ImprovementGraph {
             // TODO: change floats to doubles
             float currentHouseholdFit = 0;
             if (currentHouseholdMatch != null) {
-                currentHouseholdFit = matchingEvaluator.evaluateIndividualTotalFit(currentHouseholdMatch.getID(), household.getID());
+                currentHouseholdFit = grader.apply(currentHouseholdMatch.getID(), household.getID());
             }
             for (House house : this.houses) {
-                float fitWithHouse = matchingEvaluator.evaluateIndividualTotalFit(house.getID(), household.getID());
+                float fitWithHouse = grader.apply(house.getID(), household.getID());
                 DefaultWeightedEdge edge = this.improvementGraph.addEdge(house, household);
                 switch (mcpmaStrategy) {
                     case REGULAR:
@@ -169,9 +171,7 @@ public class ImprovementGraph {
             Optional<DummyHouse> dummyResult = this.dummyHouses.stream()
                     .filter(h -> h.getID() == ID)
                     .findFirst();
-            if (dummyResult.isPresent()) {
-                return dummyResult.get();
-            } else { return null; }
+            return dummyResult.orElse(null);
         }
     }
 
@@ -186,9 +186,7 @@ public class ImprovementGraph {
             Optional<DummyHousehold> dummyResult = this.dummyHouseholds.stream()
                     .filter(h -> h.getID() == ID)
                     .findFirst();
-            if (dummyResult.isPresent()) {
-                return dummyResult.get();
-            } else { return null; }
+            return dummyResult.orElse(null);
         }
     }
 
