@@ -1,3 +1,5 @@
+package Comparisons;
+
 import Algorithms.MCPMA.*;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import HousingMarket.Household.Household;
@@ -12,13 +14,6 @@ public class Compare {
 
     public Compare() {
 
-    }
-
-    public static Matching setupMatching(double connectionProb, int startLine, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, IOException {
-        String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
-        HousingMarket housingMarket = new HousingMarket(2017, 100);
-        DataProcessor dataProcessor = new DataProcessor(housingMarket, matchingEvaluatorStrategy);
-        return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount);
     }
 
     public static Runnable runDynamicWOSMAMatching(int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws IOException {
@@ -72,7 +67,7 @@ public class Compare {
         };
     }
 
-    public static DynamicMatchingComparisonResult individualRunDynamicWOSMAMatching(int startLine, int lineCount, boolean oneSided, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws InterruptedException {
+    public static DynamicMatchingComparisonResult individualRunDynamicWOSMAMatching(DynamicMatching dynamicMatching, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws InterruptedException {
         int timestepCount = lineCount/2;
         DynamicMatchingComparisonResult dynamicMatchingComparisonResult = null;
         try {
@@ -81,16 +76,16 @@ public class Compare {
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
 
             Matching[] matchings = new Matching[5];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, Strategy.WOSMA_REGULAR, false);
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, DynamicStrategy.WOSMA_REGULAR, false);
             System.out.println("Got here! 0 " + matchings[0].getFindMaxFailed());
             dynamicMatching.resetState();
-            matchings[1] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, Strategy.WOSMA_FINDMAX, false);
+            matchings[1] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, DynamicStrategy.WOSMA_FINDMAX, false);
             System.out.println("Got here! 1 " + matchings[1].getFindMaxFailed());
             dynamicMatching.resetState();
-            matchings[2] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.WOSMA_REGULAR,false);
+            matchings[2] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, DynamicStrategy.WOSMA_REGULAR,false);
             System.out.println("Got here! 2 " + matchings[2].getFindMaxFailed());
             dynamicMatching.resetState();
-            matchings[3] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.WOSMA_FINDMAX,false);
+            matchings[3] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, DynamicStrategy.WOSMA_FINDMAX,false);
             System.out.println("Got here! 3 " + matchings[3].getFindMaxFailed());
             matchings[4] = new MCPMAOnMatchingRunner((Matching) deepClone(dynamicMatching.getInputMatching()), MCPMAStrategy.REGULAR)
                     .optimizeMatching(false);
@@ -262,11 +257,11 @@ public class Compare {
             DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
 
             Matching[] matchings = new Matching[3];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, Strategy.MCPMA_IMPROVEMENT, false);
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, DynamicStrategy.MCPMA_IMPROVEMENT, false);
             System.out.println("Got here! 0");
             DynamicMatching dynamicMatching0 = (DynamicMatching) deepClone(dynamicMatching);
             dynamicMatching.resetState();
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.MCPMA_IMPROVEMENT, false);
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, DynamicStrategy.MCPMA_IMPROVEMENT, false);
             System.out.println("Got here! 1");
             DynamicMatching dynamicMatching1 = (DynamicMatching) deepClone(dynamicMatching);
             dynamicMatching.resetState(); // Unnecessary but eh.
@@ -334,8 +329,9 @@ public class Compare {
         return dynamicMatchingImprovementMCPMAComparisonResult;
     }
 
-    public static Runnable runDynamicIRCycles(int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws IOException {
+    public static Runnable runDynamicIRCycles(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws IOException {
         return () -> {
+
             String outputFilename = "../dyn-IRCycles-50times" + lineCount + "-";
             switch (matchingEvaluatorStrategy) {
                 case AVG:
@@ -346,26 +342,23 @@ public class Compare {
                     break;
             }
             outputFilename += "100prob-twosided.csv";
-            boolean oneSided = false;
 
-            ArrayList<DynamicMatchingIRCyclesComparisonResult> dynamicMatchingIRCyclesComparisonResults
-                    = new ArrayList<DynamicMatchingIRCyclesComparisonResult>();
-            ArrayList<Integer> startLines = new ArrayList<Integer>(Arrays.asList(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410, 420, 430, 440, 450, 460, 470, 480, 490, 500));
+            ArrayList<GenericResult> genericResults
+                    = new ArrayList();
             boolean interrupted = false;
-            for (int startLine : startLines) {
-                System.out.println("Startline: " + startLine);
+            for (DynamicMatching dynamicMatching : dynamicMatchings) {
                 try {
-                    dynamicMatchingIRCyclesComparisonResults.add(individualRunDynamicIRCyclesMatching(startLine, lineCount, oneSided, matchingEvaluatorStrategy));
+                    genericResults.add(individualRunDynamicIRCyclesMatching(dynamicMatching));
                 } catch (InterruptedException e) {
                     interrupted = true;
                     break;
                 }
             }
-            DynamicMatchingIRCyclesComparisonResultProcessor dynamicMatchingIRCyclesComparisonResultProcessor
-                    = new DynamicMatchingIRCyclesComparisonResultProcessor(dynamicMatchingIRCyclesComparisonResults);
+            GenericResultProcessor genericResultProcessor
+                    = new GenericResultProcessor(genericResults);
             try {
                 if(!interrupted) {
-                    dynamicMatchingIRCyclesComparisonResultProcessor.resultsToCSV(outputFilename);
+                    genericResultProcessor.resultsToCSV(outputFilename);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -373,49 +366,21 @@ public class Compare {
         };
     }
 
-    public static DynamicMatchingIRCyclesComparisonResult individualRunDynamicIRCyclesMatching(int startLine, int lineCount, boolean oneSided, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws InterruptedException {
-        int timestepCount = lineCount/2;
-        DynamicMatchingIRCyclesComparisonResult dynamicMatchingIRCyclesComparisonResult = null;
+    public static GenericResult individualRunDynamicIRCyclesMatching(DynamicMatching dynamicMatching) throws InterruptedException {
+        GenericResult genericResult = null;
         try {
-            double connectionProb = 1.0;
-            Matching matching = setupMatching(connectionProb, startLine, lineCount, matchingEvaluatorStrategy);
-
-            DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
-
-            Matching[] matchings = new Matching[3];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(timestepCount, Strategy.WOSMA_IR_CYCLES, false);
-            System.out.println("Got here! 0");
+            Matching[] matchings = new Matching[2];
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(DynamicStrategy.WOSMA_IR_CYCLES, false);
             dynamicMatching.resetState();
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(timestepCount, Strategy.WOSMA_IR_CYCLES, false);
-            System.out.println("Got here! 1");
-            dynamicMatching.resetState(); // Unnecessary but eh.
-            matchings[2] = new MCPMAOnMatchingRunner((Matching) deepClone(dynamicMatching.getInputMatching()), MCPMAStrategy.REGULAR)
-                        .optimizeMatching(false);
-            System.out.println("Got here! 2");
-
-
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(DynamicStrategy.WOSMA_IR_CYCLES, false);
+            dynamicMatching.resetState();
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
 
-            String[] strings = {
-                    "Final per step score",
-                    "Final afterwards score",
-                    "Optimal (but non-IR) score"};
-
-            prettyPrintResults(strings, scores);
-
-            float perStepOptimality = scores[0]/scores[2];
-            float afterwardsOptimality = scores[1]/scores[2];
-            dynamicMatchingIRCyclesComparisonResult
-                    = new DynamicMatchingIRCyclesComparisonResult(timestepCount,
-                    scores[0], scores[1], scores[2],
-                    perStepOptimality, afterwardsOptimality);
+            genericResult = new GenericResult(scores[0], scores[1]);
 
         } catch (Matching.HouseLinkedToHouseException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (DynamicMatching.TooManyTimestepsException e) {
             e.printStackTrace();
         } catch (Matching.PreferredNoHouseholdlessHouseException e) {
             e.printStackTrace();
@@ -423,11 +388,7 @@ public class Compare {
             e.printStackTrace();
         } catch (Matching.HouseIDAlreadyPresentException e) {
             e.printStackTrace();
-        } catch (HousingMarket.FreeSpaceException e) {
-            e.printStackTrace();
         } catch (Matching.HouseAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (Household.InvalidHouseholdException e) {
             e.printStackTrace();
         } catch (Matching.HouseholdAlreadyMatchedException e) {
             e.printStackTrace();
@@ -451,8 +412,9 @@ public class Compare {
             e.printStackTrace();
         }
 
-        return dynamicMatchingIRCyclesComparisonResult;
+        return genericResult;
     }
+
 
 
     public static float[] evaluateMatchingsAverageIndividualTotalFit(Matching[] matchings) throws MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
@@ -467,19 +429,6 @@ public class Compare {
             scores[i] = matchingEvaluators[i].evaluateAverageIndividualTotalFit(false);
         }
         return scores;
-    }
-
-    public static void prettyPrintResults(String[] strings, float[] scores) {
-        int maxStringLength = 0;
-        for (int i = 0; i < strings.length; i++) {
-            if (strings[i].length() > maxStringLength) {
-                maxStringLength = strings[i].length();
-            }
-        }
-        for (int i = 0; i < strings.length; i++) {
-            System.out.printf("%" + maxStringLength + "s: %10f%n", strings[i], scores[i]);
-        }
-        System.out.println();
     }
 
 

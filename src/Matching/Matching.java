@@ -29,8 +29,8 @@ public class Matching implements Serializable {
     protected ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
     protected Set<Integer> householdsMovedByWOSMA = new HashSet<Integer>(); // Is reset at the end of WOSMA-calls before return.
     private boolean findMaxFailed = false; // Relevant to DynamicMatching.
-    private MatchingEvaluatorStrategy matchingEvaluatorStrategy;
 
+    private MatchingEvaluatorStrategy matchingEvaluatorStrategy;
     private Grader grader;
 
     private HousingMarket housingMarket;

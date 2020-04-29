@@ -1,6 +1,6 @@
 package Matching;
 
-public enum Strategy {
+public enum DynamicStrategy {
     MCPMA_IMPROVEMENT,
     WOSMA_REGULAR,
     WOSMA_FINDMAX,
