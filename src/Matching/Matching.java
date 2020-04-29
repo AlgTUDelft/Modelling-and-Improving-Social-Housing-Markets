@@ -8,7 +8,6 @@ import HousingMarket.HouseAndHouseholdIDPair;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import org.jgrapht.GraphPath;
@@ -28,7 +27,7 @@ public class Matching implements Serializable {
     protected ArrayList<Integer> SWIChainLengths = new ArrayList<Integer>();
     protected ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
     protected Set<Integer> householdsMovedByWOSMA = new HashSet<Integer>(); // Is reset at the end of WOSMA-calls before return.
-    private boolean findMaxFailed = false; // Relevant to DynamicMatching.
+    private boolean strategyDowngraded = false; // Relevant to DynamicMatching.
 
     private MatchingEvaluatorStrategy matchingEvaluatorStrategy;
     private Grader grader;
@@ -517,16 +516,16 @@ public class Matching implements Serializable {
         }
     }
 
-    public void setFindMaxFailed() {
-        this.findMaxFailed = true;
+    public void setStrategyDowngraded() {
+        this.strategyDowngraded = true;
     }
 
     public void resetFindMaxFailed() {
-        this.findMaxFailed = false;
+        this.strategyDowngraded = false;
     }
 
-    public boolean getFindMaxFailed() {
-        return this.findMaxFailed;
+    public boolean getStrategyDowngraded() {
+        return this.strategyDowngraded;
     }
 
     public void resetHouseholdsMovedByWOSMA() {

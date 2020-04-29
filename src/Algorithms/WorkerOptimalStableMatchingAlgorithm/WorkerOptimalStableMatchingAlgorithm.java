@@ -28,7 +28,7 @@ public class WorkerOptimalStableMatchingAlgorithm {
         cycle = tryToFindCycle(dynamicStrategy, print);
         while (cycle != null) {
             if (Thread.interrupted()) {
-                System.out.println("Interrupted here");
+//                System.out.println("Interrupted here");
                 throw new InterruptedException();
             }
 
@@ -59,7 +59,8 @@ public class WorkerOptimalStableMatchingAlgorithm {
             } else if (dynamicStrategy == DynamicStrategy.WOSMA_FINDMAX) {
                 dynamicStrategy = DynamicStrategy.WOSMA_REGULAR;
             }
-            this.matching.setFindMaxFailed();
+            this.matching.setStrategyDowngraded();
+            System.out.println("findMax Failed! / Strategy downgraded! Please ensure you can find this in the results.");
             twoLabeledGraph = new TwoLabeledGraph(matching, dynamicStrategy);
             cycle = tryToFindCycle(dynamicStrategy, print);
         }

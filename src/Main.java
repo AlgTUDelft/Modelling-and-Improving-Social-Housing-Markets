@@ -12,7 +12,7 @@ import java.util.HashSet;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException, InterruptedException, Household.InvalidHouseholdException, Matching.Matching.HouseholdAlreadyMatchedException, HousingMarket.FreeSpaceException, Matching.Matching.HouseAlreadyMatchedException, Matching.Matching.HouseholdLinkedToMultipleException, Matching.Matching.HouseholdLinkedToHouseholdException, Matching.DynamicMatching.TooManyTimestepsException, Matching.Matching.HouseLinkedToMultipleException, Matching.MatchingEvaluator.HouseholdIncomeTooHighException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.Matching.PreferredNoHouseholdlessHouseException, Matching.Matching.HouseLinkedToHouseException {
+    public static void main(String[] args) throws IOException, InterruptedException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, HousingMarket.FreeSpaceException, Matching.HouseAlreadyMatchedException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, DynamicMatching.TooManyTimestepsException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToHouseException {
 
         long allowedRunningTime = 2_000;
         int maxVal = 150;
@@ -30,7 +30,8 @@ public class Main {
             HashSet<AlgorithmStrategy> interruptedAlgorithmStrategies = new HashSet<>();
 
             // For each matching size...
-            for (int lineCount : new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150))) {
+//            for (int lineCount : new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150))) {
+            for (int lineCount : new ArrayList<>(Arrays.asList( 25, 30, 35, 40, 45, 50, 75, 100, 125, 150))) {
                 int timestepCount = lineCount/2;
                 boolean oneSided = false;
                 ArrayList<DynamicMatching> dynamicMatchings = new ArrayList<DynamicMatching>();
@@ -49,9 +50,13 @@ public class Main {
                         break;
                     } else {
                         // Run it and check if we were interrupted during execution.
-                        boolean interrupted = runAlgorithm(dynamicMatchings, allowedRunningTime, algorithmStrategy, lineCount, matchingEvaluatorStrategy);
+                        ArrayList<DynamicMatching> dynamicMatchingsCopy = (ArrayList<DynamicMatching>) deepClone(dynamicMatchings); // Potentially expensive but seemingly necessary...
+                        boolean interrupted = runAlgorithm(dynamicMatchingsCopy, allowedRunningTime, algorithmStrategy, lineCount, matchingEvaluatorStrategy);
                         if (interrupted) {
+                            System.out.println("Interrupted: " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
                             interruptedAlgorithmStrategies.add(algorithmStrategy);
+                        } else {
+                            System.out.println("Finished:    " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
                         }
                     }
                 }
@@ -71,15 +76,13 @@ public class Main {
             case MCPMA: thread = new Thread(compare.runStaticMCPMA(dynamicmatchings, lineCount, matchingEvaluatorStrategy)); break;
         }
 
-        thread.start();      // requirement 3
-        Thread.sleep(allowedRunningTime);     // requirement 4
+        thread.start();
+        Thread.sleep(allowedRunningTime);
         if (Thread.activeCount() > 2) {
-            System.out.println("Alive");
             tookTooLong = true;
         }
-        thread.interrupt();  // requirement 5
-        thread.join();  // requirement 6
-        System.out.println("Got here");
+        thread.interrupt();
+        thread.join();
         return tookTooLong;
     }
 
@@ -88,6 +91,21 @@ public class Main {
         HousingMarket housingMarket = new HousingMarket(2017, 100);
         DataProcessor dataProcessor = new DataProcessor(housingMarket, matchingEvaluatorStrategy);
         return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount);
+    }
+
+    public static Object deepClone(Object object) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(object);
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+            ObjectInputStream ois = new ObjectInputStream(bais);
+            return ois.readObject();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }

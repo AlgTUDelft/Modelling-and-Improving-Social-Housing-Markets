@@ -3,13 +3,10 @@ package Comparisons;
 import Algorithms.AlgorithmStrategy;
 import Algorithms.MCPMA.*;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
-import HousingMarket.Household.Household;
-import HousingMarket.HousingMarket;
 import Matching.*;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Compare {
 
@@ -54,42 +51,15 @@ public class Compare {
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
 
-            wosmaLikeResult = new WOSMALikeResult(matchings[0].getFindMaxFailed(), scores[0], scores[1]);
+            wosmaLikeResult = new WOSMALikeResult(matchings[0].getStrategyDowngraded() || matchings[1].getStrategyDowngraded(), scores[0], scores[1]);
 
-        } catch (Matching.HouseLinkedToHouseException e) {
-            e.printStackTrace();
-        } catch (Matching.PreferredNoHouseholdlessHouseException e) {
-            e.printStackTrace();
-        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseIDAlreadyPresentException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToHouseholdException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdIDAlreadyPresentException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
-            e.printStackTrace();
-        } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (MCPMAPrices.AlreadyInitiatedException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.MatchGraphNotEmptyException e) {
-            e.printStackTrace();
-        } catch (MCPMA.UnequalSidesException e) {
+        } catch (Matching.HouseLinkedToHouseException | MCPMA.UnequalSidesException | ResidualGraph.MatchGraphNotEmptyException | MCPMAPrices.AlreadyInitiatedException | Matching.HouseLinkedToMultipleException | CycleFinder.FullyExploredVertexDiscoveredException | ResidualGraph.PathEdgeNotInResidualGraphException | Matching.HouseholdIDAlreadyPresentException | Matching.HouseholdLinkedToMultipleException | Matching.HouseholdLinkedToHouseholdException | Matching.HouseholdAlreadyMatchedException | Matching.HouseAlreadyMatchedException | Matching.HouseIDAlreadyPresentException | MatchingEvaluator.HouseholdIncomeTooHighException | Matching.PreferredNoHouseholdlessHouseException e) {
             e.printStackTrace();
         }
 
         return wosmaLikeResult;
     }
+
 
     public static Runnable runDynamicImprovementMCPMA(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
         return () -> {
@@ -119,7 +89,7 @@ public class Compare {
         };
     }
 
-    public static GenericResult individualRunDynamicImprovementMCPMA(DynamicMatching dynamicMatching) {
+    public static GenericResult individualRunDynamicImprovementMCPMA(DynamicMatching dynamicMatching) throws InterruptedException {
         GenericResult genericResult = null;
         try {
             Matching[] matchings = new Matching[2];
@@ -132,42 +102,13 @@ public class Compare {
 
             genericResult = new GenericResult(scores[0], scores[1]);
 
-        } catch (MCPMAPrices.AlreadyInitiatedException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
-            e.printStackTrace();
-        } catch (MCPMA.UnequalSidesException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdIDAlreadyPresentException e) {
-            e.printStackTrace();
-        } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.MatchGraphNotEmptyException e) {
-            e.printStackTrace();
-        } catch (Matching.PreferredNoHouseholdlessHouseException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToHouseException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToHouseholdException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseIDAlreadyPresentException e) {
+        } catch (MCPMAPrices.AlreadyInitiatedException | Matching.HouseIDAlreadyPresentException | Matching.HouseholdLinkedToHouseholdException | Matching.HouseLinkedToHouseException | Matching.PreferredNoHouseholdlessHouseException | ResidualGraph.MatchGraphNotEmptyException | CycleFinder.FullyExploredVertexDiscoveredException | Matching.HouseholdIDAlreadyPresentException | ResidualGraph.PathEdgeNotInResidualGraphException | MCPMA.UnequalSidesException | MatchingEvaluator.HouseholdIncomeTooHighException | Matching.HouseAlreadyMatchedException | Matching.HouseholdLinkedToMultipleException | Matching.HouseholdAlreadyMatchedException | Matching.HouseLinkedToMultipleException e) {
             e.printStackTrace();
         }
 
         return genericResult;
     }
+
 
     public static Runnable runDynamicWOSMAFindMax(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
         return () -> {
@@ -197,7 +138,7 @@ public class Compare {
         };
     }
 
-    public static WOSMALikeResult individualRunDynamicWOSMAFindMax(DynamicMatching dynamicMatching) {
+    public static WOSMALikeResult individualRunDynamicWOSMAFindMax(DynamicMatching dynamicMatching) throws InterruptedException {
         WOSMALikeResult wosmaLikeResult = null;
         try {
             Matching[] matchings = new Matching[2];
@@ -208,45 +149,15 @@ public class Compare {
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
 
-            wosmaLikeResult = new WOSMALikeResult(matchings[0].getFindMaxFailed(), scores[0], scores[1]);
+            wosmaLikeResult = new WOSMALikeResult(matchings[0].getStrategyDowngraded() || matchings[1].getStrategyDowngraded(), scores[0], scores[1]);
 
-        } catch (Matching.HouseLinkedToHouseException e) {
-            e.printStackTrace();
-            e.printStackTrace();
-        } catch (Matching.PreferredNoHouseholdlessHouseException e) {
-            e.printStackTrace();
-        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseIDAlreadyPresentException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToHouseholdException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdIDAlreadyPresentException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
-            e.printStackTrace();
-        } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (MCPMAPrices.AlreadyInitiatedException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.MatchGraphNotEmptyException e) {
-            e.printStackTrace();
-        } catch (MCPMA.UnequalSidesException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (Matching.HouseLinkedToHouseException | MCPMA.UnequalSidesException | ResidualGraph.MatchGraphNotEmptyException | MCPMAPrices.AlreadyInitiatedException | Matching.HouseLinkedToMultipleException | CycleFinder.FullyExploredVertexDiscoveredException | ResidualGraph.PathEdgeNotInResidualGraphException | Matching.HouseholdIDAlreadyPresentException | Matching.HouseholdLinkedToMultipleException | Matching.HouseholdLinkedToHouseholdException | Matching.HouseholdAlreadyMatchedException | Matching.HouseAlreadyMatchedException | Matching.HouseIDAlreadyPresentException | MatchingEvaluator.HouseholdIncomeTooHighException | Matching.PreferredNoHouseholdlessHouseException e) {
             e.printStackTrace();
         }
 
         return wosmaLikeResult;
     }
+
 
     public static Runnable runDynamicWOSMARegular(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
         return () -> {
@@ -276,7 +187,7 @@ public class Compare {
         };
     }
 
-    public static GenericResult individualRunDynamicWOSMARegular(DynamicMatching dynamicMatching) {
+    public static GenericResult individualRunDynamicWOSMARegular(DynamicMatching dynamicMatching) throws InterruptedException {
         GenericResult genericResult = null;
         try {
             Matching[] matchings = new Matching[2];
@@ -289,42 +200,13 @@ public class Compare {
 
             genericResult = new GenericResult(scores[0], scores[1]);
 
-        } catch (MCPMAPrices.AlreadyInitiatedException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
-            e.printStackTrace();
-        } catch (MCPMA.UnequalSidesException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdIDAlreadyPresentException e) {
-            e.printStackTrace();
-        } catch (CycleFinder.FullyExploredVertexDiscoveredException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.MatchGraphNotEmptyException e) {
-            e.printStackTrace();
-        } catch (Matching.PreferredNoHouseholdlessHouseException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToHouseException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToHouseholdException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseIDAlreadyPresentException e) {
+        } catch (MCPMAPrices.AlreadyInitiatedException | Matching.HouseLinkedToMultipleException | Matching.HouseIDAlreadyPresentException | Matching.HouseholdLinkedToHouseholdException | Matching.HouseLinkedToHouseException | Matching.PreferredNoHouseholdlessHouseException | ResidualGraph.MatchGraphNotEmptyException | CycleFinder.FullyExploredVertexDiscoveredException | Matching.HouseholdIDAlreadyPresentException | ResidualGraph.PathEdgeNotInResidualGraphException | MCPMA.UnequalSidesException | MatchingEvaluator.HouseholdIncomeTooHighException | Matching.HouseAlreadyMatchedException | Matching.HouseholdLinkedToMultipleException | Matching.HouseholdAlreadyMatchedException e) {
             e.printStackTrace();
         }
 
         return genericResult;
     }
+
 
     public static Runnable runStaticMCPMA(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
         return () -> {
@@ -338,6 +220,7 @@ public class Compare {
                 try {
                     Matching matching = dynamicMatching.getInputMatching();
                     mcpmaResults.add(individualRunStaticMCPMA(matching));
+                    dynamicMatching.resetState();
                 } catch (InterruptedException e) {
                     interrupted = true;
                     break;
@@ -355,45 +238,25 @@ public class Compare {
         };
     }
 
-    public static MCPMAResult individualRunStaticMCPMA(Matching matching) {
+    public static MCPMAResult individualRunStaticMCPMA(Matching matching) throws InterruptedException {
         MCPMAResult mcpmaResult = null;
         try {
+            matching = (Matching) deepClone(matching);
+            MCPMAOnMatchingRunner mcpmaOnMatchingRunner = new MCPMAOnMatchingRunner(matching, MCPMAStrategy.REGULAR);
+            matching = mcpmaOnMatchingRunner.optimizeMatching(false);
             Matching[] matchings = new Matching[1];
             matchings[0] = matching;
-            MCPMAOnMatchingRunner mcpmaOnMatchingRunner = new MCPMAOnMatchingRunner(matchings[0], MCPMAStrategy.REGULAR);
-            mcpmaOnMatchingRunner.optimizeMatching(false);
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
 
             mcpmaResult = new MCPMAResult(scores[0]);
 
-        } catch (Matching.HouseholdLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdLinkedToHouseholdException e) {
-            e.printStackTrace();
-        } catch (MCPMA.UnequalSidesException e) {
-            e.printStackTrace();
-        } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.PathEdgeNotInResidualGraphException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ResidualGraph.MatchGraphNotEmptyException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToMultipleException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseLinkedToHouseException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (Matching.HouseholdAlreadyMatchedException e) {
-            e.printStackTrace();
-        } catch (MCPMAPrices.AlreadyInitiatedException e) {
+        } catch (Matching.HouseholdLinkedToMultipleException | ResidualGraph.MatchGraphNotEmptyException | Matching.HouseLinkedToMultipleException | Matching.HouseLinkedToHouseException | Matching.HouseAlreadyMatchedException | Matching.HouseholdAlreadyMatchedException | MCPMAPrices.AlreadyInitiatedException | ResidualGraph.PathEdgeNotInResidualGraphException | Matching.HouseholdLinkedToHouseholdException | MCPMA.UnequalSidesException | MatchingEvaluator.HouseholdIncomeTooHighException e) {
             e.printStackTrace();
         }
         return mcpmaResult;
     }
+
 
 
     public static String createFilename(AlgorithmStrategy algorithmStrategy, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {

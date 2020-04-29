@@ -27,7 +27,7 @@ public class DynamicMatching implements Serializable {
     protected boolean oneSided; // false means two-sided arrival. One-sided means houses are set and households arrive.
 
     public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
-        inputMatching = matching;
+        inputMatching = (Matching) deepClone(matching);
         this.oneSided = oneSided;
         this.timestepCount = timestepCount;
         if (timestepCount > inputMatching.getHouseholds().size()) {
@@ -54,7 +54,7 @@ public class DynamicMatching implements Serializable {
         this.currentMatching = (Matching) deepClone(initialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(initialHouseholdsToArrive);
-        this.initialTimestepsLeft = timestepCount;
+        this.initialTimestepsLeft = (Integer) deepClone(timestepCount);
         this.currentTimestepsLeft = (Integer) deepClone(timestepCount);
     }
 
@@ -86,7 +86,7 @@ public class DynamicMatching implements Serializable {
 
     private void simulateEnvironmentTimestep() throws Matching.HouseholdIDAlreadyPresentException, Matching.HouseIDAlreadyPresentException {
         if (currentTimestepsLeft == 0) {
-            System.err.print("Simulation has ended; cannot advance time further.");
+            System.err.println("Simulation has ended; cannot advance time further.");
         } else {
             Household household = currentHouseholdsToArrive.get(0);
             currentHouseholdsToArrive.remove(household);
@@ -157,6 +157,10 @@ public class DynamicMatching implements Serializable {
 
     public Matching getCurrentMatching() {
         return currentMatching;
+    }
+
+    public int getCurrentTimestepsLeft() {
+        return currentTimestepsLeft;
     }
 
     public String toString() {
