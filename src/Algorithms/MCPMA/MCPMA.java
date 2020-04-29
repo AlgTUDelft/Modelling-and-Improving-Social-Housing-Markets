@@ -42,12 +42,17 @@ public class MCPMA {
     }
 
     // Find optimal matching.
-    public SimpleGraph<HousingMarketVertex, DefaultEdge> findOptimalMatching(boolean print) throws MCPMAPrices.AlreadyInitiatedException, ResidualGraph.MatchGraphNotEmptyException, ResidualGraph.PathEdgeNotInResidualGraphException {
+    public SimpleGraph<HousingMarketVertex, DefaultEdge> findOptimalMatching(boolean print) throws MCPMAPrices.AlreadyInitiatedException, ResidualGraph.MatchGraphNotEmptyException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
         MCPMAPrices MCPMAPrices = new MCPMAPrices(improvementGraph, matchGraph, mcpmaStrategy);
         MCPMAPrices.setInitialPrices();
         int i = 0;
         boolean shouldContinue = matchGraph.edgeSet().size() != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size();
         while (shouldContinue) {
+            if (Thread.interrupted()) {
+                    System.out.println("Interrupted here");
+                    throw new InterruptedException();
+                }
+
             if(print) { System.out.println("Augmenting path " + i); }
             GraphPath<Integer, DefaultWeightedEdge> augmentingPath = MCPMAPrices.getResidualGraph().findAugmentingPath();
             if (augmentingPath == null) {

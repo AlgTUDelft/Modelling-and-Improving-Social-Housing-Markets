@@ -19,7 +19,7 @@ public class WorkerOptimalStableMatchingAlgorithm {
         this.matching = matching;
     }
 
-    public Matching findWorkerOptimalStableMatching(Strategy strategy, boolean print) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException, CycleFinder.FullyExploredVertexDiscoveredException {
+    public Matching findWorkerOptimalStableMatching(Strategy strategy, boolean print) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException, CycleFinder.FullyExploredVertexDiscoveredException, InterruptedException {
         Strategy inputStrategy = strategy;
         switch (strategy) {
             case WOSMA_REGULAR: inputStrategy = Strategy.WOSMA_REGULAR; break;
@@ -32,6 +32,11 @@ public class WorkerOptimalStableMatchingAlgorithm {
         List<Integer> cycle;
         cycle = tryToFindCycle(strategy, print);
         while (cycle != null) {
+            if (Thread.interrupted()) {
+                System.out.println("Interrupted here");
+                throw new InterruptedException();
+            }
+
             if(print) { System.out.println("Executing cycle " + i); }
             switch (strategy) {
                 case WOSMA_REGULAR:
