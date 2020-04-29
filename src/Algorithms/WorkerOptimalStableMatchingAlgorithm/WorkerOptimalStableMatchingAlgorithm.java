@@ -2,7 +2,7 @@ package Algorithms.WorkerOptimalStableMatchingAlgorithm;
 
 import Matching.Matching;
 import Matching.MatchingEvaluator;
-import DynamicStrategy;
+import Matching.DynamicStrategy;
 
 import java.util.List;
 
