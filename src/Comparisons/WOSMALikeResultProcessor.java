@@ -26,7 +26,7 @@ public class WOSMALikeResultProcessor {
                 "solvedFinalMatchingAfterwardsScore"), CSV_SEPARATOR);
 
         for (WOSMALikeResult wosmaLikeResult : wosmaLikeResults) {
-            List<String> list = new ArrayList<String>();
+            List<String> list = new ArrayList<String>(3);
             list.add(Boolean.toString(wosmaLikeResult.isStrategyFailed()));
             list.add(Float.toString(wosmaLikeResult.getSolvedFinalMatchingPerStepScore()));
             list.add(Float.toString(wosmaLikeResult.getSolvedFinalMatchingAfterwardsScore()));

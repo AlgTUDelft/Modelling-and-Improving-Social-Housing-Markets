@@ -13,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, HousingMarket.FreeSpaceException, Matching.HouseAlreadyMatchedException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, DynamicMatching.TooManyTimestepsException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToHouseException {
 
-        long allowedRunningTime = 500;
+        long allowedRunningTime = 2_000;
         int maxVal = 150;
         int nTimes = 50;
 
@@ -25,6 +25,7 @@ public class Main {
         }
 
         ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
+//        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(35, 40, 45, 50, 75, 100, 125, 150));
 
         // Start of execution loop.
         for (MatchingEvaluatorStrategy matchingEvaluatorStrategy : MatchingEvaluatorStrategy.values()) {
@@ -36,21 +37,23 @@ public class Main {
                 if (matchingEvaluatorStrategy == MatchingEvaluatorStrategy.values()[0]) {
                     matchingEvalStratsLeftCount = 2;
                 } else { matchingEvalStratsLeftCount = 1; }
-                // If there are still algorithms to run...
+                // Unless there are no more algorithms left to run...
                 if (interruptedAlgorithmStrategies.size() == AlgorithmStrategy.values().length) {
-                    Calendar cal = calculateRemainingTime(allowedRunningTime, lineCounts.size(), lineCounts.size() - lineCounts.indexOf(lineCount), matchingEvalStratsLeftCount, AlgorithmStrategy.values().length - interruptedAlgorithmStrategies.size());
-                    System.out.println("Updated ETA: " + cal.getTime() + ".");
                     break;
                 }
+                Calendar cal = calculateRemainingTime(allowedRunningTime, lineCounts.size(), lineCounts.size() - lineCounts.indexOf(lineCount), matchingEvalStratsLeftCount, AlgorithmStrategy.values().length - interruptedAlgorithmStrategies.size());
+                System.out.println("Updated ETA: " + cal.getTime() + ".");
+
                 int timestepCount = lineCount/2;
                 boolean oneSided = false;
-                ArrayList<DynamicMatching> dynamicMatchings = new ArrayList<DynamicMatching>();
+
 
                 // Create the dynamic matchings beforehand so all algorithms may run on the same dynamic matchings.
+                ArrayList<DynamicMatching> dynamicMatchings = new ArrayList<DynamicMatching>(nTimes);
                 for (int i = 0; i < nTimes; i++) {
                     Matching matching = setupMatching(1, startLines[i], lineCount, matchingEvaluatorStrategy);
                     DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
-                    dynamicMatchings.add(dynamicMatching);
+                    dynamicMatchings.add(i, dynamicMatching);
                 }
 
                 // For each algorithm...
@@ -61,8 +64,8 @@ public class Main {
                         continue;
                     } else {
                         // Run it and check if we were interrupted during execution.
-                        ArrayList<DynamicMatching> dynamicMatchingsCopy = (ArrayList<DynamicMatching>) deepClone(dynamicMatchings); // Potentially expensive but seemingly necessary...
-                        boolean interrupted = runAlgorithm(dynamicMatchingsCopy, allowedRunningTime, algorithmStrategy, lineCount, matchingEvaluatorStrategy);
+//                        ArrayList<DynamicMatching> dynamicMatchingsCopy = (ArrayList<DynamicMatching>) deepClone(dynamicMatchings); // Potentially expensive but seemingly necessary...
+                        boolean interrupted = runAlgorithm(dynamicMatchings, allowedRunningTime, algorithmStrategy, lineCount, nTimes, matchingEvaluatorStrategy);
                         if (interrupted) {
                             System.out.println("Interrupted: " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
                             interruptedAlgorithmStrategies.add(algorithmStrategy);
@@ -75,16 +78,16 @@ public class Main {
         }
     }
 
-    public static boolean runAlgorithm(ArrayList<DynamicMatching> dynamicmatchings, long allowedRunningTime, AlgorithmStrategy algorithmStrategy, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws InterruptedException, IOException {
+    public static boolean runAlgorithm(ArrayList<DynamicMatching> dynamicmatchings, long allowedRunningTime, AlgorithmStrategy algorithmStrategy, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws InterruptedException, IOException {
         boolean tookTooLong = false;
         Compare compare = new Compare();
         Thread thread = null;
         switch(algorithmStrategy) {
-            case WOSMA_REGULAR: thread = new Thread(compare.runDynamicWOSMARegular(dynamicmatchings, lineCount, matchingEvaluatorStrategy)); break;
-            case WOSMA_FINDMAX: thread = new Thread(compare.runDynamicWOSMAFindMax(dynamicmatchings, lineCount, matchingEvaluatorStrategy)); break;
-            case WOSMA_IRCYCLES: thread = new Thread(compare.runDynamicIRCycles(dynamicmatchings, lineCount, matchingEvaluatorStrategy)); break;
-            case IMPROVEMENT_MCPMA: thread = new Thread(compare.runDynamicImprovementMCPMA(dynamicmatchings, lineCount, matchingEvaluatorStrategy)); break;
-            case MCPMA: thread = new Thread(compare.runStaticMCPMA(dynamicmatchings, lineCount, matchingEvaluatorStrategy)); break;
+            case WOSMA_REGULAR: thread = new Thread(compare.runDynamicWOSMARegular(dynamicmatchings, lineCount, nTimes,  matchingEvaluatorStrategy)); break;
+            case WOSMA_FINDMAX: thread = new Thread(compare.runDynamicWOSMAFindMax(dynamicmatchings, lineCount, nTimes, matchingEvaluatorStrategy)); break;
+            case WOSMA_IRCYCLES: thread = new Thread(compare.runDynamicIRCycles(dynamicmatchings, lineCount, nTimes, matchingEvaluatorStrategy)); break;
+            case IMPROVEMENT_MCPMA: thread = new Thread(compare.runDynamicImprovementMCPMA(dynamicmatchings, lineCount, nTimes, matchingEvaluatorStrategy)); break;
+            case MCPMA: thread = new Thread(compare.runStaticMCPMA(dynamicmatchings, lineCount, nTimes, matchingEvaluatorStrategy)); break;
         }
 
         thread.start();
@@ -109,7 +112,7 @@ public class Main {
         if (matchingEvaluatorStrategiesLeftCount == 1) {
              eta = allowedRunningTime * linesLeftCount  * algorithmStrategiesLeft;
         } else {
-            eta = allowedRunningTime * (linesCount * AlgorithmStrategy.values().length) + (linesLeftCount + algorithmStrategiesLeft);
+            eta = allowedRunningTime * (linesCount * AlgorithmStrategy.values().length + linesLeftCount * algorithmStrategiesLeft);
         }
         Calendar cal = Calendar.getInstance(); // creates calendar
         cal.setTime(new Date()); // sets calendar time/date

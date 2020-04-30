@@ -19,7 +19,7 @@ public class TwoLabeledGraph {
     private Matching matching;
     // Edges' weights are 1 if strict, 0 otherwise.
     private SimpleDirectedWeightedGraph underlyingStrictGraph = new SimpleDirectedWeightedGraph(DefaultWeightedEdge.class);
-    private ArrayList<Integer> householdIDs = new ArrayList<Integer>();
+    private ArrayList<Integer> householdIDs;
     private Integer nil = -1;
     private DynamicStrategy dynamicStrategy;
     private HashMap<Integer, Integer> householdInitialHouseMap = new HashMap<Integer,Integer>();
@@ -27,6 +27,7 @@ public class TwoLabeledGraph {
     public TwoLabeledGraph(Matching matching, DynamicStrategy dynamicStrategy) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = matching;
         this.dynamicStrategy = dynamicStrategy;
+        householdIDs = new ArrayList<Integer>(matching.getHouseholds().size());
 
         // Add vertices.
         underlyingStrictGraph.addVertex(nil); // _nil_ vertex.

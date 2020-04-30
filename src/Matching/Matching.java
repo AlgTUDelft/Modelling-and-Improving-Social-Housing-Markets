@@ -278,7 +278,7 @@ public class Matching implements Serializable {
 
     // Part of the MinCostPerfectMatchingAlgorithm.
     public void augment(GraphPath<Integer, DefaultWeightedEdge> graphPath) throws IDNotPresentException, HouseLinkedToMultipleException, HouseLinkedToHouseException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException {
-        ArrayList<HouseAndHouseholdIDPair> toConnect = new ArrayList<HouseAndHouseholdIDPair>();
+        ArrayList<HouseAndHouseholdIDPair> toConnect = new ArrayList<HouseAndHouseholdIDPair>(graphPath.getVertexList().size());
         List<DefaultWeightedEdge> edgeList = graphPath.getEdgeList();
 
         for (DefaultWeightedEdge edge : edgeList) {

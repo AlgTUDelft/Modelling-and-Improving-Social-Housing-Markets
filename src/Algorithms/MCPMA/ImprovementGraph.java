@@ -17,8 +17,8 @@ public class ImprovementGraph {
     private SimpleWeightedGraph<HousingMarketVertex, DefaultWeightedEdge> improvementGraph
             = new SimpleWeightedGraph<HousingMarketVertex, DefaultWeightedEdge>(DefaultWeightedEdge.class);
     private Matching matching;
-    private ArrayList<House> houses = new ArrayList<>(); // Does not include dummies
-    private ArrayList<Household> households = new ArrayList<>(); // Does not include dummies
+    private ArrayList<House> houses; // Does not include dummies
+    private ArrayList<Household> households; // Does not include dummies
     private ArrayList<DummyHouse> dummyHouses = new ArrayList<DummyHouse>();
     private ArrayList<DummyHousehold> dummyHouseholds = new ArrayList<DummyHousehold>();
     private int nextDummyID;
@@ -28,15 +28,19 @@ public class ImprovementGraph {
     public ImprovementGraph(Matching matching, MCPMAStrategy mcpmaStrategy) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         this.matching = matching;
         this.grader = matching.getGrader();
+        this.households = new ArrayList<>(matching.getHouseholds().size());
 
         // Default case |H| == |F|
         switch (mcpmaStrategy) {
             case REGULAR:
-                for (House house : matching.getHouses()) {
-                    this.houses.add(house);
+                this.houses = new ArrayList<>(matching.getHouses().size());
+                for (int i = 0; i < matching.getHouses().size(); i++) {
+                    House house = matching.getHouses().get(i);
+                    this.houses.add(i, house);
                     improvementGraph.addVertex(house);
                 } break;
             case IMPROVEMENT:
+                this.houses = new ArrayList<>(matching.getHouseholdlessHousesIDs().size());
                 for (int houseID : matching.getHouseholdlessHousesIDs()) {
                     House house = matching.getHouse(houseID);
                     this.houses.add(house);
@@ -44,8 +48,9 @@ public class ImprovementGraph {
                 } break;
         }
 
-        for (Household household : matching.getHouseholds()) {
-            this.households.add(household);
+        for (int i = 0; i < matching.getHouseholds().size(); i++) {
+            Household household = matching.getHouseholds().get(i);
+            this.households.add(i,household);
             improvementGraph.addVertex(household);
         }
 

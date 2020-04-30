@@ -23,7 +23,7 @@ public class MCPMAResultProcessor {
                 "MCPMAScore"), CSV_SEPARATOR);
 
         for (MCPMAResult mcpmaResult : mcpmaResults) {
-            List<String> list = new ArrayList<String>();
+            List<String> list = new ArrayList<String>(1);
             list.add(Float.toString(mcpmaResult.getMCPMAScore()));
 
             CSVUtils.writeLine(writer, list, CSV_SEPARATOR);

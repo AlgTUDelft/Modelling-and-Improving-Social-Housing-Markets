@@ -7,6 +7,7 @@ import Matching.Matching;
 import Matching.MatchingEvaluator;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
+import static Miscellaneous.DeepCloner.deepClone;
 
 public class MCPMAOnMatchingRunner {
 
@@ -17,9 +18,9 @@ public class MCPMAOnMatchingRunner {
     private MCPMA MCPMA;
 
     public MCPMAOnMatchingRunner(Matching matching, MCPMAStrategy mcpmaStrategy) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MCPMA.UnequalSidesException {
-        this.matching = matching;
+        this.matching = (Matching) deepClone(matching);
         this.mcpmaStrategy = mcpmaStrategy;
-        improvementGraph = new ImprovementGraph(matching, mcpmaStrategy);
+        improvementGraph = new ImprovementGraph(this.matching, mcpmaStrategy);
         MCPMA = new MCPMA(improvementGraph, mcpmaStrategy);
     }
 

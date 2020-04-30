@@ -13,17 +13,18 @@ public class Compare {
 
     public Compare() {}
 
-    public static Runnable runDynamicIRCycles(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws IOException {
+    public static Runnable runDynamicIRCycles(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws IOException {
         return () -> {
 
             String outputFilename = createFilename(AlgorithmStrategy.WOSMA_IRCYCLES, lineCount, matchingEvaluatorStrategy);
 
             ArrayList<WOSMALikeResult> wosmaLikeResults
-                    = new ArrayList();
+                    = new ArrayList(nTimes);
             boolean interrupted = false;
-            for (DynamicMatching dynamicMatching : dynamicMatchings) {
+            for (int i = 0; i < nTimes; i++) {
                 try {
-                    wosmaLikeResults.add(individualRunDynamicIRCycles(dynamicMatching));
+                    DynamicMatching dynamicMatching = dynamicMatchings.get(i);
+                    wosmaLikeResults.add(i, individualRunDynamicIRCycles(dynamicMatching));
                 } catch (InterruptedException e) {
                     interrupted = true;
                     break;
@@ -45,10 +46,8 @@ public class Compare {
         WOSMALikeResult wosmaLikeResult = null;
         try {
             Matching[] matchings = new Matching[2];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(DynamicStrategy.WOSMA_IR_CYCLES, false);
-            dynamicMatching.resetState();
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(DynamicStrategy.WOSMA_IR_CYCLES, false);
-            dynamicMatching.resetState();
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(DynamicStrategy.WOSMA_IR_CYCLES, false);
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(DynamicStrategy.WOSMA_IR_CYCLES, false);
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
 
@@ -62,7 +61,7 @@ public class Compare {
     }
 
 
-    public static Runnable runDynamicImprovementMCPMA(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
+    public static Runnable runDynamicImprovementMCPMA(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
         return () -> {
 
             String outputFilename = createFilename(AlgorithmStrategy.IMPROVEMENT_MCPMA, lineCount, matchingEvaluatorStrategy);
@@ -70,9 +69,10 @@ public class Compare {
             ArrayList<GenericResult> genericResults
                     = new ArrayList();
             boolean interrupted = false;
-            for (DynamicMatching dynamicMatching : dynamicMatchings) {
+            for (int i = 0; i < nTimes; i++) {
                 try {
-                    genericResults.add(individualRunDynamicImprovementMCPMA(dynamicMatching));
+                    DynamicMatching dynamicMatching = dynamicMatchings.get(i);
+                    genericResults.add(i, individualRunDynamicImprovementMCPMA(dynamicMatching));
                 } catch (InterruptedException e) {
                     interrupted = true;
                     break;
@@ -94,10 +94,9 @@ public class Compare {
         GenericResult genericResult = null;
         try {
             Matching[] matchings = new Matching[2];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(DynamicStrategy.MCPMA_IMPROVEMENT, false);
-            dynamicMatching.resetState();
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(DynamicStrategy.MCPMA_IMPROVEMENT, false);
-            dynamicMatching.resetState();
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(DynamicStrategy.MCPMA_IMPROVEMENT, false);
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(DynamicStrategy.MCPMA_IMPROVEMENT, false);
+
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
 
@@ -111,7 +110,7 @@ public class Compare {
     }
 
 
-    public static Runnable runDynamicWOSMAFindMax(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
+    public static Runnable runDynamicWOSMAFindMax(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
         return () -> {
 
             String outputFilename = createFilename(AlgorithmStrategy.WOSMA_FINDMAX, lineCount, matchingEvaluatorStrategy);
@@ -119,9 +118,10 @@ public class Compare {
             ArrayList<WOSMALikeResult> wosmaLikeResults
                     = new ArrayList();
             boolean interrupted = false;
-            for (DynamicMatching dynamicMatching : dynamicMatchings) {
+            for (int i = 0; i < nTimes; i++) {
                 try {
-                    wosmaLikeResults.add(individualRunDynamicWOSMAFindMax(dynamicMatching));
+                    DynamicMatching dynamicMatching = dynamicMatchings.get(i);
+                    wosmaLikeResults.add(i, individualRunDynamicWOSMAFindMax(dynamicMatching));
                 } catch (InterruptedException e) {
                     interrupted = true;
                     break;
@@ -143,10 +143,8 @@ public class Compare {
         WOSMALikeResult wosmaLikeResult = null;
         try {
             Matching[] matchings = new Matching[2];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(DynamicStrategy.WOSMA_FINDMAX, false);
-            dynamicMatching.resetState();
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(DynamicStrategy.WOSMA_FINDMAX, false);
-            dynamicMatching.resetState();
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(DynamicStrategy.WOSMA_FINDMAX, false);
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(DynamicStrategy.WOSMA_FINDMAX, false);
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
 
@@ -160,7 +158,7 @@ public class Compare {
     }
 
 
-    public static Runnable runDynamicWOSMARegular(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
+    public static Runnable runDynamicWOSMARegular(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
         return () -> {
 
             String outputFilename = createFilename(AlgorithmStrategy.WOSMA_REGULAR, lineCount, matchingEvaluatorStrategy);
@@ -168,9 +166,10 @@ public class Compare {
             ArrayList<GenericResult> genericResults
                     = new ArrayList();
             boolean interrupted = false;
-            for (DynamicMatching dynamicMatching : dynamicMatchings) {
+            for (int i = 0; i < nTimes; i++) {
                 try {
-                    genericResults.add(individualRunDynamicWOSMARegular(dynamicMatching));
+                    DynamicMatching dynamicMatching = dynamicMatchings.get(i);
+                    genericResults.add(i, individualRunDynamicWOSMARegular(dynamicMatching));
                 } catch (InterruptedException e) {
                     interrupted = true;
                     break;
@@ -192,10 +191,8 @@ public class Compare {
         GenericResult genericResult = null;
         try {
             Matching[] matchings = new Matching[2];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStep(DynamicStrategy.WOSMA_REGULAR, false);
-            dynamicMatching.resetState();
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolve(DynamicStrategy.WOSMA_REGULAR, false);
-            dynamicMatching.resetState();
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(DynamicStrategy.WOSMA_REGULAR, false);
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(DynamicStrategy.WOSMA_REGULAR, false);
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
 
@@ -209,7 +206,7 @@ public class Compare {
     }
 
 
-    public static Runnable runStaticMCPMA(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
+    public static Runnable runStaticMCPMA(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
         return () -> {
 
             String outputFilename = createFilename(AlgorithmStrategy.MCPMA, lineCount, matchingEvaluatorStrategy);
@@ -217,11 +214,11 @@ public class Compare {
             ArrayList<MCPMAResult> mcpmaResults
                     = new ArrayList();
             boolean interrupted = false;
-            for (DynamicMatching dynamicMatching : dynamicMatchings) {
+            for (int i = 0; i < nTimes; i++) {
                 try {
+                    DynamicMatching dynamicMatching = dynamicMatchings.get(i);
                     Matching matching = dynamicMatching.getInputMatching();
-                    mcpmaResults.add(individualRunStaticMCPMA(matching));
-                    dynamicMatching.resetState();
+                    mcpmaResults.add(i, individualRunStaticMCPMA(matching));
                 } catch (InterruptedException e) {
                     interrupted = true;
                     break;
@@ -242,11 +239,11 @@ public class Compare {
     public static MCPMAResult individualRunStaticMCPMA(Matching matching) throws InterruptedException {
         MCPMAResult mcpmaResult = null;
         try {
-            matching = (Matching) deepClone(matching);
-            MCPMAOnMatchingRunner mcpmaOnMatchingRunner = new MCPMAOnMatchingRunner(matching, MCPMAStrategy.REGULAR);
-            matching = mcpmaOnMatchingRunner.optimizeMatching(false);
+            Matching ourMatching = (Matching) deepClone(matching);
+            MCPMAOnMatchingRunner mcpmaOnMatchingRunner = new MCPMAOnMatchingRunner(ourMatching, MCPMAStrategy.REGULAR);
+            ourMatching = mcpmaOnMatchingRunner.optimizeMatching(false);
             Matching[] matchings = new Matching[1];
-            matchings[0] = matching;
+            matchings[0] = ourMatching;
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
 

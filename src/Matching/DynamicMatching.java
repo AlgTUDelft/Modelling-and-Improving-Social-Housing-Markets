@@ -16,8 +16,8 @@ public class DynamicMatching implements Serializable {
 
     private final Matching initialMatching;
     private final int initialTimestepsLeft;
-    private final ArrayList<House> initialHousesToArrive = new ArrayList<House>();
-    private final ArrayList<Household> initialHouseholdsToArrive = new ArrayList<Household>();
+    private final ArrayList<House> initialHousesToArrive;
+    private final ArrayList<Household> initialHouseholdsToArrive;
 
     private Matching currentMatching;
     private int currentTimestepsLeft;
@@ -30,22 +30,24 @@ public class DynamicMatching implements Serializable {
     public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
         inputMatching = (Matching) deepClone(matching);
         this.oneSided = oneSided;
-        this.timestepCount = timestepCount;
-        if (timestepCount > inputMatching.getHouseholds().size()) {
+        this.timestepCount = (Integer) deepClone(timestepCount);
+        initialHousesToArrive = new ArrayList<House>(this.timestepCount);
+        initialHouseholdsToArrive = new ArrayList<Household>(this.timestepCount);
+        if (this.timestepCount > inputMatching.getHouseholds().size()) {
             throw new TooManyTimestepsException("Amount of timesteps exceeds amount of households.");
         }
-        if (!oneSided && timestepCount > inputMatching.getHouses().size()) {
+        if (!oneSided && this.timestepCount > inputMatching.getHouses().size()) {
             throw new TooManyTimestepsException("Amount of timesteps exceeds amount of houses.");
         }
         Matching initialMatching = (Matching) deepClone(inputMatching);
-        for (int step = 0; step < timestepCount; step++) {
+        for (int step = 0; step < this.timestepCount; step++) {
             Household lastHousehold = initialMatching.getHouseholds().get(initialMatching.getHouseholds().size()-1);
             initialMatching.removeHousehold(lastHousehold.getID());
-            this.initialHouseholdsToArrive.add(lastHousehold);
+            this.initialHouseholdsToArrive.add(step, lastHousehold);
             if (!oneSided) {
                 House lastHouse = initialMatching.getHouses().get(initialMatching.getHouses().size()-1);
                 initialMatching.removeHouse(lastHouse.getID());
-                this.initialHousesToArrive.add(lastHouse);
+                this.initialHousesToArrive.add(step, lastHouse);
             }
         }
         // TODO: Include initial WOSMA call?
@@ -55,23 +57,28 @@ public class DynamicMatching implements Serializable {
         this.currentMatching = (Matching) deepClone(initialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(initialHouseholdsToArrive);
-        this.initialTimestepsLeft = (Integer) deepClone(timestepCount);
-        this.currentTimestepsLeft = (Integer) deepClone(timestepCount);
+        this.initialTimestepsLeft = (Integer) deepClone(this.timestepCount);
+        this.currentTimestepsLeft = (Integer) deepClone(this.timestepCount);
     }
 
 
-    public Matching advanceTimeAndSolvePerStep(DynamicStrategy dynamicStrategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualGraph.MatchGraphNotEmptyException, MCPMAPrices.AlreadyInitiatedException, MCPMA.UnequalSidesException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
+    public Matching advanceTimeAndSolvePerStepAndReset(DynamicStrategy dynamicStrategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualGraph.MatchGraphNotEmptyException, MCPMAPrices.AlreadyInitiatedException, MCPMA.UnequalSidesException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
-            runAlgorithm(dynamicStrategy, print);
+            try {
+                runAlgorithm(dynamicStrategy, print);
+            } catch (InterruptedException e) {
+                this.resetState();
+                throw e;
+            }
         }
         Matching resultingMatching = (Matching) deepClone(currentMatching);
-//        checkIfHouselessHouseholdsHaveNoPreferredEmptyHouse();
+        this.resetState();
         return resultingMatching;
     }
 
-    public Matching advanceTimeFullyThenSolve(DynamicStrategy dynamicStrategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualGraph.MatchGraphNotEmptyException, MCPMAPrices.AlreadyInitiatedException, MCPMA.UnequalSidesException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
+    public Matching advanceTimeFullyThenSolveAndReset(DynamicStrategy dynamicStrategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualGraph.MatchGraphNotEmptyException, MCPMAPrices.AlreadyInitiatedException, MCPMA.UnequalSidesException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
@@ -80,8 +87,14 @@ public class DynamicMatching implements Serializable {
 //        for (int i = 0; i < timestepCount * 2; i++) {
 //            runAlgorithm(findMax, print);
 //        }
-        runAlgorithm(dynamicStrategy, print);
+        try {
+            runAlgorithm(dynamicStrategy, print);
+        } catch (InterruptedException e) {
+            this.resetState();
+            throw e;
+        }
         Matching resultingMatching = (Matching) deepClone(currentMatching);
+        this.resetState();
         return resultingMatching;
     }
 
@@ -126,7 +139,7 @@ public class DynamicMatching implements Serializable {
         }
     }
 
-    public void resetState() {
+    private void resetState() {
         this.currentMatching = (Matching) deepClone(this.initialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(this.initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(this.initialHouseholdsToArrive);
@@ -148,6 +161,10 @@ public class DynamicMatching implements Serializable {
 
     public int getCurrentTimestepsLeft() {
         return currentTimestepsLeft;
+    }
+
+    public int getTimestepCount() {
+        return timestepCount;
     }
 
     public String toString() {

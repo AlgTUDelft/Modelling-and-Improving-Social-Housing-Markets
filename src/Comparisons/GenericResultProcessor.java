@@ -25,7 +25,7 @@ public class GenericResultProcessor {
                 "solvedFinalMatchingAfterwardsScore"), CSV_SEPARATOR);
 
         for (GenericResult genericResult : genericResults) {
-            List<String> list = new ArrayList<String>();
+            List<String> list = new ArrayList<String>(2);
             list.add(Float.toString(genericResult.getSolvedFinalMatchingPerStepScore()));
             list.add(Float.toString(genericResult.getSolvedFinalMatchingAfterwardsScore()));
 
