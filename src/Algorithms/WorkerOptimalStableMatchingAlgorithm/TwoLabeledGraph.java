@@ -1,12 +1,11 @@
 package Algorithms.WorkerOptimalStableMatchingAlgorithm;
 
+import Algorithms.AlgorithmStrategy;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
-import Matching.DynamicStrategy;
 import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
-import org.jgrapht.alg.cycle.SzwarcfiterLauerSimpleCycles;
 import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
@@ -21,12 +20,12 @@ public class TwoLabeledGraph {
     private SimpleDirectedWeightedGraph underlyingStrictGraph = new SimpleDirectedWeightedGraph(DefaultWeightedEdge.class);
     private ArrayList<Integer> householdIDs;
     private Integer nil = -1;
-    private DynamicStrategy dynamicStrategy;
+    private AlgorithmStrategy algorithmStrategy;
     private HashMap<Integer, Integer> householdInitialHouseMap = new HashMap<Integer,Integer>();
 
-    public TwoLabeledGraph(Matching matching, DynamicStrategy dynamicStrategy) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
+    public TwoLabeledGraph(Matching matching, AlgorithmStrategy algorithmStrategy) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = matching;
-        this.dynamicStrategy = dynamicStrategy;
+        this.algorithmStrategy = algorithmStrategy;
         householdIDs = new ArrayList<Integer>(matching.getHouseholds().size());
 
         // Add vertices.
@@ -37,7 +36,7 @@ public class TwoLabeledGraph {
             householdIDs.add(householdID);
         }
 
-        if (dynamicStrategy == DynamicStrategy.WOSMA_IR_CYCLES) {
+        if (algorithmStrategy == AlgorithmStrategy.WOSMA_IRCYCLES) {
             for (Household household : this.matching.getHouseholds()) {
                 House house = this.matching.getHouseFromHousehold(household.getID());
                 if (house != null && matching.getGrader().apply(house.getID(), household.getID()) > 0) {
@@ -53,10 +52,10 @@ public class TwoLabeledGraph {
     //  Also note that this functionality is only implemented when strategy is findMax.
     //  When strategy is regular, I just use edgeweights of 1.
     private void wireHouseholds(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
-        switch (dynamicStrategy) {
+        switch (algorithmStrategy) {
             case WOSMA_REGULAR: wireHouseholdsNormally(householdIDs); break;
             case WOSMA_FINDMAX: wireHouseholdsFindMax(householdIDs); break;
-            case WOSMA_IR_CYCLES: wireHouseholdsIRCycles(householdIDs); break;
+            case WOSMA_IRCYCLES: wireHouseholdsIRCycles(householdIDs); break;
         }
     }
 
@@ -306,10 +305,10 @@ public class TwoLabeledGraph {
 
     public List<Integer> findCycle(boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, OutOfMemoryError, InterruptedException {
         List<Integer> cycle = null;
-        switch (dynamicStrategy) {
+        switch (algorithmStrategy) {
             case WOSMA_REGULAR: cycle = findCycleRegular(print); break;
             case WOSMA_FINDMAX: cycle = findCycleFindMax(print); break;
-            case WOSMA_IR_CYCLES: cycle = findCycleIRCycles(print); break;
+            case WOSMA_IRCYCLES: cycle = findCycleIRCycles(print); break;
         }
         return cycle;
     }

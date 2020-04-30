@@ -65,17 +65,10 @@ public class Compare {
     public static GenericResult individualRunDynamic(DynamicMatching dynamicMatching) throws InterruptedException {
         GenericResult genericResult = null;
         try {
-            DynamicStrategy dynamicStrategy = null;
-            switch (algorithmStrategy) {
-                case WOSMA_REGULAR: dynamicStrategy = DynamicStrategy.WOSMA_REGULAR; break;
-                case WOSMA_FINDMAX: dynamicStrategy = DynamicStrategy.WOSMA_FINDMAX; break;
-                case WOSMA_IRCYCLES: dynamicStrategy = DynamicStrategy.WOSMA_IR_CYCLES; break;
-                case IMPROVEMENT_MCPMA: dynamicStrategy = DynamicStrategy.MCPMA_IMPROVEMENT; break;
-            }
 
             Matching[] matchings = new Matching[2];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(dynamicStrategy, false);
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(dynamicStrategy, false);
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(algorithmStrategy, false);
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(algorithmStrategy, false);
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
             genericResult = new GenericResult(scores[0], scores[1]);

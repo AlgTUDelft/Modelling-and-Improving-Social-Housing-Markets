@@ -1,5 +1,6 @@
 package Matching;
 
+import Algorithms.AlgorithmStrategy;
 import Algorithms.MCPMA.*;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
@@ -62,12 +63,12 @@ public class DynamicMatching implements Serializable {
     }
 
 
-    public Matching advanceTimeAndSolvePerStepAndReset(DynamicStrategy dynamicStrategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualGraph.MatchGraphNotEmptyException, MCPMAPrices.AlreadyInitiatedException, MCPMA.UnequalSidesException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
+    public Matching advanceTimeAndSolvePerStepAndReset(AlgorithmStrategy algorithmStrategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualGraph.MatchGraphNotEmptyException, MCPMAPrices.AlreadyInitiatedException, MCPMA.UnequalSidesException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
         try {
             for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
-            runAlgorithm(dynamicStrategy, print);
+            runAlgorithm(algorithmStrategy, print);
             }
         } catch (InterruptedException e) {
             this.resetState();
@@ -78,7 +79,7 @@ public class DynamicMatching implements Serializable {
         return resultingMatching;
     }
 
-    public Matching advanceTimeFullyThenSolveAndReset(DynamicStrategy dynamicStrategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualGraph.MatchGraphNotEmptyException, MCPMAPrices.AlreadyInitiatedException, MCPMA.UnequalSidesException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
+    public Matching advanceTimeFullyThenSolveAndReset(AlgorithmStrategy algorithmStrategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualGraph.MatchGraphNotEmptyException, MCPMAPrices.AlreadyInitiatedException, MCPMA.UnequalSidesException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
         for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
@@ -88,7 +89,7 @@ public class DynamicMatching implements Serializable {
 //            runAlgorithm(findMax, print);
 //        }
         try {
-            runAlgorithm(dynamicStrategy, print);
+            runAlgorithm(algorithmStrategy, print);
         } catch (InterruptedException e) {
             this.resetState();
             throw e;
@@ -114,16 +115,16 @@ public class DynamicMatching implements Serializable {
         }
     }
 
-    protected void runAlgorithm(DynamicStrategy dynamicStrategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, MCPMA.UnequalSidesException, MCPMAPrices.AlreadyInitiatedException, ResidualGraph.PathEdgeNotInResidualGraphException, ResidualGraph.MatchGraphNotEmptyException, InterruptedException {
-        switch (dynamicStrategy) {
+    protected void runAlgorithm(AlgorithmStrategy algorithmStrategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, MCPMA.UnequalSidesException, MCPMAPrices.AlreadyInitiatedException, ResidualGraph.PathEdgeNotInResidualGraphException, ResidualGraph.MatchGraphNotEmptyException, InterruptedException {
+        switch (algorithmStrategy) {
             case WOSMA_REGULAR:
             case WOSMA_FINDMAX:
-            case WOSMA_IR_CYCLES:
+            case WOSMA_IRCYCLES:
                 WorkerOptimalStableMatchingAlgorithm wosma
                     = new WorkerOptimalStableMatchingAlgorithm(currentMatching);
-                currentMatching = wosma.findWorkerOptimalStableMatching(dynamicStrategy, print);
+                currentMatching = wosma.findWorkerOptimalStableMatching(algorithmStrategy, print);
                 break;
-            case MCPMA_IMPROVEMENT:
+            case IMPROVEMENT_MCPMA:
                 MCPMAOnMatchingRunner mcpmaOnMatchingRunner
                     = new MCPMAOnMatchingRunner(currentMatching, MCPMAStrategy.IMPROVEMENT);
                 currentMatching = mcpmaOnMatchingRunner.optimizeMatching(print);
