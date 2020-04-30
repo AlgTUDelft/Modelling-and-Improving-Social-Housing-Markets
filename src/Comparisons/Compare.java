@@ -239,7 +239,7 @@ public class Compare {
     public static MCPMAResult individualRunStaticMCPMA(Matching matching) throws InterruptedException {
         MCPMAResult mcpmaResult = null;
         try {
-            Matching ourMatching = (Matching) deepClone(matching);
+            Matching ourMatching = (Matching) deepClone(matching); // TODO: Maybe this kind of cloning isn't needed anymore?
             MCPMAOnMatchingRunner mcpmaOnMatchingRunner = new MCPMAOnMatchingRunner(ourMatching, MCPMAStrategy.REGULAR);
             ourMatching = mcpmaOnMatchingRunner.optimizeMatching(false);
             Matching[] matchings = new Matching[1];

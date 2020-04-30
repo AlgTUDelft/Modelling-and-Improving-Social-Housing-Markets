@@ -25,12 +25,7 @@ public class MCPMAOnMatchingRunner {
     }
 
     public Matching optimizeMatching(boolean print) throws MCPMAPrices.AlreadyInitiatedException, ResidualGraph.PathEdgeNotInResidualGraphException, ResidualGraph.MatchGraphNotEmptyException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException, InterruptedException {
-        try {
-            matchGraph = MCPMA.findOptimalMatching(print);
-        } catch (InterruptedException e) {
-            throw e;
-        }
-        Matching matching = null;
+        matchGraph = MCPMA.findOptimalMatching(print);
         switch(this.mcpmaStrategy) {
             case REGULAR: matching = parseMatchGraphRegular(); break;
             case IMPROVEMENT: matching = parseMatchGraphImprovement(); break;

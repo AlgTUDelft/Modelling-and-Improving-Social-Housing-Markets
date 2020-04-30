@@ -29,7 +29,7 @@ public class CycleFinder {
         this.nilValue = nilValue;
     }
 
-    public List<Integer> findCycle() throws FullyExploredVertexDiscoveredException {
+    public List<Integer> findCycle() throws FullyExploredVertexDiscoveredException, InterruptedException {
         // TODO: Fix description.
         // Implements simple DFS. Returns the first cycle that it can find.
         // Two conditions need to hold:
@@ -51,7 +51,11 @@ public class CycleFinder {
         return cycle;
     }
 
-    private List<Integer> recursivelyFindCycle(ArrayList<Integer> path) throws FullyExploredVertexDiscoveredException {
+    private List<Integer> recursivelyFindCycle(ArrayList<Integer> path) throws FullyExploredVertexDiscoveredException, InterruptedException {
+        if (Thread.interrupted()) {
+            throw new InterruptedException();
+        }
+
         int vertex = path.get(path.size()-1);
         states.put(vertex, 1);
         Set<DefaultWeightedEdge> outgoingEdges = graph.outgoingEdgesOf(vertex);

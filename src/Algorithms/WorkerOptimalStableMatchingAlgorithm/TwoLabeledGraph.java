@@ -304,7 +304,7 @@ public class TwoLabeledGraph {
     }
 
 
-    public List<Integer> findCycle(boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, OutOfMemoryError {
+    public List<Integer> findCycle(boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, OutOfMemoryError, InterruptedException {
         List<Integer> cycle = null;
         switch (dynamicStrategy) {
             case WOSMA_REGULAR: cycle = findCycleRegular(print); break;
@@ -314,7 +314,7 @@ public class TwoLabeledGraph {
         return cycle;
     }
 
-    private List<Integer> findCycleRegular(boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException {
+    private List<Integer> findCycleRegular(boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, InterruptedException {
         List<Integer> cycle = null;
         GabowStrongConnectivityInspector gabowStrongConnectivityInspector = new GabowStrongConnectivityInspector(underlyingStrictGraph);
         List<AsSubgraph<Integer, DefaultWeightedEdge>> components = gabowStrongConnectivityInspector.getStronglyConnectedComponents();
@@ -330,12 +330,12 @@ public class TwoLabeledGraph {
         return cycle;
     }
 
-    private List<Integer> findCycleFindMax(boolean print) {
+    private List<Integer> findCycleFindMax(boolean print) throws InterruptedException {
         List<Integer> cycle;
-        SzwarcfiterLauerSimpleCycles<Integer, DefaultWeightedEdge> szwarcfiterLauerSimpleCycles
-                = new SzwarcfiterLauerSimpleCycles<>(underlyingStrictGraph);
+        CustomSLSimpleCycles customSLSimpleCycles
+                = new CustomSLSimpleCycles(underlyingStrictGraph);
         try {
-            List<List<Integer>> cycles = szwarcfiterLauerSimpleCycles.findSimpleCycles();
+            List<List<Integer>> cycles = customSLSimpleCycles.findSimpleCycles();
             if (print) {
                 System.out.println("SL found " + cycles.size() + " cycles.");
             }
@@ -390,7 +390,7 @@ public class TwoLabeledGraph {
         return score;
     }
 
-    private List<Integer> findCycleIRCycles(boolean print) {
+    private List<Integer> findCycleIRCycles(boolean print) throws InterruptedException {
         List<Integer> cycle = null;
         try {
             CustomSLSimpleCycles customSLSimpleCycles

@@ -13,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, HousingMarket.FreeSpaceException, Matching.HouseAlreadyMatchedException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, DynamicMatching.TooManyTimestepsException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToHouseException {
 
-        long allowedRunningTime = 2_000;
+        long allowedRunningTime = 15_000;
         int maxVal = 150;
         int nTimes = 50;
 
@@ -25,7 +25,8 @@ public class Main {
         }
 
         ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
-//        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(35, 40, 45, 50, 75, 100, 125, 150));
+//        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12));
+//        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(30, 35, 40, 45, 50, 75, 100, 125, 150));
 
         // Start of execution loop.
         for (MatchingEvaluatorStrategy matchingEvaluatorStrategy : MatchingEvaluatorStrategy.values()) {
@@ -64,8 +65,8 @@ public class Main {
                         continue;
                     } else {
                         // Run it and check if we were interrupted during execution.
-//                        ArrayList<DynamicMatching> dynamicMatchingsCopy = (ArrayList<DynamicMatching>) deepClone(dynamicMatchings); // Potentially expensive but seemingly necessary...
-                        boolean interrupted = runAlgorithm(dynamicMatchings, allowedRunningTime, algorithmStrategy, lineCount, nTimes, matchingEvaluatorStrategy);
+                        ArrayList<DynamicMatching> dynamicMatchingsCopy = (ArrayList<DynamicMatching>) deepClone(dynamicMatchings); // Potentially expensive but seemingly necessary...
+                        boolean interrupted = runAlgorithm(dynamicMatchingsCopy, allowedRunningTime, algorithmStrategy, lineCount, nTimes, matchingEvaluatorStrategy);
                         if (interrupted) {
                             System.out.println("Interrupted: " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
                             interruptedAlgorithmStrategies.add(algorithmStrategy);
@@ -91,12 +92,11 @@ public class Main {
         }
 
         thread.start();
-        Thread.sleep(allowedRunningTime);
-        if (Thread.activeCount() > 2) {
+        try {
+            thread.join(allowedRunningTime);
+        } catch (InterruptedException e) {
             tookTooLong = true;
         }
-        thread.interrupt();
-        thread.join();
         return tookTooLong;
     }
 

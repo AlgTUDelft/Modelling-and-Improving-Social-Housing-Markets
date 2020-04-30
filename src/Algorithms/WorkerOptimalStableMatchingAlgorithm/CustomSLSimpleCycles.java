@@ -15,7 +15,7 @@ import org.jgrapht.alg.cycle.DirectedSimpleCycles;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 
-public class CustomSLSimpleCycles implements DirectedSimpleCycles<Integer, DefaultWeightedEdge> {
+public class CustomSLSimpleCycles {
     private Graph<Integer, DefaultWeightedEdge> graph;
     private List<List<Integer>> cycles = null;
     private Integer[] iToInteger = null;
@@ -44,7 +44,7 @@ public class CustomSLSimpleCycles implements DirectedSimpleCycles<Integer, Defau
         this.graph = GraphTests.requireDirected(graph, "Graph must be directed");
     }
 
-    public List<List<Integer>> findSimpleCycles() {
+    public List<List<Integer>> findSimpleCycles() throws InterruptedException {
         if (this.graph == null) {
             throw new IllegalArgumentException("Null graph.");
         } else {
@@ -84,7 +84,7 @@ public class CustomSLSimpleCycles implements DirectedSimpleCycles<Integer, Defau
         }
     }
 
-    public List<Integer> findSimpleCycle() {
+    public List<Integer> findSimpleCycle() throws InterruptedException {
         if (this.graph == null) {
             throw new IllegalArgumentException("Null graph.");
         } else {
@@ -129,7 +129,11 @@ public class CustomSLSimpleCycles implements DirectedSimpleCycles<Integer, Defau
         }
     }
 
-    private boolean cycle(int v, int q) {
+    private boolean cycle(int v, int q) throws InterruptedException {
+        if (Thread.interrupted()) {
+            throw new InterruptedException();
+        }
+
         boolean foundCycle = false;
         Integer vInteger = this.toV(v);
         this.marked.add(vInteger);
@@ -285,17 +289,17 @@ public class CustomSLSimpleCycles implements DirectedSimpleCycles<Integer, Defau
     }
 
     public float calculateCycleScore(List<java.lang.Integer> cycle) {
-        Set<org.jgrapht.graph.DefaultWeightedEdge> edges = new HashSet<org.jgrapht.graph.DefaultWeightedEdge>();
+        ArrayList<org.jgrapht.graph.DefaultWeightedEdge> edges = new ArrayList<org.jgrapht.graph.DefaultWeightedEdge>(cycle.size());
         for (int i = 0; i < cycle.size(); i++) {
             int source = cycle.get(i);
             int target = cycle.get((i + 1) % cycle.size());
             org.jgrapht.graph.DefaultWeightedEdge edge = graph.getEdge(source, target);
-            edges.add(edge);
+            edges.add(i, edge);
         }
         return sumWeightOfEdges(edges);
     }
 
-    public float sumWeightOfEdges(Set<org.jgrapht.graph.DefaultWeightedEdge> edges) {
+    public float sumWeightOfEdges(ArrayList<org.jgrapht.graph.DefaultWeightedEdge> edges) {
         float score = 0;
         for (org.jgrapht.graph.DefaultWeightedEdge edge : edges) {
             score = score + (float) graph.getEdgeWeight(edge);

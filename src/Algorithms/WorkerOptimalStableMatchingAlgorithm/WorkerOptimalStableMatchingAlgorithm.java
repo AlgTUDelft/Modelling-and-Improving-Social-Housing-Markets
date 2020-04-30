@@ -24,13 +24,6 @@ public class WorkerOptimalStableMatchingAlgorithm {
         List<Integer> cycle;
         cycle = tryToFindCycle(dynamicStrategy, inputDynamicStrategy, print);
         while (cycle != null) {
-            if (Thread.interrupted()) {
-//                System.out.println("Interrupted here");
-                dynamicStrategy = inputDynamicStrategy;
-                this.matching.resetHouseholdsMovedByWOSMA();
-                throw new InterruptedException();
-            }
-
             if(print) { System.out.println("Executing cycle " + i); }
             switch (dynamicStrategy) {
                 case WOSMA_REGULAR:
@@ -71,6 +64,10 @@ public class WorkerOptimalStableMatchingAlgorithm {
             this.matching.setStrategyDowngraded();
             twoLabeledGraph = new TwoLabeledGraph(matching, dynamicStrategy);
             cycle = tryToFindCycle(dynamicStrategy, inputDynamicStrategy, print);
+        } catch (InterruptedException e) {
+            this.matching.resetHouseholdsMovedByWOSMA();
+            dynamicStrategy = inputDynamicStrategy;
+            throw e;
         }
         return cycle;
     }

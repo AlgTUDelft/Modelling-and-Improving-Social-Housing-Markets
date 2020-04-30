@@ -121,20 +121,12 @@ public class DynamicMatching implements Serializable {
             case WOSMA_IR_CYCLES:
                 WorkerOptimalStableMatchingAlgorithm wosma
                     = new WorkerOptimalStableMatchingAlgorithm(currentMatching);
-                try {
-                    currentMatching = wosma.findWorkerOptimalStableMatching(dynamicStrategy, print);
-                } catch (InterruptedException e) {
-                    throw e;
-                }
+                currentMatching = wosma.findWorkerOptimalStableMatching(dynamicStrategy, print);
                 break;
             case MCPMA_IMPROVEMENT:
                 MCPMAOnMatchingRunner mcpmaOnMatchingRunner
                     = new MCPMAOnMatchingRunner(currentMatching, MCPMAStrategy.IMPROVEMENT);
-                try {
-                    currentMatching = mcpmaOnMatchingRunner.optimizeMatching(print);
-                } catch (InterruptedException e) {
-                    throw e;
-                }
+                currentMatching = mcpmaOnMatchingRunner.optimizeMatching(print);
                 break;
         }
     }
