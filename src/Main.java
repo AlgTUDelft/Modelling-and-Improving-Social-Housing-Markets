@@ -31,7 +31,12 @@ public class Main {
 
             // For each matching size...
 //            for (int lineCount : new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150))) {
-            for (int lineCount : new ArrayList<>(Arrays.asList( 25, 30, 35, 40, 45, 50, 75, 100, 125, 150))) {
+//            for (int lineCount : new ArrayList<>(Arrays.asList( 25, 30, 35, 40, 45, 50, 75, 100, 125, 150))) {
+            for (int lineCount : new ArrayList<>(Arrays.asList(5,6,7,8,9,10))) {
+                // If there are still algorithms to run...
+                if (interruptedAlgorithmStrategies.size() == AlgorithmStrategy.values().length) {
+                    break;
+                }
                 int timestepCount = lineCount/2;
                 boolean oneSided = false;
                 ArrayList<DynamicMatching> dynamicMatchings = new ArrayList<DynamicMatching>();
@@ -47,7 +52,8 @@ public class Main {
                 for (AlgorithmStrategy algorithmStrategy : AlgorithmStrategy.values()) {
                     if (interruptedAlgorithmStrategies.contains(algorithmStrategy)) {
                         // Algorithm took too long in smaller instance, so don't go on.
-                        break;
+                        System.out.println("Skipping:    " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
+                        continue;
                     } else {
                         // Run it and check if we were interrupted during execution.
                         ArrayList<DynamicMatching> dynamicMatchingsCopy = (ArrayList<DynamicMatching>) deepClone(dynamicMatchings); // Potentially expensive but seemingly necessary...

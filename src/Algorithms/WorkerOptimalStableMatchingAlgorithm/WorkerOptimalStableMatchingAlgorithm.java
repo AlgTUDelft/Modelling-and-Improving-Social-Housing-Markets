@@ -5,6 +5,7 @@ import Matching.MatchingEvaluator;
 import Matching.DynamicStrategy;
 
 import java.util.List;
+import java.util.Random;
 
 public class WorkerOptimalStableMatchingAlgorithm {
     private Matching matching;
@@ -47,20 +48,26 @@ public class WorkerOptimalStableMatchingAlgorithm {
         return this.matching;
     }
 
-    public List<Integer> tryToFindCycle(DynamicStrategy dynamicStrategy, boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException {
+    public List<Integer> tryToFindCycle(DynamicStrategy dynamicStrategy, boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, InterruptedException {
         List<Integer> cycle;
         try {
             cycle = twoLabeledGraph.findCycle(print);
         } catch (OutOfMemoryError e) {
-            System.err.println("Error: Szwarcfiter-Lauer found more cycles than can fit in this computer's memory.");
-            System.err.println("Downgrading strategy...");
+            if (print) {
+                System.err.println("Error: Szwarcfiter-Lauer found more cycles than can fit in this computer's memory.");
+                System.err.println("Downgrading strategy...");
+            }
             if (dynamicStrategy == DynamicStrategy.WOSMA_IR_CYCLES) {
                 dynamicStrategy = DynamicStrategy.WOSMA_FINDMAX;
             } else if (dynamicStrategy == DynamicStrategy.WOSMA_FINDMAX) {
                 dynamicStrategy = DynamicStrategy.WOSMA_REGULAR;
+            } else if (dynamicStrategy == DynamicStrategy.WOSMA_REGULAR) {
+                if (print) {
+                    System.err.println("WOSMA_REGULAR ran out of memory somehow. Interrupting thread...");
+                }
+                throw new InterruptedException();
             }
             this.matching.setStrategyDowngraded();
-            System.out.println("findMax Failed! / Strategy downgraded! Please ensure you can find this in the results.");
             twoLabeledGraph = new TwoLabeledGraph(matching, dynamicStrategy);
             cycle = tryToFindCycle(dynamicStrategy, print);
         }
