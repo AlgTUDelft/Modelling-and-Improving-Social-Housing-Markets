@@ -49,8 +49,7 @@ public class MCPMA {
         boolean shouldContinue = matchGraph.edgeSet().size() != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size();
         while (shouldContinue) {
             if (Thread.interrupted()) {
-//                    System.out.println("Interrupted here");
-                    throw new InterruptedException();
+                throw new InterruptedException();
                 }
 
             if(print) { System.out.println("Augmenting path " + i); }

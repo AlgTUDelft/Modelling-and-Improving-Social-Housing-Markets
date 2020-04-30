@@ -4,7 +4,6 @@ import Comparisons.Compare;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.*;
-import static Miscellaneous.DeepCloner.deepClone;
 
 import java.io.*;
 import java.util.*;
@@ -24,9 +23,9 @@ public class Main {
             counter = counter + (1000-maxVal)/nTimes; // == 17 with maxVal == 150 & nTimes == 50.
         }
 
-        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
+//        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
 //        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12));
-//        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(30, 35, 40, 45, 50, 75, 100, 125, 150));
+        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(12, 13, 30, 35, 40, 45, 50, 75, 100, 125, 150));
 
         // Start of execution loop.
         for (MatchingEvaluatorStrategy matchingEvaluatorStrategy : MatchingEvaluatorStrategy.values()) {
@@ -100,6 +99,8 @@ public class Main {
             System.err.println("Thread got interrupted somehow.");
         }
         if (thread.isAlive()) {
+            thread.interrupt();
+            thread.join();
             tookTooLong = true;
         }
         return tookTooLong;

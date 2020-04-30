@@ -63,15 +63,15 @@ public class DynamicMatching implements Serializable {
 
 
     public Matching advanceTimeAndSolvePerStepAndReset(DynamicStrategy dynamicStrategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualGraph.MatchGraphNotEmptyException, MCPMAPrices.AlreadyInitiatedException, MCPMA.UnequalSidesException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
-        for (int i = 0; i < timestepCount; i++) {
+        try {
+            for (int i = 0; i < timestepCount; i++) {
             if(print) { System.out.println("Timestep " + i); }
             simulateEnvironmentTimestep();
-            try {
-                runAlgorithm(dynamicStrategy, print);
-            } catch (InterruptedException e) {
-                this.resetState();
-                throw e;
+            runAlgorithm(dynamicStrategy, print);
             }
+        } catch (InterruptedException e) {
+            this.resetState();
+            throw e;
         }
         Matching resultingMatching = (Matching) deepClone(currentMatching);
         this.resetState();
@@ -131,7 +131,7 @@ public class DynamicMatching implements Serializable {
         }
     }
 
-    private void resetState() throws InterruptedException {
+    private void resetState() {
         this.currentMatching = (Matching) deepClone(this.initialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(this.initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(this.initialHouseholdsToArrive);

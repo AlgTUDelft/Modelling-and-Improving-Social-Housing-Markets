@@ -7,7 +7,7 @@ import java.io.ObjectOutputStream;
 
 public class DeepCloner {
 
-    public static Object deepClone(Object object) throws InterruptedException {
+    public static Object deepClone(Object object) {
 //        if (Thread.interrupted()) {
 //            throw new InterruptedException();
 //        }
