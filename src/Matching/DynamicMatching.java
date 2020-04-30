@@ -5,6 +5,7 @@ import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
+import static Miscellaneous.DeepCloner.deepClone;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -140,20 +141,6 @@ public class DynamicMatching implements Serializable {
         return inputMatching;
     }
 
-    private static Object deepClone(Object object) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(object);
-            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-            ObjectInputStream ois = new ObjectInputStream(bais);
-            return ois.readObject();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     public Matching getCurrentMatching() {
         return currentMatching;

@@ -2,6 +2,7 @@ package Algorithms.WorkerOptimalStableMatchingAlgorithm;
 
 import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
+import static Miscellaneous.DeepCloner.deepClone;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -119,21 +120,6 @@ public class CycleFinder {
             }
         }
         return false;
-    }
-
-    public static Object deepClone(Object object) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(object);
-            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-            ObjectInputStream ois = new ObjectInputStream(bais);
-            return ois.readObject();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public class FullyExploredVertexDiscoveredException extends Exception {

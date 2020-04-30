@@ -4,17 +4,16 @@ import Comparisons.Compare;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.*;
+import static Miscellaneous.DeepCloner.deepClone;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.*;
 
 public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, HousingMarket.FreeSpaceException, Matching.HouseAlreadyMatchedException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, DynamicMatching.TooManyTimestepsException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToHouseException {
 
-        long allowedRunningTime = 2_000;
+        long allowedRunningTime = 500;
         int maxVal = 150;
         int nTimes = 50;
 
@@ -25,16 +24,22 @@ public class Main {
             counter = counter + (1000-maxVal)/nTimes; // == 17 with maxVal == 150 & nTimes == 50.
         }
 
+        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
+
         // Start of execution loop.
         for (MatchingEvaluatorStrategy matchingEvaluatorStrategy : MatchingEvaluatorStrategy.values()) {
             HashSet<AlgorithmStrategy> interruptedAlgorithmStrategies = new HashSet<>();
 
             // For each matching size...
-//            for (int lineCount : new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150))) {
-//            for (int lineCount : new ArrayList<>(Arrays.asList( 25, 30, 35, 40, 45, 50, 75, 100, 125, 150))) {
-            for (int lineCount : new ArrayList<>(Arrays.asList(5,6,7,8,9,10))) {
+            for (int lineCount : lineCounts) {
+                int matchingEvalStratsLeftCount;
+                if (matchingEvaluatorStrategy == MatchingEvaluatorStrategy.values()[0]) {
+                    matchingEvalStratsLeftCount = 2;
+                } else { matchingEvalStratsLeftCount = 1; }
                 // If there are still algorithms to run...
                 if (interruptedAlgorithmStrategies.size() == AlgorithmStrategy.values().length) {
+                    Calendar cal = calculateRemainingTime(allowedRunningTime, lineCounts.size(), lineCounts.size() - lineCounts.indexOf(lineCount), matchingEvalStratsLeftCount, AlgorithmStrategy.values().length - interruptedAlgorithmStrategies.size());
+                    System.out.println("Updated ETA: " + cal.getTime() + ".");
                     break;
                 }
                 int timestepCount = lineCount/2;
@@ -99,19 +104,17 @@ public class Main {
         return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount);
     }
 
-    public static Object deepClone(Object object) {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(object);
-            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
-            ObjectInputStream ois = new ObjectInputStream(bais);
-            return ois.readObject();
+    public static Calendar calculateRemainingTime(long allowedRunningTime, int linesCount, int linesLeftCount, int matchingEvaluatorStrategiesLeftCount, int algorithmStrategiesLeft) {
+        long eta = 0;
+        if (matchingEvaluatorStrategiesLeftCount == 1) {
+             eta = allowedRunningTime * linesLeftCount  * algorithmStrategiesLeft;
+        } else {
+            eta = allowedRunningTime * (linesCount * AlgorithmStrategy.values().length) + (linesLeftCount + algorithmStrategiesLeft);
         }
-        catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+        Calendar cal = Calendar.getInstance(); // creates calendar
+        cal.setTime(new Date()); // sets calendar time/date
+        cal.add(Calendar.MILLISECOND, (int) eta); // adds time.
+        return cal;
     }
 
 }

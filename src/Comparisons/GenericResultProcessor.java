@@ -1,6 +1,6 @@
 package Comparisons;
 
-import Algorithms.Miscellaneous.CSVUtils;
+import Miscellaneous.CSVUtils;
 
 import java.io.FileWriter;
 import java.io.IOException;
