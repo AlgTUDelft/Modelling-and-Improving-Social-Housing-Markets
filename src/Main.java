@@ -34,14 +34,15 @@ public class Main {
 
             // For each matching size...
             for (int lineCount : lineCounts) {
-                int matchingEvalStratsLeftCount;
-                if (matchingEvaluatorStrategy == MatchingEvaluatorStrategy.values()[0]) {
-                    matchingEvalStratsLeftCount = 2;
-                } else { matchingEvalStratsLeftCount = 1; }
                 // Unless there are no more algorithms left to run...
                 if (interruptedAlgorithmStrategies.size() == AlgorithmStrategy.values().length) {
                     break;
                 }
+
+                int matchingEvalStratsLeftCount;
+                if (matchingEvaluatorStrategy == MatchingEvaluatorStrategy.values()[0]) {
+                    matchingEvalStratsLeftCount = 2;
+                } else { matchingEvalStratsLeftCount = 1; }
                 Calendar cal = calculateRemainingTime(allowedRunningTime, lineCounts.size(), lineCounts.size() - lineCounts.indexOf(lineCount), matchingEvalStratsLeftCount, AlgorithmStrategy.values().length - interruptedAlgorithmStrategies.size());
                 System.out.println("Updated ETA: " + cal.getTime() + ".");
 
@@ -62,11 +63,10 @@ public class Main {
                     if (interruptedAlgorithmStrategies.contains(algorithmStrategy)) {
                         // Algorithm took too long in smaller instance, so don't go on.
                         System.out.println("Skipping:    " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
-                        continue;
                     } else {
                         // Run it and check if we were interrupted during execution.
-                        ArrayList<DynamicMatching> dynamicMatchingsCopy = (ArrayList<DynamicMatching>) deepClone(dynamicMatchings); // Potentially expensive but seemingly necessary...
-                        boolean interrupted = runAlgorithm(dynamicMatchingsCopy, allowedRunningTime, algorithmStrategy, lineCount, nTimes, matchingEvaluatorStrategy);
+//                        ArrayList<DynamicMatching> dynamicMatchingsCopy = (ArrayList<DynamicMatching>) deepClone(dynamicMatchings); // Potentially expensive but seemingly necessary...
+                        boolean interrupted = runAlgorithm(dynamicMatchings, allowedRunningTime, algorithmStrategy, lineCount, nTimes, matchingEvaluatorStrategy);
                         if (interrupted) {
                             System.out.println("Interrupted: " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
                             interruptedAlgorithmStrategies.add(algorithmStrategy);
@@ -95,6 +95,11 @@ public class Main {
         try {
             thread.join(allowedRunningTime);
         } catch (InterruptedException e) {
+            // Needless to say, this shouldn't happen, since we never interrupt threads
+            // except through the above thread.join call.
+            System.err.println("Thread got interrupted somehow.");
+        }
+        if (thread.isAlive()) {
             tookTooLong = true;
         }
         return tookTooLong;

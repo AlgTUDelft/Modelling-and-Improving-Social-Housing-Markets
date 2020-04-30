@@ -27,7 +27,7 @@ public class DynamicMatching implements Serializable {
 
     protected boolean oneSided; // false means two-sided arrival. One-sided means houses are set and households arrive.
 
-    public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException {
+    public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, InterruptedException {
         inputMatching = (Matching) deepClone(matching);
         this.oneSided = oneSided;
         this.timestepCount = (Integer) deepClone(timestepCount);
@@ -131,7 +131,7 @@ public class DynamicMatching implements Serializable {
         }
     }
 
-    private void resetState() {
+    private void resetState() throws InterruptedException {
         this.currentMatching = (Matching) deepClone(this.initialMatching);
         this.currentHousesToArrive = (ArrayList<House>) deepClone(this.initialHousesToArrive);
         this.currentHouseholdsToArrive = (ArrayList<Household>) deepClone(this.initialHouseholdsToArrive);

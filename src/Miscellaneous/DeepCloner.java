@@ -7,7 +7,10 @@ import java.io.ObjectOutputStream;
 
 public class DeepCloner {
 
-    public static Object deepClone(Object object) {
+    public static Object deepClone(Object object) throws InterruptedException {
+//        if (Thread.interrupted()) {
+//            throw new InterruptedException();
+//        }
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);

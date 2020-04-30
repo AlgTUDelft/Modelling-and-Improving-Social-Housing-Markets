@@ -13,7 +13,7 @@ public class WorkerOptimalStableMatchingAlgorithm {
     private Matching matching;
     private TwoLabeledGraph twoLabeledGraph;
 
-    public WorkerOptimalStableMatchingAlgorithm(Matching matching) {
+    public WorkerOptimalStableMatchingAlgorithm(Matching matching) throws InterruptedException {
         this.matching = (Matching) deepClone(matching);
     }
 
