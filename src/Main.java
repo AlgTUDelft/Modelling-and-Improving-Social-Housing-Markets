@@ -105,7 +105,7 @@ public class Main {
         }
         if (thread.isAlive()) {
             thread.interrupt();
-            thread.join(); // Necessary?
+            thread.join();
             tookTooLong = true;
         }
         return tookTooLong;

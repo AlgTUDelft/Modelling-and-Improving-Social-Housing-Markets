@@ -52,7 +52,7 @@ public class Compare {
                             break;
                         case WOSMA_FINDMAX:
                         case WOSMA_IRCYCLES:
-                            new WOSMALikeResultProcessor((ArrayList<WOSMALikeResult>)(ArrayList<?>) results).resultsToCSV(outputFilename);
+                            new GenericResultProcessor(results).resultsToCSV(outputFilename);
                             break;
                     }
                 }
@@ -65,7 +65,6 @@ public class Compare {
     public static GenericResult individualRunDynamic(DynamicMatching dynamicMatching) throws InterruptedException {
         GenericResult genericResult = null;
         try {
-
             DynamicStrategy dynamicStrategy = null;
             switch (algorithmStrategy) {
                 case WOSMA_REGULAR: dynamicStrategy = DynamicStrategy.WOSMA_REGULAR; break;
@@ -79,18 +78,7 @@ public class Compare {
             matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(dynamicStrategy, false);
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
-
-            switch (dynamicStrategy) {
-                case WOSMA_REGULAR:
-                case MCPMA_IMPROVEMENT:
-                    genericResult = new GenericResult(scores[0], scores[1]);
-                    break;
-                case WOSMA_FINDMAX:
-                case WOSMA_IR_CYCLES:
-                    genericResult = new WOSMALikeResult(matchings[0].getStrategyDowngraded() || matchings[1].getStrategyDowngraded(), scores[0], scores[1]);
-                    break;
-            }
-
+            genericResult = new GenericResult(scores[0], scores[1]);
 
         } catch (MCPMAPrices.AlreadyInitiatedException | Matching.HouseLinkedToMultipleException | Matching.HouseIDAlreadyPresentException | Matching.HouseholdLinkedToHouseholdException | Matching.HouseLinkedToHouseException | Matching.PreferredNoHouseholdlessHouseException | ResidualGraph.MatchGraphNotEmptyException | CycleFinder.FullyExploredVertexDiscoveredException | Matching.HouseholdIDAlreadyPresentException | ResidualGraph.PathEdgeNotInResidualGraphException | MCPMA.UnequalSidesException | MatchingEvaluator.HouseholdIncomeTooHighException | Matching.HouseAlreadyMatchedException | Matching.HouseholdLinkedToMultipleException | Matching.HouseholdAlreadyMatchedException e) {
             e.printStackTrace();

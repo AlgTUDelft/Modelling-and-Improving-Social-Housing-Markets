@@ -27,7 +27,6 @@ public class Matching implements Serializable {
     protected ArrayList<Integer> SWIChainLengths = new ArrayList<Integer>();
     protected ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
     protected Set<Integer> householdsMovedByWOSMA = new HashSet<Integer>(); // Is reset at the end of WOSMA-calls before return.
-    private boolean strategyDowngraded = false; // Relevant to DynamicMatching.
 
     private MatchingEvaluatorStrategy matchingEvaluatorStrategy;
     private Grader grader;
@@ -157,10 +156,6 @@ public class Matching implements Serializable {
         }
     }
 
-    public int countEdges() {
-        return this.matchingGraph.edgeSet().size();
-    }
-
     public House getHouse(int id) {
         Optional<House> result = this.houses.stream()
                 .filter(h -> h.getID() == id)
@@ -274,38 +269,6 @@ public class Matching implements Serializable {
         } else if (getHousehold(ID) != null) {
             return false;
         } else { throw new IDNotPresentException("Requested ID belonged to neither a house nor a household."); }
-    }
-
-    // Part of the MinCostPerfectMatchingAlgorithm.
-    public void augment(GraphPath<Integer, DefaultWeightedEdge> graphPath) throws IDNotPresentException, HouseLinkedToMultipleException, HouseLinkedToHouseException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException {
-        ArrayList<HouseAndHouseholdIDPair> toConnect = new ArrayList<HouseAndHouseholdIDPair>(graphPath.getVertexList().size());
-        List<DefaultWeightedEdge> edgeList = graphPath.getEdgeList();
-
-        for (DefaultWeightedEdge edge : edgeList) {
-            // The source node, where the first edge in graphPath starts,
-            // isn't present in the regular matching. Thus we want to ignore it.
-            // Note that graphPath does not contain the final sink node.
-            if (edgeList.indexOf(edge) != 0) {
-                int sourceID = graphPath.getGraph().getEdgeSource(edge);
-                int targetID = graphPath.getGraph().getEdgeTarget(edge);
-                if (isHouseID(sourceID)) { // then targetID belongs to a household.
-                    if (this.hasEdge(sourceID, targetID)) {
-                        this.disconnect(sourceID, targetID);
-                    } else {
-                        toConnect.add(new HouseAndHouseholdIDPair(sourceID, targetID));
-                    }
-                } else { // then targetID belongs to a house.
-                    if (this.hasEdge(targetID, sourceID)) {
-                        this.disconnect(targetID, sourceID);
-                    } else {
-                        toConnect.add(new HouseAndHouseholdIDPair(targetID, sourceID));
-                    }
-                }
-            }
-        }
-        for (HouseAndHouseholdIDPair pair : toConnect) {
-            this.connect(pair.getHouseID(), pair.getHouseholdID());
-        }
     }
 
     // Part of the WorkerOptimalStableMatchingAlgorithm.
@@ -487,13 +450,6 @@ public class Matching implements Serializable {
         }
     }
 
-    public boolean isMaximallyMatched() {
-        if (this.houses.size() != this.households.size()) {
-            System.err.println("|Houses| != |Households|. Therefore matching can never be perfect.");
-            return false;
-        } else { return this.getMatchingGraph().edgeSet().size() == this.houses.size(); }
-    }
-
     public HousingMarket getHousingMarket() {
         return this.housingMarket;
     }
@@ -514,18 +470,6 @@ public class Matching implements Serializable {
             int chosenHouseID = rand.nextInt(householdlessHousesIDsArray.size());
             this.connect(chosenHouseID, household.getID());
         }
-    }
-
-    public void setStrategyDowngraded() {
-        this.strategyDowngraded = true;
-    }
-
-    public void resetFindMaxFailed() {
-        this.strategyDowngraded = false;
-    }
-
-    public boolean getStrategyDowngraded() {
-        return this.strategyDowngraded;
     }
 
     public void resetHouseholdsMovedByWOSMA() {
