@@ -78,16 +78,21 @@ public class Main {
         }
     }
 
-    public static boolean runAlgorithm(ArrayList<DynamicMatching> dynamicmatchings, long allowedRunningTime, AlgorithmStrategy algorithmStrategy, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws InterruptedException, IOException {
+    public static boolean runAlgorithm(ArrayList<DynamicMatching> dynamicMatchings, long allowedRunningTime, AlgorithmStrategy algorithmStrategy, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws InterruptedException, IOException {
         boolean tookTooLong = false;
-        Compare compare = new Compare();
         Thread thread = null;
+        Compare compare = new Compare(dynamicMatchings, lineCount, nTimes,  matchingEvaluatorStrategy, algorithmStrategy);
+
         switch(algorithmStrategy) {
-            case WOSMA_REGULAR: thread = new Thread(compare.runDynamicWOSMARegular(dynamicmatchings, lineCount, nTimes,  matchingEvaluatorStrategy)); break;
-            case WOSMA_FINDMAX: thread = new Thread(compare.runDynamicWOSMAFindMax(dynamicmatchings, lineCount, nTimes, matchingEvaluatorStrategy)); break;
-            case WOSMA_IRCYCLES: thread = new Thread(compare.runDynamicIRCycles(dynamicmatchings, lineCount, nTimes, matchingEvaluatorStrategy)); break;
-            case IMPROVEMENT_MCPMA: thread = new Thread(compare.runDynamicImprovementMCPMA(dynamicmatchings, lineCount, nTimes, matchingEvaluatorStrategy)); break;
-            case MCPMA: thread = new Thread(compare.runStaticMCPMA(dynamicmatchings, lineCount, nTimes, matchingEvaluatorStrategy)); break;
+            case WOSMA_REGULAR:
+            case WOSMA_FINDMAX:
+            case WOSMA_IRCYCLES:
+            case IMPROVEMENT_MCPMA:
+                thread = new Thread(compare.runDynamic());
+                break;
+            case MCPMA:
+                thread = new Thread(compare.runStaticMCPMA());
+                break;
         }
 
         thread.start();
@@ -100,7 +105,7 @@ public class Main {
         }
         if (thread.isAlive()) {
             thread.interrupt();
-            thread.join();
+            thread.join(); // Necessary?
             tookTooLong = true;
         }
         return tookTooLong;

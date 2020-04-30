@@ -11,30 +11,50 @@ import java.util.ArrayList;
 
 public class Compare {
 
-    public Compare() {}
+    private static ArrayList<DynamicMatching> dynamicMatchings;
+    private static int lineCount;
+    private static int nTimes;
+    private static MatchingEvaluatorStrategy matchingEvaluatorStrategy;
+    private static AlgorithmStrategy algorithmStrategy;
 
-    public static Runnable runDynamicIRCycles(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws IOException {
+    public Compare(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy, AlgorithmStrategy algorithmStrategy) {
+        this.dynamicMatchings = dynamicMatchings;
+        this.lineCount = lineCount;
+        this.nTimes = nTimes;
+        this.matchingEvaluatorStrategy = matchingEvaluatorStrategy;
+        this.algorithmStrategy = algorithmStrategy;
+    }
+
+    public static Runnable runDynamic() {
         return () -> {
 
-            String outputFilename = createFilename(AlgorithmStrategy.WOSMA_IRCYCLES, lineCount, matchingEvaluatorStrategy);
+            String outputFilename = createFilename(algorithmStrategy, lineCount, matchingEvaluatorStrategy);
 
-            ArrayList<WOSMALikeResult> wosmaLikeResults
-                    = new ArrayList(nTimes);
+            ArrayList<GenericResult> results = new ArrayList<>(nTimes);
             boolean interrupted = false;
+
             for (int i = 0; i < nTimes; i++) {
                 try {
                     DynamicMatching dynamicMatching = dynamicMatchings.get(i);
-                    wosmaLikeResults.add(i, individualRunDynamicIRCycles(dynamicMatching));
+                    results.add(i, individualRunDynamic(dynamicMatching));
                 } catch (InterruptedException e) {
                     interrupted = true;
                     break;
                 }
             }
-            WOSMALikeResultProcessor wosmaLikeResultProcessor
-                    = new WOSMALikeResultProcessor(wosmaLikeResults);
+
             try {
                 if(!interrupted) {
-                    wosmaLikeResultProcessor.resultsToCSV(outputFilename);
+                    switch (algorithmStrategy) {
+                        case WOSMA_REGULAR:
+                        case IMPROVEMENT_MCPMA:
+                            new GenericResultProcessor(results).resultsToCSV(outputFilename);
+                            break;
+                        case WOSMA_FINDMAX:
+                        case WOSMA_IRCYCLES:
+                            new WOSMALikeResultProcessor((ArrayList<WOSMALikeResult>)(ArrayList<?>) results).resultsToCSV(outputFilename);
+                            break;
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -42,161 +62,35 @@ public class Compare {
         };
     }
 
-    public static WOSMALikeResult individualRunDynamicIRCycles(DynamicMatching dynamicMatching) throws InterruptedException {
-        WOSMALikeResult wosmaLikeResult = null;
-        try {
-            Matching[] matchings = new Matching[2];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(DynamicStrategy.WOSMA_IR_CYCLES, false);
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(DynamicStrategy.WOSMA_IR_CYCLES, false);
-
-            float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
-
-            wosmaLikeResult = new WOSMALikeResult(matchings[0].getStrategyDowngraded() || matchings[1].getStrategyDowngraded(), scores[0], scores[1]);
-
-        } catch (Matching.HouseLinkedToHouseException | MCPMA.UnequalSidesException | ResidualGraph.MatchGraphNotEmptyException | MCPMAPrices.AlreadyInitiatedException | Matching.HouseLinkedToMultipleException | CycleFinder.FullyExploredVertexDiscoveredException | ResidualGraph.PathEdgeNotInResidualGraphException | Matching.HouseholdIDAlreadyPresentException | Matching.HouseholdLinkedToMultipleException | Matching.HouseholdLinkedToHouseholdException | Matching.HouseholdAlreadyMatchedException | Matching.HouseAlreadyMatchedException | Matching.HouseIDAlreadyPresentException | MatchingEvaluator.HouseholdIncomeTooHighException | Matching.PreferredNoHouseholdlessHouseException e) {
-            e.printStackTrace();
-        }
-
-        return wosmaLikeResult;
-    }
-
-
-    public static Runnable runDynamicImprovementMCPMA(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
-        return () -> {
-
-            String outputFilename = createFilename(AlgorithmStrategy.IMPROVEMENT_MCPMA, lineCount, matchingEvaluatorStrategy);
-
-            ArrayList<GenericResult> genericResults
-                    = new ArrayList();
-            boolean interrupted = false;
-            for (int i = 0; i < nTimes; i++) {
-                try {
-                    DynamicMatching dynamicMatching = dynamicMatchings.get(i);
-                    genericResults.add(i, individualRunDynamicImprovementMCPMA(dynamicMatching));
-                } catch (InterruptedException e) {
-                    interrupted = true;
-                    break;
-                }
-            }
-            GenericResultProcessor genericResultProcessor
-                    = new GenericResultProcessor(genericResults);
-            try {
-                if(!interrupted) {
-                    genericResultProcessor.resultsToCSV(outputFilename);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        };
-    }
-
-    public static GenericResult individualRunDynamicImprovementMCPMA(DynamicMatching dynamicMatching) throws InterruptedException {
+    public static GenericResult individualRunDynamic(DynamicMatching dynamicMatching) throws InterruptedException {
         GenericResult genericResult = null;
         try {
-            Matching[] matchings = new Matching[2];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(DynamicStrategy.MCPMA_IMPROVEMENT, false);
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(DynamicStrategy.MCPMA_IMPROVEMENT, false);
 
+            DynamicStrategy dynamicStrategy = null;
+            switch (algorithmStrategy) {
+                case WOSMA_REGULAR: dynamicStrategy = DynamicStrategy.WOSMA_REGULAR; break;
+                case WOSMA_FINDMAX: dynamicStrategy = DynamicStrategy.WOSMA_FINDMAX; break;
+                case WOSMA_IRCYCLES: dynamicStrategy = DynamicStrategy.WOSMA_IR_CYCLES; break;
+                case IMPROVEMENT_MCPMA: dynamicStrategy = DynamicStrategy.MCPMA_IMPROVEMENT; break;
+            }
+
+            Matching[] matchings = new Matching[2];
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(dynamicStrategy, false);
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(dynamicStrategy, false);
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
 
-            genericResult = new GenericResult(scores[0], scores[1]);
-
-        } catch (MCPMAPrices.AlreadyInitiatedException | Matching.HouseIDAlreadyPresentException | Matching.HouseholdLinkedToHouseholdException | Matching.HouseLinkedToHouseException | Matching.PreferredNoHouseholdlessHouseException | ResidualGraph.MatchGraphNotEmptyException | CycleFinder.FullyExploredVertexDiscoveredException | Matching.HouseholdIDAlreadyPresentException | ResidualGraph.PathEdgeNotInResidualGraphException | MCPMA.UnequalSidesException | MatchingEvaluator.HouseholdIncomeTooHighException | Matching.HouseAlreadyMatchedException | Matching.HouseholdLinkedToMultipleException | Matching.HouseholdAlreadyMatchedException | Matching.HouseLinkedToMultipleException e) {
-            e.printStackTrace();
-        }
-
-        return genericResult;
-    }
-
-
-    public static Runnable runDynamicWOSMAFindMax(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
-        return () -> {
-
-            String outputFilename = createFilename(AlgorithmStrategy.WOSMA_FINDMAX, lineCount, matchingEvaluatorStrategy);
-
-            ArrayList<WOSMALikeResult> wosmaLikeResults
-                    = new ArrayList();
-            boolean interrupted = false;
-            for (int i = 0; i < nTimes; i++) {
-                try {
-                    DynamicMatching dynamicMatching = dynamicMatchings.get(i);
-                    wosmaLikeResults.add(i, individualRunDynamicWOSMAFindMax(dynamicMatching));
-                } catch (InterruptedException e) {
-                    interrupted = true;
+            switch (dynamicStrategy) {
+                case WOSMA_REGULAR:
+                case MCPMA_IMPROVEMENT:
+                    genericResult = new GenericResult(scores[0], scores[1]);
                     break;
-                }
-            }
-            WOSMALikeResultProcessor wosmaLikeResultProcessor
-                    = new WOSMALikeResultProcessor(wosmaLikeResults);
-            try {
-                if(!interrupted) {
-                    wosmaLikeResultProcessor.resultsToCSV(outputFilename);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        };
-    }
-
-    public static WOSMALikeResult individualRunDynamicWOSMAFindMax(DynamicMatching dynamicMatching) throws InterruptedException {
-        WOSMALikeResult wosmaLikeResult = null;
-        try {
-            Matching[] matchings = new Matching[2];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(DynamicStrategy.WOSMA_FINDMAX, false);
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(DynamicStrategy.WOSMA_FINDMAX, false);
-
-            float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
-
-            wosmaLikeResult = new WOSMALikeResult(matchings[0].getStrategyDowngraded() || matchings[1].getStrategyDowngraded(), scores[0], scores[1]);
-
-        } catch (Matching.HouseLinkedToHouseException | MCPMA.UnequalSidesException | ResidualGraph.MatchGraphNotEmptyException | MCPMAPrices.AlreadyInitiatedException | Matching.HouseLinkedToMultipleException | CycleFinder.FullyExploredVertexDiscoveredException | ResidualGraph.PathEdgeNotInResidualGraphException | Matching.HouseholdIDAlreadyPresentException | Matching.HouseholdLinkedToMultipleException | Matching.HouseholdLinkedToHouseholdException | Matching.HouseholdAlreadyMatchedException | Matching.HouseAlreadyMatchedException | Matching.HouseIDAlreadyPresentException | MatchingEvaluator.HouseholdIncomeTooHighException | Matching.PreferredNoHouseholdlessHouseException e) {
-            e.printStackTrace();
-        }
-
-        return wosmaLikeResult;
-    }
-
-
-    public static Runnable runDynamicWOSMARegular(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
-        return () -> {
-
-            String outputFilename = createFilename(AlgorithmStrategy.WOSMA_REGULAR, lineCount, matchingEvaluatorStrategy);
-
-            ArrayList<GenericResult> genericResults
-                    = new ArrayList();
-            boolean interrupted = false;
-            for (int i = 0; i < nTimes; i++) {
-                try {
-                    DynamicMatching dynamicMatching = dynamicMatchings.get(i);
-                    genericResults.add(i, individualRunDynamicWOSMARegular(dynamicMatching));
-                } catch (InterruptedException e) {
-                    interrupted = true;
+                case WOSMA_FINDMAX:
+                case WOSMA_IR_CYCLES:
+                    genericResult = new WOSMALikeResult(matchings[0].getStrategyDowngraded() || matchings[1].getStrategyDowngraded(), scores[0], scores[1]);
                     break;
-                }
             }
-            GenericResultProcessor genericResultProcessor
-                    = new GenericResultProcessor(genericResults);
-            try {
-                if(!interrupted) {
-                    genericResultProcessor.resultsToCSV(outputFilename);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        };
-    }
 
-    public static GenericResult individualRunDynamicWOSMARegular(DynamicMatching dynamicMatching) throws InterruptedException {
-        GenericResult genericResult = null;
-        try {
-            Matching[] matchings = new Matching[2];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(DynamicStrategy.WOSMA_REGULAR, false);
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(DynamicStrategy.WOSMA_REGULAR, false);
-
-            float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
-
-            genericResult = new GenericResult(scores[0], scores[1]);
 
         } catch (MCPMAPrices.AlreadyInitiatedException | Matching.HouseLinkedToMultipleException | Matching.HouseIDAlreadyPresentException | Matching.HouseholdLinkedToHouseholdException | Matching.HouseLinkedToHouseException | Matching.PreferredNoHouseholdlessHouseException | ResidualGraph.MatchGraphNotEmptyException | CycleFinder.FullyExploredVertexDiscoveredException | Matching.HouseholdIDAlreadyPresentException | ResidualGraph.PathEdgeNotInResidualGraphException | MCPMA.UnequalSidesException | MatchingEvaluator.HouseholdIncomeTooHighException | Matching.HouseAlreadyMatchedException | Matching.HouseholdLinkedToMultipleException | Matching.HouseholdAlreadyMatchedException e) {
             e.printStackTrace();
@@ -205,14 +99,13 @@ public class Compare {
         return genericResult;
     }
 
-
-    public static Runnable runStaticMCPMA(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
+    public static Runnable runStaticMCPMA() {
         return () -> {
 
             String outputFilename = createFilename(AlgorithmStrategy.MCPMA, lineCount, matchingEvaluatorStrategy);
 
             ArrayList<MCPMAResult> mcpmaResults
-                    = new ArrayList();
+                    = new ArrayList(nTimes);
             boolean interrupted = false;
             for (int i = 0; i < nTimes; i++) {
                 try {
@@ -239,11 +132,10 @@ public class Compare {
     public static MCPMAResult individualRunStaticMCPMA(Matching matching) throws InterruptedException {
         MCPMAResult mcpmaResult = null;
         try {
-            Matching ourMatching = (Matching) deepClone(matching); // TODO: Maybe this kind of cloning isn't needed anymore?
-            MCPMAOnMatchingRunner mcpmaOnMatchingRunner = new MCPMAOnMatchingRunner(ourMatching, MCPMAStrategy.REGULAR);
-            ourMatching = mcpmaOnMatchingRunner.optimizeMatching(false);
+            MCPMAOnMatchingRunner mcpmaOnMatchingRunner = new MCPMAOnMatchingRunner(matching, MCPMAStrategy.REGULAR);
+            Matching result = mcpmaOnMatchingRunner.optimizeMatching(false);
             Matching[] matchings = new Matching[1];
-            matchings[0] = ourMatching;
+            matchings[0] = result;
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
 
@@ -254,6 +146,7 @@ public class Compare {
         }
         return mcpmaResult;
     }
+
 
 
 
@@ -298,6 +191,5 @@ public class Compare {
         }
         return scores;
     }
-
 
 }
