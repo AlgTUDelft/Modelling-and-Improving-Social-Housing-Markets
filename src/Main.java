@@ -112,7 +112,7 @@ public class Main {
     }
 
     public static Matching setupMatching(double connectionProb, int startLine, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, IOException {
-        String inputFileName = "../../../Olivier Data [On Laptop]//test2.csv";
+        String inputFileName = "../../Data/test2.csv";
         HousingMarket housingMarket = new HousingMarket(2017, 100);
         DataProcessor dataProcessor = new DataProcessor(housingMarket, matchingEvaluatorStrategy);
         return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount);
