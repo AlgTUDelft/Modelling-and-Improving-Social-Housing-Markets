@@ -13,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, HousingMarket.FreeSpaceException, Matching.HouseAlreadyMatchedException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, DynamicMatching.TooManyTimestepsException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToHouseException {
 
-        long allowedRunningTime = 2_000;
+        long allowedRunningTime = 1500_000;
         int maxVal = 150;
         int nTimes = 50;
 
@@ -24,7 +24,7 @@ public class Main {
             counter = counter + (1000 - maxVal) / nTimes; // == 17 with maxVal == 150 & nTimes == 50.
         }
 
-        ArrayList<Double> envRatios = new ArrayList<Double>(Arrays.asList(0.5, 0.75, 1.0, 1.25, 1.5));
+        ArrayList<Double> envRatios = new ArrayList<>(Arrays.asList(0.5, 0.75, 1.0, 1.25, 1.5));
 
         ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
 //        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12));
