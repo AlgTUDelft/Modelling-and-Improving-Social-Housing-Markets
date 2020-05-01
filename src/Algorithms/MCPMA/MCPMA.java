@@ -21,7 +21,7 @@ public class MCPMA {
         this.improvementGraph = improvementGraph;
         this.mcpmaStrategy = mcpmaStrategy;
         if (improvementGraph.getHouses().size() + improvementGraph.getDummyHouses().size()
-        != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size()) {
+                != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size()) {
             throw new UnequalSidesException("Error: Improvement graph does not contain equal amount of houses and households.");
         }
         // Create matchGraph
@@ -50,9 +50,11 @@ public class MCPMA {
         while (shouldContinue) {
             if (Thread.interrupted()) {
                 throw new InterruptedException();
-                }
+            }
 
-            if(print) { System.out.println("Augmenting path " + i); }
+            if (print) {
+                System.out.println("Augmenting path " + i);
+            }
             GraphPath<Integer, DefaultWeightedEdge> augmentingPath = MCPMAPrices.getResidualGraph().findAugmentingPath();
             if (augmentingPath == null) {
                 shouldContinue = false;

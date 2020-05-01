@@ -16,19 +16,21 @@ public class Compare {
     private static int nTimes;
     private static MatchingEvaluatorStrategy matchingEvaluatorStrategy;
     private static AlgorithmStrategy algorithmStrategy;
+    private static double envRatio;
 
-    public Compare(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy, AlgorithmStrategy algorithmStrategy) {
+    public Compare(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy, AlgorithmStrategy algorithmStrategy, double envRatio) {
         this.dynamicMatchings = dynamicMatchings;
         this.lineCount = lineCount;
         this.nTimes = nTimes;
         this.matchingEvaluatorStrategy = matchingEvaluatorStrategy;
         this.algorithmStrategy = algorithmStrategy;
+        this.envRatio = envRatio;
     }
 
     public static Runnable runDynamic() {
         return () -> {
 
-            String outputFilename = createFilename(algorithmStrategy, lineCount, matchingEvaluatorStrategy);
+            String outputFilename = createFilename(algorithmStrategy, lineCount, matchingEvaluatorStrategy, envRatio);
 
             ArrayList<GenericResult> results = new ArrayList<>(nTimes);
             boolean interrupted = false;
@@ -83,7 +85,7 @@ public class Compare {
     public static Runnable runStaticMCPMA() {
         return () -> {
 
-            String outputFilename = createFilename(AlgorithmStrategy.MCPMA, lineCount, matchingEvaluatorStrategy);
+            String outputFilename = createFilename(AlgorithmStrategy.MCPMA, lineCount, matchingEvaluatorStrategy, envRatio);
 
             ArrayList<MCPMAResult> mcpmaResults
                     = new ArrayList(nTimes);
@@ -131,8 +133,17 @@ public class Compare {
 
 
 
-    public static String createFilename(AlgorithmStrategy algorithmStrategy, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
-        String outputFilename = "../dyn-";
+    public static String createFilename(AlgorithmStrategy algorithmStrategy, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy, double envRatio) {
+        String outputFilename = "../../Data/Output/";
+
+        switch (algorithmStrategy) {
+            case WOSMA_REGULAR:
+            case WOSMA_FINDMAX:
+            case WOSMA_IRCYCLES:
+            case IMPROVEMENT_MCPMA: outputFilename += "dyn-"; break;
+            case MCPMA: outputFilename += "static-"; break;
+        }
+
         switch (algorithmStrategy) {
             case MCPMA:
                 outputFilename += "MCPMA-"; break;
@@ -145,7 +156,7 @@ public class Compare {
             case IMPROVEMENT_MCPMA:
                 outputFilename += "ImprovementMCPMA-"; break;
         }
-        outputFilename += "50times" + lineCount + "-";
+        outputFilename += "50times" + lineCount + "-" + envRatio + "-";
         switch (matchingEvaluatorStrategy) {
             case AVG:
                 outputFilename += "avgME-";

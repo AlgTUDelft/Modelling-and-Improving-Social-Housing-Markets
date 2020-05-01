@@ -28,7 +28,7 @@ public class DynamicMatching implements Serializable {
 
     protected boolean oneSided; // false means two-sided arrival. One-sided means houses are set and households arrive.
 
-    public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException, Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, InterruptedException {
+    public DynamicMatching(Matching matching, int timestepCount, boolean oneSided) throws TooManyTimestepsException {
         inputMatching = (Matching) deepClone(matching);
         this.oneSided = oneSided;
         this.timestepCount = (Integer) deepClone(timestepCount);
@@ -145,19 +145,6 @@ public class DynamicMatching implements Serializable {
 
     public Matching getInputMatching() {
         return inputMatching;
-    }
-
-
-    public Matching getCurrentMatching() {
-        return currentMatching;
-    }
-
-    public int getCurrentTimestepsLeft() {
-        return currentTimestepsLeft;
-    }
-
-    public int getTimestepCount() {
-        return timestepCount;
     }
 
     public String toString() {

@@ -1,6 +1,7 @@
 import Algorithms.AlgorithmStrategy;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import Comparisons.Compare;
+import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
 import Matching.*;
@@ -12,7 +13,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, HousingMarket.FreeSpaceException, Matching.HouseAlreadyMatchedException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, DynamicMatching.TooManyTimestepsException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToHouseException {
 
-        long allowedRunningTime = 15_000;
+        long allowedRunningTime = 2_000;
         int maxVal = 150;
         int nTimes = 50;
 
@@ -20,68 +21,76 @@ public class Main {
         int counter = 0;
         for (int i = 0; i < 50; i++) {
             startLines[i] = counter;
-            counter = counter + (1000-maxVal)/nTimes; // == 17 with maxVal == 150 & nTimes == 50.
+            counter = counter + (1000 - maxVal) / nTimes; // == 17 with maxVal == 150 & nTimes == 50.
         }
 
-//        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
+        ArrayList<Double> envRatios = new ArrayList<Double>(Arrays.asList(0.5, 0.75, 1.0, 1.25, 1.5));
+
+        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
 //        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12));
-        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(12, 13, 30, 35, 40, 45, 50, 75, 100, 125, 150));
+//        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(12, 13, 30, 35, 40, 45, 50, 75, 100, 125, 150));
+
 
         // Start of execution loop.
-        for (MatchingEvaluatorStrategy matchingEvaluatorStrategy : MatchingEvaluatorStrategy.values()) {
-            HashSet<AlgorithmStrategy> interruptedAlgorithmStrategies = new HashSet<>();
+        for (double envRatio : envRatios) {
+            for (MatchingEvaluatorStrategy matchingEvaluatorStrategy : MatchingEvaluatorStrategy.values()) {
+                HashSet<AlgorithmStrategy> interruptedAlgorithmStrategies = new HashSet<>();
 
-            // For each matching size...
-            for (int lineCount : lineCounts) {
-                // Unless there are no more algorithms left to run...
-                if (interruptedAlgorithmStrategies.size() == AlgorithmStrategy.values().length) {
-                    break;
-                }
+                // For each matching size...
+                for (int lineCount : lineCounts) {
+                    // Unless there are no more algorithms left to run...
+                    if (interruptedAlgorithmStrategies.size() == AlgorithmStrategy.values().length) {
+                        break;
+                    }
 
-                int matchingEvalStratsLeftCount;
-                if (matchingEvaluatorStrategy == MatchingEvaluatorStrategy.values()[0]) {
-                    matchingEvalStratsLeftCount = 2;
-                } else { matchingEvalStratsLeftCount = 1; }
-                Calendar cal = calculateRemainingTime(allowedRunningTime, lineCounts.size(), lineCounts.size() - lineCounts.indexOf(lineCount), matchingEvalStratsLeftCount, AlgorithmStrategy.values().length - interruptedAlgorithmStrategies.size());
-                System.out.println("Updated ETA: " + cal.getTime() + ".");
-
-                int timestepCount = lineCount/2;
-                boolean oneSided = false;
-
-
-                // Create the dynamic matchings beforehand so all algorithms may run on the same dynamic matchings.
-                ArrayList<DynamicMatching> dynamicMatchings = new ArrayList<DynamicMatching>(nTimes);
-                for (int i = 0; i < nTimes; i++) {
-                    Matching matching = setupMatching(1, startLines[i], lineCount, matchingEvaluatorStrategy);
-                    DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
-                    dynamicMatchings.add(i, dynamicMatching);
-                }
-
-                // For each algorithm...
-                for (AlgorithmStrategy algorithmStrategy : AlgorithmStrategy.values()) {
-                    if (interruptedAlgorithmStrategies.contains(algorithmStrategy)) {
-                        // Algorithm took too long in smaller instance, so don't go on.
-                        System.out.println("Skipping:    " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
+                    int matchingEvalStratsLeftCount;
+                    if (matchingEvaluatorStrategy == MatchingEvaluatorStrategy.values()[0]) {
+                        matchingEvalStratsLeftCount = 2;
                     } else {
-                        // Run it and check if we were interrupted during execution.
-//                        ArrayList<DynamicMatching> dynamicMatchingsCopy = (ArrayList<DynamicMatching>) deepClone(dynamicMatchings); // Potentially expensive but seemingly necessary...
-                        boolean interrupted = runAlgorithm(dynamicMatchings, allowedRunningTime, algorithmStrategy, lineCount, nTimes, matchingEvaluatorStrategy);
-                        if (interrupted) {
-                            System.out.println("Interrupted: " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
-                            interruptedAlgorithmStrategies.add(algorithmStrategy);
+                        matchingEvalStratsLeftCount = 1;
+                    }
+                    Calendar cal = calculateRemainingTime(allowedRunningTime, lineCounts.size(), lineCounts.size() - lineCounts.indexOf(lineCount), matchingEvalStratsLeftCount, AlgorithmStrategy.values().length - interruptedAlgorithmStrategies.size(), envRatios.size() - envRatios.indexOf(envRatio));
+                    System.out.println("Updated ETA: " + cal.getTime() + ".");
+
+                    boolean oneSided = false;
+
+
+                    // Create the dynamic matchings beforehand so all algorithms may run on the same dynamic matchings.
+                    ArrayList<DynamicMatching> dynamicMatchings = new ArrayList<DynamicMatching>(nTimes);
+                    for (int i = 0; i < nTimes; i++) {
+                        Matching matching = setupMatching(1, startLines[i], lineCount, matchingEvaluatorStrategy, envRatio);
+                        int timestepCount = (int) (Math.min(matching.getHouses().size(), matching.getHouseholds().size()) / 1.5);
+                        DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
+                        dynamicMatchings.add(i, dynamicMatching);
+                    }
+
+                    // For each algorithm...
+                    for (AlgorithmStrategy algorithmStrategy : AlgorithmStrategy.values()) {
+                        if (interruptedAlgorithmStrategies.contains(algorithmStrategy)) {
+                            // Algorithm took too long in smaller instance, so don't go on.
+                            System.out.println("Skipping:    " + envRatio + " | " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
                         } else {
-                            System.out.println("Finished:    " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
+                            // Run it and check if we were interrupted during execution.
+//                        ArrayList<DynamicMatching> dynamicMatchingsCopy = (ArrayList<DynamicMatching>) deepClone(dynamicMatchings); // Potentially expensive but seemingly necessary...
+                            boolean interrupted = runAlgorithm(dynamicMatchings, allowedRunningTime, algorithmStrategy, lineCount, nTimes, matchingEvaluatorStrategy, envRatio);
+                            if (interrupted) {
+                                System.out.println("Interrupted: " + envRatio + " | " +  matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
+                                interruptedAlgorithmStrategies.add(algorithmStrategy);
+                            } else {
+                                System.out.println("Finished:    " + envRatio + " | " +  matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
+                            }
                         }
                     }
                 }
+
             }
         }
     }
 
-    public static boolean runAlgorithm(ArrayList<DynamicMatching> dynamicMatchings, long allowedRunningTime, AlgorithmStrategy algorithmStrategy, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws InterruptedException, IOException {
+    public static boolean runAlgorithm(ArrayList<DynamicMatching> dynamicMatchings, long allowedRunningTime, AlgorithmStrategy algorithmStrategy, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy, double envRatio) throws InterruptedException, IOException {
         boolean tookTooLong = false;
         Thread thread = null;
-        Compare compare = new Compare(dynamicMatchings, lineCount, nTimes,  matchingEvaluatorStrategy, algorithmStrategy);
+        Compare compare = new Compare(dynamicMatchings, lineCount, nTimes,  matchingEvaluatorStrategy, algorithmStrategy, envRatio);
 
         switch(algorithmStrategy) {
             case WOSMA_REGULAR:
@@ -111,20 +120,21 @@ public class Main {
         return tookTooLong;
     }
 
-    public static Matching setupMatching(double connectionProb, int startLine, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy) throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, IOException {
-        String inputFileName = "../../Data/test2.csv";
+    public static Matching setupMatching(double connectionProb, int startLine, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy, double envRatio) throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, IOException {
+        String inputFileName = "../../Data/Input/test2.csv";
         HousingMarket housingMarket = new HousingMarket(2017, 100);
         DataProcessor dataProcessor = new DataProcessor(housingMarket, matchingEvaluatorStrategy);
-        return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount);
+        return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount, envRatio);
     }
 
-    public static Calendar calculateRemainingTime(long allowedRunningTime, int linesCount, int linesLeftCount, int matchingEvaluatorStrategiesLeftCount, int algorithmStrategiesLeft) {
+    public static Calendar calculateRemainingTime(long allowedRunningTime, int linesCount, int linesLeftCount, int matchingEvaluatorStrategiesLeftCount, int algorithmStrategiesLeft, int envRatiosLeft) {
         long eta = 0;
         if (matchingEvaluatorStrategiesLeftCount == 1) {
              eta = allowedRunningTime * linesLeftCount  * algorithmStrategiesLeft;
         } else {
             eta = allowedRunningTime * (linesCount * AlgorithmStrategy.values().length + linesLeftCount * algorithmStrategiesLeft);
         }
+        eta = eta * envRatiosLeft;
         Calendar cal = Calendar.getInstance(); // creates calendar
         cal.setTime(new Date()); // sets calendar time/date
         cal.add(Calendar.MILLISECOND, (int) eta); // adds time.

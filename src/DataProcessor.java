@@ -23,7 +23,7 @@ public class DataProcessor implements Serializable {
         this.matching = new Matching(housingMarket, matchingEvaluatorStrategy);
     }
 
-    public Matching csvToMatching(String csvFileName, double connectionProb, int startLine, int linesToParse)
+    public Matching csvToMatching(String csvFileName, double connectionProb, int startLine, int linesToParse, double envRatio)
             throws Household.InvalidHouseholdException,
             Matching.HouseAlreadyMatchedException,
             Matching.HouseholdAlreadyMatchedException, IOException {
@@ -101,6 +101,7 @@ public class DataProcessor implements Serializable {
                     return result;
                 };
         matching.setGrader(new Grader(grader));
+        matching = processEnv(matching, envRatio);
         return this.matching;
     }
 
@@ -156,5 +157,34 @@ public class DataProcessor implements Serializable {
         HouseAndHouseholdPair houseAndHouseholdPair = new HouseAndHouseholdPair(house, household);
         return houseAndHouseholdPair;
     }
+
+    public Matching processEnv(Matching matching, double envRatio) {
+        // envRatio denotes desired House:Household ratio.
+        float currentRatio = matching.getHouses().size()/matching.getHouseholds().size();
+        // Ratio already good.
+        if (currentRatio == envRatio) {
+            return matching;
+        }
+        // Too many households.
+        if (currentRatio < envRatio) {
+            int householdsNeededCount = (int) (matching.getHouses().size()/envRatio);
+            int householdsToRemoveCount = matching.getHouseholds().size() - householdsNeededCount;
+            for (int i = 0; i < householdsToRemoveCount; i++) {
+                Household household = matching.getHouseholds().get(matching.getHouseholds().size()-1);
+                matching.removeHousehold(household.getID());
+            }
+        }
+        // Too many houses.
+        else if (currentRatio > envRatio) {
+            int housesNeededCount = (int) (matching.getHouseholds().size()*envRatio);
+            int housesToRemoveCount = matching.getHouses().size() - housesNeededCount;
+            for (int i = 0; i < housesToRemoveCount; i++) {
+                House house = matching.getHouses().get(matching.getHouses().size()-1);
+                matching.removeHouse(house.getID());
+            }
+        }
+        return matching;
+    }
+
 }
 
