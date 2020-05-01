@@ -231,10 +231,8 @@ public class TwoLabeledGraph {
                 underlyingStrictGraph.setEdgeWeight(householdID, nil, highScoreFree);
             } else if (initialFit == 0.0) { // However, with an initialFit of 0, we should be okay with moving elsewhere,
                 // so long as there exists another unowned house.
-                if (!this.matching.getHouseholdlessHousesIDs().isEmpty()) {
-                    underlyingStrictGraph.addEdge(householdID, nil);
-                    underlyingStrictGraph.setEdgeWeight(householdID, nil, 0 - currentFit);
-                }
+                underlyingStrictGraph.addEdge(householdID, nil);
+                underlyingStrictGraph.setEdgeWeight(householdID, nil, 0 - currentFit);
             }
 
 

@@ -433,8 +433,14 @@ public class Matching implements Serializable {
                     }
                 }
                 if (bestHouse == null) {
+                    if (!householdInitialHouseMap.containsKey(sourceVertex)
+                            || (householdInitialHouseMap.containsKey(sourceVertex)
+                            && grader.apply(householdInitialHouseMap.get(sourceVertex), sourceVertex) == 0.0)) {
+                        // Do nothing. Household may be moved back into houselessness.
+                    } else {
                     throw new PreferredNoHouseholdlessHouseException("Cycle indicated that household would prefer some" +
                             " other house to their initial house, but no such house was found.");
+                    }
                 } else {
                     connect(bestHouse.getID(), sourceVertex);
                 }

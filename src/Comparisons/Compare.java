@@ -36,9 +36,6 @@ public class Compare {
             boolean interrupted = false;
 
             for (int i = 0; i < nTimes; i++) {
-                if (i == 3 && (algorithmStrategy == AlgorithmStrategy.WOSMA_FINDMAX || algorithmStrategy == AlgorithmStrategy.WOSMA_IRCYCLES)) {
-                    System.out.println("Got here");
-                }
                 try {
                     DynamicMatching dynamicMatching = dynamicMatchings.get(i);
                     results.add(i, individualRunDynamic(dynamicMatching));
