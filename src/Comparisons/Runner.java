@@ -31,7 +31,7 @@ public class Runner {
         this.gradingStrategy = gradingStrategy;
     }
 
-    public static Runnable runDynamic(CompletableFuture<ArrayList<GenericResult>> resultsForAlgorithm) {
+    public Runnable runDynamic(CompletableFuture<ArrayList<GenericResult>> resultsForAlgorithm) {
         return () -> {
 
 
@@ -54,7 +54,7 @@ public class Runner {
         };
     }
 
-    public static GenericResult individualRunDynamic(DynamicMatching dynamicMatching) throws InterruptedException {
+    public GenericResult individualRunDynamic(DynamicMatching dynamicMatching) throws InterruptedException {
         GenericResult genericResult = null;
         try {
 
@@ -72,7 +72,7 @@ public class Runner {
         return genericResult;
     }
 
-    public static Runnable runStaticMCPMA(CompletableFuture<ArrayList<GenericResult>> resultsForAlgorithm) {
+    public Runnable runStaticMCPMA(CompletableFuture<ArrayList<GenericResult>> resultsForAlgorithm) {
         return () -> {
 
             ArrayList<GenericResult> mcpmaResults
@@ -95,7 +95,7 @@ public class Runner {
         };
     }
 
-    public static GenericResult individualRunStaticMCPMA(DynamicMatching dynamicMatching) throws InterruptedException {
+    public GenericResult individualRunStaticMCPMA(DynamicMatching dynamicMatching) throws InterruptedException {
         GenericResult mcpmaResult = null;
         try {
             Matching matching = dynamicMatching.getInputMatching();
