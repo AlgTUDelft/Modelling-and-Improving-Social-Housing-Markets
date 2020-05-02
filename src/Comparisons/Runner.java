@@ -14,21 +14,13 @@ import java.util.concurrent.CompletableFuture;
 public class Runner {
 
     private static ArrayList<DynamicMatching> dynamicMatchings;
-    private static int lineCount;
     private static int nTimes;
-    private static MatchingEvaluatorStrategy matchingEvaluatorStrategy;
     private static AlgorithmStrategy algorithmStrategy;
-    private static double envRatio;
-    private static GradingStrategy gradingStrategy;
 
-    public Runner(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy, AlgorithmStrategy algorithmStrategy, double envRatio, GradingStrategy gradingStrategy) {
+    public Runner(ArrayList<DynamicMatching> dynamicMatchings, int nTimes, AlgorithmStrategy algorithmStrategy) {
         this.dynamicMatchings = dynamicMatchings;
-        this.lineCount = lineCount;
         this.nTimes = nTimes;
-        this.matchingEvaluatorStrategy = matchingEvaluatorStrategy;
         this.algorithmStrategy = algorithmStrategy;
-        this.envRatio = envRatio;
-        this.gradingStrategy = gradingStrategy;
     }
 
     public Runnable runDynamic(CompletableFuture<ArrayList<GenericResult>> resultsForAlgorithm) {

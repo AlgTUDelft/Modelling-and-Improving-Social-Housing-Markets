@@ -71,7 +71,7 @@ public class Comparer {
     }
 
     public Runner createNewRunner(AlgorithmStrategy algorithmStrategy) {
-        return new Runner(dynamicMatchings, lineCount, nTimes,  matchingEvaluatorStrategy, algorithmStrategy, envRatio, gradingStrategy);
+        return new Runner(dynamicMatchings, nTimes, algorithmStrategy);
     }
 
     public boolean runAlgorithm(CompletableFuture<ArrayList<GenericResult>> resultsPerAlgorithm, AlgorithmStrategy algorithmStrategy) throws InterruptedException
