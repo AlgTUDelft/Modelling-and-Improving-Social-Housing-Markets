@@ -81,8 +81,7 @@ public class Runner {
             for (int i = 0; i < nTimes; i++) {
                 try {
                     DynamicMatching dynamicMatching = dynamicMatchings.get(i);
-                    Matching matching = dynamicMatching.getInputMatching();
-                    mcpmaResults.add(i, individualRunStaticMCPMA(matching));
+                    mcpmaResults.add(i, individualRunStaticMCPMA(dynamicMatching));
                 } catch (InterruptedException e) {
                     interrupted = true;
                     break;
@@ -96,9 +95,10 @@ public class Runner {
         };
     }
 
-    public static GenericResult individualRunStaticMCPMA(Matching matching) throws InterruptedException {
+    public static GenericResult individualRunStaticMCPMA(DynamicMatching dynamicMatching) throws InterruptedException {
         GenericResult mcpmaResult = null;
         try {
+            Matching matching = dynamicMatching.getInputMatching();
             MCPMAOnMatchingRunner mcpmaOnMatchingRunner = new MCPMAOnMatchingRunner(matching, MCPMAStrategy.REGULAR);
             Matching result = mcpmaOnMatchingRunner.optimizeMatching(false);
             Matching[] matchings = new Matching[1];

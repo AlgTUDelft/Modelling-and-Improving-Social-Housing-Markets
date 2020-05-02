@@ -70,7 +70,7 @@ public class Comparer {
         return toInterrupt;
     }
 
-    public Runner createNewComparer(AlgorithmStrategy algorithmStrategy) {
+    public Runner createNewRunner(AlgorithmStrategy algorithmStrategy) {
         return new Runner(dynamicMatchings, lineCount, nTimes,  matchingEvaluatorStrategy, algorithmStrategy, envRatio, gradingStrategy);
     }
 
@@ -78,7 +78,7 @@ public class Comparer {
     {
         boolean tookTooLong = false;
         Thread thread = null;
-        Runner runner = createNewComparer(algorithmStrategy);
+        Runner runner = createNewRunner(algorithmStrategy);
 
         switch(algorithmStrategy) {
             case WOSMA_REGULAR:
@@ -122,12 +122,17 @@ public class Comparer {
                     float MCPMAScore = MCPMA.get(i).getSolvedFinalMatchingAfterwardsScore();
                     if (WOSMA_FindMaxScore > WOSMA_IRCyclesScore) {
                         System.err.println("Error 1! Got nonsensical results.");
+                        Runner runnerIRCycles = createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES);
+                        runnerIRCycles.individualRunDynamic(dynamicMatchings.get(i));
+                        Runner runnerWOSMAFindMax = createNewRunner(AlgorithmStrategy.WOSMA_FINDMAX);
+                        runnerWOSMAFindMax.individualRunDynamic(dynamicMatchings.get(i));
                     }
                     if (WOSMA_IRCyclesScore > MCPMAScore) {
                         System.err.println("Error 2! Got nonsensical results.");
-                        Runner runner = createNewComparer(AlgorithmStrategy.WOSMA_IRCYCLES);
-                        runner.individualRunDynamic(dynamicMatchings.get(i));
-
+                        Runner runnerMCPMA = createNewRunner(AlgorithmStrategy.MCPMA);
+                        runnerMCPMA.individualRunStaticMCPMA(dynamicMatchings.get(i));
+                        Runner runnerIRCycles = createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES);
+                        runnerIRCycles.individualRunDynamic(dynamicMatchings.get(i));
                     }
                 }
             }
