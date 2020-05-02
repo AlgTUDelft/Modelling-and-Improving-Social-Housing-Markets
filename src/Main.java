@@ -13,7 +13,13 @@ public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, HousingMarket.FreeSpaceException, Matching.HouseAlreadyMatchedException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, DynamicMatching.TooManyTimestepsException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToHouseException {
 
-        long allowedRunningTime = 20_000;
+        String outputfolder = "../../Data/Output/Scores/";
+        File folder = new File(outputfolder);
+        for(File file: folder.listFiles())
+            if (!file.isDirectory())
+                file.delete();
+
+        long allowedRunningTime = 2_000;
         int maxVal = 150;
         int nTimes = 50;
 

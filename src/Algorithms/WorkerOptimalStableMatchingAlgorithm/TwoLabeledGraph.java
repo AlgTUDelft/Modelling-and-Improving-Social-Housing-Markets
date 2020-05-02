@@ -397,6 +397,7 @@ public class TwoLabeledGraph {
             cycle = customSLSimpleCycles.findSimpleCycle();
             if (print) { System.out.println("Denied cycles count: " + customSLSimpleCycles.getDeniedCyclesCount()); }
         } catch (OutOfMemoryError e) {
+            System.out.println("Out of Memory due to IR-Cycles");
             throw new OutOfMemoryError(e.getMessage());
         }
         return cycle;
