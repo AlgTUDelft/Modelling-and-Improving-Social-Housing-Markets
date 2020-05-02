@@ -44,45 +44,45 @@ public class CustomSLSimpleCycles {
         this.graph = GraphTests.requireDirected(graph, "Graph must be directed");
     }
 
-    public List<List<Integer>> findSimpleCycles() throws InterruptedException {
-        if (this.graph == null) {
-            throw new IllegalArgumentException("Null graph.");
-        } else {
-            this.initState();
-            KosarajuStrongConnectivityInspector<Integer, DefaultWeightedEdge> inspector = new KosarajuStrongConnectivityInspector(this.graph);
-            List<Set<Integer>> sccs = inspector.stronglyConnectedSets();
-            Iterator var3 = sccs.iterator();
-
-            while(var3.hasNext()) {
-                Set<Integer> scc = (Set)var3.next();
-                int maxInDegree = -1;
-                Integer startVertex = null;
-                Iterator var7 = scc.iterator();
-
-                while(var7.hasNext()) {
-                    Integer integer = (Integer) var7.next();
-                    int inDegree = this.graph.inDegreeOf(integer);
-                    if (inDegree > maxInDegree) {
-                        maxInDegree = inDegree;
-                        startVertex = integer;
-                    }
-                }
-
-                this.startVertices.add(startVertex);
-            }
-
-            var3 = this.startVertices.iterator();
-
-            while(var3.hasNext()) {
-                Integer vertex = (Integer) var3.next();
-                this.cycle(this.toI(vertex), 0);
-            }
-
-            List<List<Integer>> result = this.cycles;
-            this.clearState();
-            return result;
-        }
-    }
+//    public List<List<Integer>> findSimpleCycles() throws InterruptedException {
+//        if (this.graph == null) {
+//            throw new IllegalArgumentException("Null graph.");
+//        } else {
+//            this.initState();
+//            KosarajuStrongConnectivityInspector<Integer, DefaultWeightedEdge> inspector = new KosarajuStrongConnectivityInspector(this.graph);
+//            List<Set<Integer>> sccs = inspector.stronglyConnectedSets();
+//            Iterator var3 = sccs.iterator();
+//
+//            while(var3.hasNext()) {
+//                Set<Integer> scc = (Set)var3.next();
+//                int maxInDegree = -1;
+//                Integer startVertex = null;
+//                Iterator var7 = scc.iterator();
+//
+//                while(var7.hasNext()) {
+//                    Integer integer = (Integer) var7.next();
+//                    int inDegree = this.graph.inDegreeOf(integer);
+//                    if (inDegree > maxInDegree) {
+//                        maxInDegree = inDegree;
+//                        startVertex = integer;
+//                    }
+//                }
+//
+//                this.startVertices.add(startVertex);
+//            }
+//
+//            var3 = this.startVertices.iterator();
+//
+//            while(var3.hasNext()) {
+//                Integer vertex = (Integer) var3.next();
+//                this.cycle(this.toI(vertex), 0);
+//            }
+//
+//            List<List<Integer>> result = this.cycles;
+//            this.clearState();
+//            return result;
+//        }
+//    }
 
     public List<Integer> findSimpleCycle() throws InterruptedException {
         if (this.graph == null) {
@@ -119,7 +119,6 @@ public class CustomSLSimpleCycles {
             }
 
             List<List<Integer>> cycles = this.cycles;
-//            List<List<Integer>> result = this.cycles;
             this.clearState();
             if (cycles.isEmpty()) {
                 return null;
@@ -172,6 +171,19 @@ public class CustomSLSimpleCycles {
                     boolean gotCycle = this.cycle(w, q);
                     if (gotCycle) {
                         foundCycle = true;
+
+                        if (!cycles.isEmpty()) {
+                            // Modified here. Found cycle, so return cycle and stop looking for more.
+                            this.stack.pop();
+                            if (foundCycle) {
+                                this.unmark(v);
+                            }
+
+                            this.reach[v] = true;
+                            this.position[v] = this.graph.vertexSet().size();
+                            return foundCycle;
+                        }
+
                     } else {
                         this.noCycle(v, w);
                     }
@@ -289,20 +301,12 @@ public class CustomSLSimpleCycles {
     }
 
     public float calculateCycleScore(List<java.lang.Integer> cycle) {
-        ArrayList<org.jgrapht.graph.DefaultWeightedEdge> edges = new ArrayList<org.jgrapht.graph.DefaultWeightedEdge>(cycle.size());
+        float score = 0;
         for (int i = 0; i < cycle.size(); i++) {
             int source = cycle.get(i);
             int target = cycle.get((i + 1) % cycle.size());
             org.jgrapht.graph.DefaultWeightedEdge edge = graph.getEdge(source, target);
-            edges.add(i, edge);
-        }
-        return sumWeightOfEdges(edges);
-    }
-
-    public float sumWeightOfEdges(ArrayList<org.jgrapht.graph.DefaultWeightedEdge> edges) {
-        float score = 0;
-        for (org.jgrapht.graph.DefaultWeightedEdge edge : edges) {
-            score = score + (float) graph.getEdgeWeight(edge);
+            score += graph.getEdgeWeight(edge);
         }
         return score;
     }

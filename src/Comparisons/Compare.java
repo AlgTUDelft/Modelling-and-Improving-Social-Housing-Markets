@@ -134,7 +134,7 @@ public class Compare {
 
 
     public static String createFilename(AlgorithmStrategy algorithmStrategy, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy, double envRatio) {
-        String outputFilename = "../../Data/Output/";
+        String outputFilename = "../../Data/Output/Scores/";
 
         switch (algorithmStrategy) {
             case WOSMA_REGULAR:

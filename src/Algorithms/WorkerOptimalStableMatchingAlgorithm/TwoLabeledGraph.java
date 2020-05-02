@@ -6,6 +6,7 @@ import HousingMarket.Household.Household;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
 import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
+import org.jgrapht.alg.cycle.SzwarcfiterLauerSimpleCycles;
 import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleDirectedWeightedGraph;
@@ -329,10 +330,11 @@ public class TwoLabeledGraph {
 
     private List<Integer> findCycleFindMax(boolean print) throws InterruptedException {
         List<Integer> cycle;
-        CustomSLSimpleCycles customSLSimpleCycles
-                = new CustomSLSimpleCycles(underlyingStrictGraph);
+        // Not custom version because custom version has been modified to fit IR-Cycles.
+        SzwarcfiterLauerSimpleCycles<Integer, DefaultWeightedEdge> szwarcfiterLauerSimpleCycles
+                = new SzwarcfiterLauerSimpleCycles<>(underlyingStrictGraph);
         try {
-            List<List<Integer>> cycles = customSLSimpleCycles.findSimpleCycles();
+            List<List<Integer>> cycles = szwarcfiterLauerSimpleCycles.findSimpleCycles();
             if (print) {
                 System.out.println("SL found " + cycles.size() + " cycles.");
             }
