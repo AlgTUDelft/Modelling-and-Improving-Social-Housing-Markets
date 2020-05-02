@@ -1,6 +1,6 @@
 package Algorithms.WorkerOptimalStableMatchingAlgorithm;
 
-import Algorithms.AlgorithmStrategy;
+import Main.AlgorithmStrategy;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
 

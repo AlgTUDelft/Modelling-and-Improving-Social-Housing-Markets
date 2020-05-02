@@ -1,6 +1,6 @@
 package Matching;
 
-import Algorithms.AlgorithmStrategy;
+import Main.AlgorithmStrategy;
 import Algorithms.MCPMA.*;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.WorkerOptimalStableMatchingAlgorithm;

@@ -2,9 +2,9 @@ package Matching;
 
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
+import Main.MatchingEvaluatorStrategy;
 
 import java.io.Serializable;
-import java.text.DecimalFormat;
 
 
 //    Takes Matching and evaluates based on several criteria.

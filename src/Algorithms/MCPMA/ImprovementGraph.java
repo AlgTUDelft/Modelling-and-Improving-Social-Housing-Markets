@@ -4,14 +4,12 @@ import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarketVertex;
 import Matching.Matching;
-import Matching.Grader;
+import Main.Grader;
 import org.jgrapht.graph.DefaultWeightedEdge;
-import Matching.MatchingEvaluator;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import java.util.ArrayList;
 import java.util.Optional;
-import java.util.function.BiFunction;
 
 public class ImprovementGraph {
     private SimpleWeightedGraph<HousingMarketVertex, DefaultWeightedEdge> improvementGraph

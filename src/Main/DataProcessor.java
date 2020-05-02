@@ -1,14 +1,15 @@
+package Main;
+
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.Household.HouseholdType;
 import HousingMarket.HousingMarket;
 import HousingMarket.HouseAndHouseholdPair;
+import HousingMarket.HouseAndHouseholdIDPair;
 import Matching.Matching;
-import Matching.MatchingEvaluator;
-import Matching.MatchingEvaluatorStrategy;
-import Matching.Grader;
 
 import java.io.*;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.function.BiFunction;
 
@@ -23,7 +24,7 @@ public class DataProcessor implements Serializable {
         this.matching = new Matching(housingMarket, matchingEvaluatorStrategy);
     }
 
-    public Matching csvToMatching(String csvFileName, double connectionProb, int startLine, int linesToParse, double envRatio)
+    public Matching csvToMatching(String csvFileName, double connectionProb, int startLine, int linesToParse, double envRatio, GradingStrategy gradingStrategy)
             throws Household.InvalidHouseholdException,
             Matching.HouseAlreadyMatchedException,
             Matching.HouseholdAlreadyMatchedException, IOException {
@@ -88,20 +89,8 @@ public class DataProcessor implements Serializable {
             }
         }
 
-        BiFunction<Integer, Integer, Float> grader = (BiFunction<Integer, Integer, Float> & Serializable)
-                (Integer id1, Integer id2) -> {
-                    float result = 0;
-                    try {
-                        // TODO: Isolate ME.
-                        MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
-                        result = matchingEvaluator.evaluateIndividualTotalFit(id1, id2);
-                    } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
-                        e.printStackTrace();
-                    }
-                    return result;
-                };
-        matching.setGrader(new Grader(grader));
         matching = processEnv(matching, envRatio);
+        matching.setGrader(createGrader(matching, gradingStrategy));
         return this.matching;
     }
 
@@ -157,6 +146,41 @@ public class DataProcessor implements Serializable {
         HouseAndHouseholdPair houseAndHouseholdPair = new HouseAndHouseholdPair(house, household);
         return houseAndHouseholdPair;
     }
+
+
+    public Grader createGrader(Matching matching, GradingStrategy gradingStrategy) {
+        BiFunction<Integer, Integer, Float> func = null;
+        switch (gradingStrategy) {
+//            case MatchingEvaluator:
+//                MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
+//                func = (BiFunction<Integer, Integer, Float> & Serializable)
+//                        (Integer id1, Integer id2) -> {
+//                            float result = 0;
+//                            try {
+//                                // TODO: Isolate ME.
+//                                result = matchingEvaluator.evaluateIndividualTotalFit(id1, id2);
+//                            } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+//                                e.printStackTrace();
+//                            }
+//                            return result;
+//                        };
+//                break;
+            case Random:
+                HashMap<HouseAndHouseholdIDPair, Float> randomMap = new HashMap();
+                    for (House house : matching.getHouses()) {
+                        for (Household household : matching.getHouseholds()) {
+                            float rand = new Random().nextFloat();
+                            randomMap.put(new HouseAndHouseholdIDPair(house.getID(), household.getID()), rand);
+                        }
+                    }
+                 func = (BiFunction<Integer, Integer, Float> & Serializable)
+                        (Integer id1, Integer id2) -> randomMap.get(new HouseAndHouseholdIDPair(id1, id2));
+                break;
+        }
+        return new Grader(func);
+    }
+
+
 
     public Matching processEnv(Matching matching, double envRatio) {
         // envRatio denotes desired House:Household ratio.

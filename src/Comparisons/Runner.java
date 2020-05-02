@@ -1,15 +1,17 @@
 package Comparisons;
 
-import Algorithms.AlgorithmStrategy;
+import Main.AlgorithmStrategy;
 import Algorithms.MCPMA.*;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
+import Main.GradingStrategy;
+import Main.MatchingEvaluatorStrategy;
 import Matching.*;
-import static Miscellaneous.DeepCloner.deepClone;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
-public class Compare {
+public class Runner {
 
     private static ArrayList<DynamicMatching> dynamicMatchings;
     private static int lineCount;
@@ -17,20 +19,21 @@ public class Compare {
     private static MatchingEvaluatorStrategy matchingEvaluatorStrategy;
     private static AlgorithmStrategy algorithmStrategy;
     private static double envRatio;
+    private static GradingStrategy gradingStrategy;
 
-    public Compare(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy, AlgorithmStrategy algorithmStrategy, double envRatio) {
+    public Runner(ArrayList<DynamicMatching> dynamicMatchings, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy, AlgorithmStrategy algorithmStrategy, double envRatio, GradingStrategy gradingStrategy) {
         this.dynamicMatchings = dynamicMatchings;
         this.lineCount = lineCount;
         this.nTimes = nTimes;
         this.matchingEvaluatorStrategy = matchingEvaluatorStrategy;
         this.algorithmStrategy = algorithmStrategy;
         this.envRatio = envRatio;
+        this.gradingStrategy = gradingStrategy;
     }
 
-    public static Runnable runDynamic() {
+    public static Runnable runDynamic(CompletableFuture<ArrayList<GenericResult>> resultsForAlgorithm) {
         return () -> {
 
-            String outputFilename = createFilename(algorithmStrategy, lineCount, matchingEvaluatorStrategy, envRatio);
 
             ArrayList<GenericResult> results = new ArrayList<>(nTimes);
             boolean interrupted = false;
@@ -45,21 +48,8 @@ public class Compare {
                 }
             }
 
-            try {
-                if(!interrupted) {
-                    switch (algorithmStrategy) {
-                        case WOSMA_REGULAR:
-                        case IMPROVEMENT_MCPMA:
-                            new GenericResultProcessor(results).resultsToCSV(outputFilename);
-                            break;
-                        case WOSMA_FINDMAX:
-                        case WOSMA_IRCYCLES:
-                            new GenericResultProcessor(results).resultsToCSV(outputFilename);
-                            break;
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            if(!interrupted) {
+                resultsForAlgorithm.complete(results);
             }
         };
     }
@@ -82,12 +72,10 @@ public class Compare {
         return genericResult;
     }
 
-    public static Runnable runStaticMCPMA() {
+    public static Runnable runStaticMCPMA(CompletableFuture<ArrayList<GenericResult>> resultsForAlgorithm) {
         return () -> {
 
-            String outputFilename = createFilename(AlgorithmStrategy.MCPMA, lineCount, matchingEvaluatorStrategy, envRatio);
-
-            ArrayList<MCPMAResult> mcpmaResults
+            ArrayList<GenericResult> mcpmaResults
                     = new ArrayList(nTimes);
             boolean interrupted = false;
             for (int i = 0; i < nTimes; i++) {
@@ -100,20 +88,16 @@ public class Compare {
                     break;
                 }
             }
-            MCPMAResultProcessor mcpmaResultProcessor
-                    = new MCPMAResultProcessor(mcpmaResults);
-            try {
-                if(!interrupted) {
-                    mcpmaResultProcessor.resultsToCSV(outputFilename);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            GenericResultProcessor genericResultProcessor
+                    = new GenericResultProcessor(mcpmaResults);
+            if(!interrupted) {
+                resultsForAlgorithm.complete(mcpmaResults);
             }
         };
     }
 
-    public static MCPMAResult individualRunStaticMCPMA(Matching matching) throws InterruptedException {
-        MCPMAResult mcpmaResult = null;
+    public static GenericResult individualRunStaticMCPMA(Matching matching) throws InterruptedException {
+        GenericResult mcpmaResult = null;
         try {
             MCPMAOnMatchingRunner mcpmaOnMatchingRunner = new MCPMAOnMatchingRunner(matching, MCPMAStrategy.REGULAR);
             Matching result = mcpmaOnMatchingRunner.optimizeMatching(false);
@@ -122,7 +106,7 @@ public class Compare {
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
 
-            mcpmaResult = new MCPMAResult(scores[0]);
+            mcpmaResult = new GenericResult(scores[0], scores[0]);
 
         } catch (Matching.HouseholdLinkedToMultipleException | ResidualGraph.MatchGraphNotEmptyException | Matching.HouseLinkedToMultipleException | Matching.HouseLinkedToHouseException | Matching.HouseAlreadyMatchedException | Matching.HouseholdAlreadyMatchedException | MCPMAPrices.AlreadyInitiatedException | ResidualGraph.PathEdgeNotInResidualGraphException | Matching.HouseholdLinkedToHouseholdException | MCPMA.UnequalSidesException | MatchingEvaluator.HouseholdIncomeTooHighException e) {
             e.printStackTrace();
@@ -133,41 +117,6 @@ public class Compare {
 
 
 
-    public static String createFilename(AlgorithmStrategy algorithmStrategy, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy, double envRatio) {
-        String outputFilename = "../../Data/Output/Scores/";
-
-        switch (algorithmStrategy) {
-            case WOSMA_REGULAR:
-            case WOSMA_FINDMAX:
-            case WOSMA_IRCYCLES:
-            case IMPROVEMENT_MCPMA: outputFilename += "dyn-"; break;
-            case MCPMA: outputFilename += "static-"; break;
-        }
-
-        switch (algorithmStrategy) {
-            case MCPMA:
-                outputFilename += "MCPMA-"; break;
-            case WOSMA_REGULAR:
-                outputFilename += "WOSMARegular-"; break;
-            case WOSMA_FINDMAX:
-                outputFilename += "WOSMAFindMax-"; break;
-            case WOSMA_IRCYCLES:
-                outputFilename += "WOSMAIRCycles-"; break;
-            case IMPROVEMENT_MCPMA:
-                outputFilename += "ImprovementMCPMA-"; break;
-        }
-        outputFilename += "50times" + lineCount + "-" + envRatio + "-";
-        switch (matchingEvaluatorStrategy) {
-            case AVG:
-                outputFilename += "avgME-";
-                break;
-            case MIN:
-                outputFilename += "minME-";
-                break;
-        }
-        outputFilename += "100prob-twosided.csv";
-        return outputFilename;
-    }
 
 
     public static float[] evaluateMatchingsAverageIndividualTotalFit(Matching[] matchings) throws MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {

@@ -1,6 +1,6 @@
 package Algorithms.WorkerOptimalStableMatchingAlgorithm;
 
-import Algorithms.AlgorithmStrategy;
+import Main.AlgorithmStrategy;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import Matching.Matching;
