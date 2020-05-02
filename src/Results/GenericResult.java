@@ -1,4 +1,4 @@
-package Comparisons;
+package Results;
 
 public class GenericResult {
     private float solvedFinalMatchingPerStepScore;

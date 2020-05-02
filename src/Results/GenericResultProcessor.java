@@ -1,4 +1,4 @@
-package Comparisons;
+package Results;
 
 import Miscellaneous.CSVUtils;
 

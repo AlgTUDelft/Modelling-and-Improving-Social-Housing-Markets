@@ -1,8 +1,7 @@
 package Main;
 
-import Comparisons.Runner;
-import Comparisons.GenericResult;
-import Comparisons.GenericResultProcessor;
+import Results.GenericResult;
+import Results.GenericResultProcessor;
 import Matching.DynamicMatching;
 
 import java.io.IOException;
@@ -40,7 +39,8 @@ public class Comparer {
         }
     }
 
-    public HashSet<AlgorithmStrategy> run() throws IOException, InterruptedException {
+    // Runs algorithms, returns knowledge of newly interrupted algorithms so Experimenter can exclude these in the future.
+    public HashSet<AlgorithmStrategy> run() throws InterruptedException {
         HashSet<AlgorithmStrategy> toInterrupt = new HashSet<>();
 
         // For each algorithm...
@@ -97,7 +97,7 @@ public class Comparer {
             thread.join(allowedRunningTime);
         } catch (InterruptedException e) {
             // Needless to say, this shouldn't happen, since we never interrupt threads
-            // except through the above thread.join call.
+            // except through the above thread.join call and the interrupt call just below this.
             System.err.println("Thread got interrupted somehow.");
         }
         if (thread.isAlive()) {
@@ -120,19 +120,21 @@ public class Comparer {
                     float WOSMA_FindMaxScore = WOSMA_FindMax.get(i).getSolvedFinalMatchingAfterwardsScore();
                     float WOSMA_IRCyclesScore = WOSMA_IRCycles.get(i).getSolvedFinalMatchingAfterwardsScore();
                     float MCPMAScore = MCPMA.get(i).getSolvedFinalMatchingAfterwardsScore();
-                    if (WOSMA_FindMaxScore > WOSMA_IRCyclesScore) {
-                        System.err.println("Error 1! Got nonsensical results.");
-                        Runner runnerIRCycles = createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES);
-                        runnerIRCycles.individualRunDynamic(dynamicMatchings.get(i));
-                        Runner runnerWOSMAFindMax = createNewRunner(AlgorithmStrategy.WOSMA_FINDMAX);
-                        runnerWOSMAFindMax.individualRunDynamic(dynamicMatchings.get(i));
-                    }
+//                    if (WOSMA_FindMaxScore > WOSMA_IRCyclesScore) {
+//                        System.err.println("Error 1! Got nonsensical results.");
+//                        Runner runnerIRCycles = createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES);
+//                        runnerIRCycles.individualRunDynamic(dynamicMatchings.get(i));
+//                        Runner runnerWOSMAFindMax = createNewRunner(AlgorithmStrategy.WOSMA_FINDMAX);
+//                        runnerWOSMAFindMax.individualRunDynamic(dynamicMatchings.get(i));
+//                    }
                     if (WOSMA_IRCyclesScore > MCPMAScore) {
                         System.err.println("Error 2! Got nonsensical results.");
-                        Runner runnerMCPMA = createNewRunner(AlgorithmStrategy.MCPMA);
-                        runnerMCPMA.individualRunStaticMCPMA(dynamicMatchings.get(i));
-                        Runner runnerIRCycles = createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES);
-                        runnerIRCycles.individualRunDynamic(dynamicMatchings.get(i));
+                        while (true) {
+                            createNewRunner(AlgorithmStrategy.MCPMA)
+                                    .individualRunStaticMCPMA(dynamicMatchings.get(i));
+                            createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES)
+                                    .individualRunDynamic(dynamicMatchings.get(i));
+                        }
                     }
                 }
             }

@@ -1,13 +1,11 @@
-package Comparisons;
+package Main;
 
-import Main.AlgorithmStrategy;
+import Results.GenericResult;
+import Results.GenericResultProcessor;
 import Algorithms.MCPMA.*;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
-import Main.GradingStrategy;
-import Main.MatchingEvaluatorStrategy;
 import Matching.*;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
