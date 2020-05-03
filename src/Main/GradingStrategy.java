@@ -1,7 +1,8 @@
 package Main;
 
 public enum GradingStrategy {
-    MatchingEvaluator,
+    MatchingEvaluatorAVG,
+    MatchingEvaluatorMIN,
 //    PerfectAgreement,
     Random
 }

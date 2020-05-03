@@ -2,7 +2,7 @@ package Matching;
 
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
-import Main.MatchingEvaluatorStrategy;
+import Main.GradingStrategy;
 
 import java.io.Serializable;
 
@@ -11,11 +11,11 @@ import java.io.Serializable;
 public class MatchingEvaluator implements Serializable {
 
     private Matching matching;
-    private MatchingEvaluatorStrategy matchingEvaluatorStrategy;
+    private GradingStrategy gradingStrategy;
 
-    public MatchingEvaluator(Matching matching) {
+    public MatchingEvaluator(Matching matching, GradingStrategy gradingStrategy) {
         this.matching = matching;
-        this.matchingEvaluatorStrategy = matching.getMatchingEvaluatorStrategy();
+        this.gradingStrategy = gradingStrategy;
     }
 
 
@@ -110,11 +110,11 @@ public class MatchingEvaluator implements Serializable {
 
 //         TODO: _individualTotalFit_ calculation method open to revision and addition; currently based on nothing.
         float individualTotalFit = 0;
-        switch (this.matchingEvaluatorStrategy) {
-            case MIN: individualTotalFit = Math.min(Math.min(
+        switch (this.gradingStrategy) {
+            case MatchingEvaluatorMIN: individualTotalFit = Math.min(Math.min(
                     financialIndividualFit, roomIndividualFit),
                     accessibilityIndividualFit); break;
-            case AVG: individualTotalFit = (financialIndividualFit + roomIndividualFit + accessibilityIndividualFit) / 3; break;
+            case MatchingEvaluatorAVG: individualTotalFit = (financialIndividualFit + roomIndividualFit + accessibilityIndividualFit) / 3; break;
         }
         return individualTotalFit;
     }

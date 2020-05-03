@@ -17,18 +17,16 @@ public class Comparer {
     private long allowedRunningTime;
     private int lineCount;
     private int nTimes;
-    private MatchingEvaluatorStrategy matchingEvaluatorStrategy;
     private Double envRatio;
     private GradingStrategy gradingStrategy;
     private HashMap<AlgorithmStrategy, CompletableFuture<ArrayList<GenericResult>>> results;
     private HashSet<AlgorithmStrategy> interruptedAlgorithmStrategies;
 
-    public Comparer(ArrayList<DynamicMatching> dynamicMatchings, long allowedRunningTime, int lineCount, int nTimes, MatchingEvaluatorStrategy matchingEvaluatorStrategy, Double envRatio, GradingStrategy gradingStrategy, HashSet<AlgorithmStrategy> interruptedAlgorithmStrategies) {
+    public Comparer(ArrayList<DynamicMatching> dynamicMatchings, long allowedRunningTime, int lineCount, int nTimes, Double envRatio, GradingStrategy gradingStrategy, HashSet<AlgorithmStrategy> interruptedAlgorithmStrategies) {
         this.dynamicMatchings = dynamicMatchings;
         this.allowedRunningTime = allowedRunningTime;
         this.lineCount = lineCount;
         this.nTimes = nTimes;
-        this.matchingEvaluatorStrategy = matchingEvaluatorStrategy;
         this.envRatio = envRatio;
         this.gradingStrategy = gradingStrategy;
         this.interruptedAlgorithmStrategies = interruptedAlgorithmStrategies;
@@ -47,7 +45,7 @@ public class Comparer {
         for (AlgorithmStrategy algorithmStrategy : AlgorithmStrategy.values()) {
             if (interruptedAlgorithmStrategies.contains(algorithmStrategy)) {
                 // Algorithm took too long in smaller instance, so don't go on.
-                System.out.println("Skipping:    " + envRatio + " | " + gradingStrategy + " | " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
+                System.out.println("Skipping:    " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | " + algorithmStrategy);
             } else {
                 // Run it and check if we were interrupted during execution.
 
@@ -57,15 +55,15 @@ public class Comparer {
                 boolean interrupted = this.runAlgorithm(resultsPerAlgorithm, algorithmStrategy);
 
                 if (interrupted) {
-                    System.out.println("Interrupted: " + envRatio + " | " + gradingStrategy + " | " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
+                    System.out.println("Interrupted: " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | " + algorithmStrategy);
                     toInterrupt.add(algorithmStrategy);
                 } else {
-                    System.out.println("Finished:    " + envRatio + " | " + gradingStrategy + " | " + matchingEvaluatorStrategy + " | " + lineCount + " | " + algorithmStrategy);
+                    System.out.println("Finished:    " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | " + algorithmStrategy);
                 }
             }
         }
 
-        processAndSaveResults(results, lineCount, matchingEvaluatorStrategy,envRatio, gradingStrategy);
+        processAndSaveResults(results, lineCount,envRatio, gradingStrategy);
         performSanityCheck(results);
         return toInterrupt;
     }
@@ -139,12 +137,12 @@ public class Comparer {
                     float WOSMA_IRCyclesScore = WOSMA_IRCycles.get(i).getSolvedFinalMatchingAfterwardsScore();
                     if (WOSMA_FindMaxScore > WOSMA_IRCyclesScore + 0.0001) {
                         System.err.println("Error 2! Got nonsensical results.");
-//                        while (true) {
-//                            createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES, true)
-//                                    .individualRunDynamic(dynamicMatchings.get(i));
-//                            createNewRunner(AlgorithmStrategy.WOSMA_FINDMAX, true)
-//                                    .individualRunDynamic(dynamicMatchings.get(i));
-//                        }
+                        while (true) {
+                            createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES, true)
+                                    .individualRunDynamic(dynamicMatchings.get(i));
+                            createNewRunner(AlgorithmStrategy.WOSMA_FINDMAX, true)
+                                    .individualRunDynamic(dynamicMatchings.get(i));
+                        }
                     }
                 }
             }
@@ -158,13 +156,13 @@ public class Comparer {
 
 
     public void processAndSaveResults(HashMap<AlgorithmStrategy, CompletableFuture<ArrayList<GenericResult>>> results,
-                                      int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy, double envRatio,
+                                      int lineCount, double envRatio,
                                       GradingStrategy gradingStrategy) {
         for (AlgorithmStrategy algorithmStrategy : AlgorithmStrategy.values()) {
             try {
                 if (results.get(algorithmStrategy).isDone()) {
                     ArrayList<GenericResult> algorithmResults = results.get(algorithmStrategy).get();
-                    String outputFilename = createFilename(algorithmStrategy, lineCount, matchingEvaluatorStrategy, envRatio, gradingStrategy);
+                    String outputFilename = createFilename(algorithmStrategy, lineCount, envRatio, gradingStrategy);
                     new GenericResultProcessor(algorithmResults).resultsToCSV(outputFilename);
                 }
             } catch (InterruptedException e) {
@@ -177,7 +175,7 @@ public class Comparer {
         }
     }
 
-    public static String createFilename(AlgorithmStrategy algorithmStrategy, int lineCount, MatchingEvaluatorStrategy matchingEvaluatorStrategy, double envRatio, GradingStrategy gradingStrategy) {
+    public static String createFilename(AlgorithmStrategy algorithmStrategy, int lineCount, double envRatio, GradingStrategy gradingStrategy) {
         String outputFilename = "../../Data/Output/Scores/";
 
         switch (algorithmStrategy) {
@@ -200,16 +198,7 @@ public class Comparer {
             case IMPROVEMENT_MCPMA:
                 outputFilename += "ImprovementMCPMA-"; break;
         }
-        outputFilename += "50times" + lineCount + "-" + envRatio + "-" + gradingStrategy + "-";
-        switch (matchingEvaluatorStrategy) {
-            case AVG:
-                outputFilename += "avgME-";
-                break;
-            case MIN:
-                outputFilename += "minME-";
-                break;
-        }
-        outputFilename += "100prob-twosided.csv";
+        outputFilename += "50times" + lineCount + "-" + envRatio + "-" + gradingStrategy + "-100prob-twosided.csv";
         return outputFilename;
     }
 

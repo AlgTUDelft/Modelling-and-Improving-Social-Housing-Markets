@@ -21,8 +21,8 @@ public class DataProcessor implements Serializable {
 
     private Matching matching;
 
-    public DataProcessor(HousingMarket housingMarket, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
-        this.matching = new Matching(housingMarket, matchingEvaluatorStrategy);
+    public DataProcessor(HousingMarket housingMarket) {
+        this.matching = new Matching(housingMarket);
     }
 
     public Matching csvToMatching(String csvFileName, double connectionProb, int startLine, int linesToParse, double envRatio, GradingStrategy gradingStrategy)
@@ -152,8 +152,9 @@ public class DataProcessor implements Serializable {
     public Grader createGrader(Matching matching, GradingStrategy gradingStrategy) {
         BiFunction<Integer, Integer, Float> func = null;
         switch (gradingStrategy) {
-            case MatchingEvaluator:
-                MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
+            case MatchingEvaluatorAVG:
+            case MatchingEvaluatorMIN:
+                MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching, gradingStrategy);
                 func = (BiFunction<Integer, Integer, Float> & Serializable)
                         (Integer id1, Integer id2) -> {
                             float result = 0;

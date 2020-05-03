@@ -10,7 +10,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import Main.Grader;
-import Main.MatchingEvaluatorStrategy;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
@@ -27,15 +26,13 @@ public class Matching implements Serializable {
     protected ArrayList<Integer> SWICycleLengths = new ArrayList<Integer>();
     protected Set<Integer> householdsMovedByWOSMA = new HashSet<Integer>(); // Is reset at the end of WOSMA-calls before return.
 
-    private MatchingEvaluatorStrategy matchingEvaluatorStrategy;
     private Grader grader;
 
     private HousingMarket housingMarket;
 
-    public Matching(HousingMarket housingMarket, MatchingEvaluatorStrategy matchingEvaluatorStrategy) {
+    public Matching(HousingMarket housingMarket) {
         this.matchingGraph = new SimpleGraph<>(DefaultEdge.class);
         this.housingMarket = housingMarket;
-        this.matchingEvaluatorStrategy = matchingEvaluatorStrategy;
     }
 
     public void setGrader(Grader grader) {
@@ -564,9 +561,6 @@ public class Matching implements Serializable {
         return result;
     }
 
-    public MatchingEvaluatorStrategy getMatchingEvaluatorStrategy() {
-        return matchingEvaluatorStrategy;
-    }
 
     public class HouseLinkedToHouseException extends Exception {
         public HouseLinkedToHouseException(String errorMessage) {
