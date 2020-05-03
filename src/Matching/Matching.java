@@ -46,6 +46,23 @@ public class Matching implements Serializable {
         return grader;
     }
 
+    public float grade(int houseID, int householdID) {
+        return grader.apply(houseID, householdID);
+    }
+
+    public float gradeAverage() throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException {
+        float scoreSum = 0;
+        int scoreCount = 0;
+        for (Household household : households) {
+            House house = this.getHouseFromHousehold(household.getID());
+            if (house != null) {
+                scoreSum += grade(house.getID(), household.getID());
+                scoreCount++;
+            }
+        }
+        return scoreSum/scoreCount;
+    }
+
     public int addHouse(House house) throws HouseIDAlreadyPresentException {
         if (house.getID() != 0) {
             if (houseIDNotAlreadyPresent(house.getID())) {

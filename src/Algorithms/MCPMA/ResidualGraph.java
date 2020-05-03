@@ -23,13 +23,13 @@ public class ResidualGraph {
     private Integer sinkID = -1;
     private SimpleDirectedWeightedGraph<Integer, DefaultWeightedEdge> residualImprovementGraph;
     private ImprovementGraph improvementGraph;
-    private SimpleGraph<HousingMarketVertex, DefaultEdge> matchGraph;
+    private MatchGraph matchGraph;
     private MCPMAPrices MCPMAPrices;
     // OK, hopefully this will go right.
     private HashMap<HouseAndHouseholdIDPair, Double> nonReducedEdgeWeights = new HashMap<HouseAndHouseholdIDPair, Double>();
 
-    public ResidualGraph(ImprovementGraph improvementGraph, SimpleGraph<HousingMarketVertex, DefaultEdge> matchGraph, MCPMAPrices MCPMAPrices) throws MatchGraphNotEmptyException {
-        if (matchGraph.edgeSet().size() > 0) {
+    public ResidualGraph(ImprovementGraph improvementGraph, MatchGraph matchGraph, MCPMAPrices MCPMAPrices) throws MatchGraphNotEmptyException {
+        if (matchGraph.getEdgeCount() > 0) {
             throw new MatchGraphNotEmptyException("Error: Can only create Residual Graph on empty Match Graph.");
         }
         this.residualImprovementGraph = new SimpleDirectedWeightedGraph(DefaultWeightedEdge.class);
@@ -103,7 +103,7 @@ public class ResidualGraph {
 
     public GraphPath<Integer, DefaultWeightedEdge> findAugmentingPath() {
         DijkstraShortestPath<Integer, DefaultWeightedEdge> dijkstraShortestPath;
-        dijkstraShortestPath = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.residualImprovementGraph);
+        dijkstraShortestPath = new DijkstraShortestPath<>(this.residualImprovementGraph);
         ShortestPathAlgorithm.SingleSourcePaths<Integer, DefaultWeightedEdge> sourcePaths;
         sourcePaths = dijkstraShortestPath.getPaths(sourceID);
         // Since the maximum weight of an edge is 1 (which is also dummies' edges' weight), and between houses and households an augmenting path can
@@ -153,7 +153,7 @@ public class ResidualGraph {
         return bestPathFound;
     }
 
-    public SimpleGraph<HousingMarketVertex, DefaultEdge>  augmentMatchingAndUpdateResidualGraph(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, MCPMAPrices MCPMAPrices) throws PathEdgeNotInResidualGraphException {
+    public MatchGraph augmentMatchingAndUpdateResidualGraph(GraphPath<Integer, DefaultWeightedEdge> augmentingPath, MCPMAPrices MCPMAPrices) throws PathEdgeNotInResidualGraphException {
         this.augmentMatchGraph(augmentingPath);
         this.updateGraphAfterAugmenting(augmentingPath, MCPMAPrices);
         return this.matchGraph;
@@ -255,7 +255,8 @@ public class ResidualGraph {
     }
 
     private void updateReducedEdgeWeightsAndPrices(MCPMAPrices newMCPMAPrices) throws PathEdgeNotInResidualGraphException {
-        // Watch out here! For some household/house, do I take only neighbors, or the entire other side?
+        // TODO: Watch out here! For some household/house, do I take only neighbors, or the entire other side?
+        //  I think the latter is true, as coded, but this merits some more thought.
         for (House house : this.improvementGraph.getHouses()) {
             for (Household household : this.improvementGraph.getHouseholds()) {
                 int houseID = house.getID();
@@ -287,15 +288,93 @@ public class ResidualGraph {
                 }
             }
             for (DummyHousehold dummyHousehold : this.improvementGraph.getDummyHouseholds()) {
-
+                int houseID = house.getID();
+                int householdID = dummyHousehold.getID();
+                DefaultWeightedEdge edge = this.residualImprovementGraph.getEdge(houseID, householdID);
+                if (edge != null) {
+                    double nextHousePrice = newMCPMAPrices.getHousePrice(house);
+                    double nextHouseholdPrice = newMCPMAPrices.getHouseholdPrice(dummyHousehold);
+                    double oldNonReducedWeight = nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(houseID, householdID));
+                    double nextEdgeWeight = nextHousePrice +
+                            oldNonReducedWeight - nextHouseholdPrice;
+                    this.residualImprovementGraph.setEdgeWeight(edge, nextEdgeWeight);
+                }
+                else {
+                    edge = this.residualImprovementGraph.getEdge(householdID, houseID);
+                    if (edge != null) {
+                        double nextHousePrice = newMCPMAPrices.getHousePrice(house);
+                        double nextHouseholdPrice = newMCPMAPrices.getHouseholdPrice(dummyHousehold);
+                        double oldNonReducedWeight = nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(houseID, householdID));
+                        double nextEdgeWeight = nextHouseholdPrice +
+                                oldNonReducedWeight - nextHousePrice;
+                        this.residualImprovementGraph.setEdgeWeight(edge, nextEdgeWeight);
+                    }
+                    else {
+                        if (this.MCPMAPrices.getMcpmaStrategy() == MCPMAStrategy.REGULAR) {
+                            throw new PathEdgeNotInResidualGraphException("An edge from the augmenting path could not be found in the residual graph.");
+                        }
+                    }
+                }
             }
         }
         for (DummyHouse dummyHouse : this.improvementGraph.getDummyHouses()) {
             for (Household household : this.improvementGraph.getHouseholds()) {
-
+                int houseID = dummyHouse.getID();
+                int householdID = household.getID();
+                DefaultWeightedEdge edge = this.residualImprovementGraph.getEdge(houseID, householdID);
+                if (edge != null) {
+                    double nextHousePrice = newMCPMAPrices.getHousePrice(dummyHouse);
+                    double nextHouseholdPrice = newMCPMAPrices.getHouseholdPrice(household);
+                    double oldNonReducedWeight = nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(houseID, householdID));
+                    double nextEdgeWeight = nextHousePrice +
+                            oldNonReducedWeight - nextHouseholdPrice;
+                    this.residualImprovementGraph.setEdgeWeight(edge, nextEdgeWeight);
+                }
+                else {
+                    edge = this.residualImprovementGraph.getEdge(householdID, houseID);
+                    if (edge != null) {
+                        double nextHousePrice = newMCPMAPrices.getHousePrice(dummyHouse);
+                        double nextHouseholdPrice = newMCPMAPrices.getHouseholdPrice(household);
+                        double oldNonReducedWeight = nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(houseID, householdID));
+                        double nextEdgeWeight = nextHouseholdPrice +
+                                oldNonReducedWeight - nextHousePrice;
+                        this.residualImprovementGraph.setEdgeWeight(edge, nextEdgeWeight);
+                    }
+                    else {
+                        if (this.MCPMAPrices.getMcpmaStrategy() == MCPMAStrategy.REGULAR) {
+                            throw new PathEdgeNotInResidualGraphException("An edge from the augmenting path could not be found in the residual graph.");
+                        }
+                    }
+                }
             }
             for (DummyHousehold dummyHousehold : this.improvementGraph.getDummyHouseholds()) {
-
+                int houseID = dummyHouse.getID();
+                int householdID = dummyHousehold.getID();
+                DefaultWeightedEdge edge = this.residualImprovementGraph.getEdge(houseID, householdID);
+                if (edge != null) {
+                    double nextHousePrice = newMCPMAPrices.getHousePrice(dummyHouse);
+                    double nextHouseholdPrice = newMCPMAPrices.getHouseholdPrice(dummyHousehold);
+                    double oldNonReducedWeight = nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(houseID, householdID));
+                    double nextEdgeWeight = nextHousePrice +
+                            oldNonReducedWeight - nextHouseholdPrice;
+                    this.residualImprovementGraph.setEdgeWeight(edge, nextEdgeWeight);
+                }
+                else {
+                    edge = this.residualImprovementGraph.getEdge(householdID, houseID);
+                    if (edge != null) {
+                        double nextHousePrice = newMCPMAPrices.getHousePrice(dummyHouse);
+                        double nextHouseholdPrice = newMCPMAPrices.getHouseholdPrice(dummyHousehold);
+                        double oldNonReducedWeight = nonReducedEdgeWeights.get(new HouseAndHouseholdIDPair(houseID, householdID));
+                        double nextEdgeWeight = nextHouseholdPrice +
+                                oldNonReducedWeight - nextHousePrice;
+                        this.residualImprovementGraph.setEdgeWeight(edge, nextEdgeWeight);
+                    }
+                    else {
+                        if (this.MCPMAPrices.getMcpmaStrategy() == MCPMAStrategy.REGULAR) {
+                            throw new PathEdgeNotInResidualGraphException("An edge from the augmenting path could not be found in the residual graph.");
+                        }
+                    }
+                }
             }
         }
     }

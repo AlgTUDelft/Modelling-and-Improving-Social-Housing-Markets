@@ -15,20 +15,20 @@ import java.util.HashMap;
 public class MCPMAPrices {
 
     private ImprovementGraph improvementGraph;
-    private SimpleGraph<HousingMarketVertex, DefaultEdge> matchGraph;
+    private MatchGraph matchGraph;
     private HashMap<HousingMarketVertex, Double> housePrices = new HashMap<HousingMarketVertex, Double>();
     private HashMap<HousingMarketVertex, Double> householdPrices = new HashMap<HousingMarketVertex, Double>();
     private ResidualGraph residualGraph;
     private MCPMAStrategy mcpmaStrategy;
 
-    public MCPMAPrices(ImprovementGraph improvementGraph, SimpleGraph<HousingMarketVertex, DefaultEdge> matchGraph, MCPMAStrategy mcpmaStrategy) {
+    public MCPMAPrices(ImprovementGraph improvementGraph, MatchGraph matchGraph, MCPMAStrategy mcpmaStrategy) {
         this.improvementGraph = improvementGraph;
         this.matchGraph = matchGraph;
         this.mcpmaStrategy = mcpmaStrategy;
     }
 
     public void setInitialPrices() throws AlreadyInitiatedException, ResidualGraph.MatchGraphNotEmptyException {
-        if (matchGraph.edgeSet().size() > 0) {
+        if (matchGraph.getEdgeCount() > 0) {
             throw new AlreadyInitiatedException("Error: Initial prices have already been created.");
         } else {
             for (House house : this.improvementGraph.getHouses()) {
@@ -105,7 +105,7 @@ public class MCPMAPrices {
         }
     }
 
-    public SimpleGraph<HousingMarketVertex, DefaultEdge> augmentMatchGraphAndUpdateAll(GraphPath<Integer, DefaultWeightedEdge> augmentingPath) throws ResidualGraph.PathEdgeNotInResidualGraphException {
+    public MatchGraph augmentMatchGraphAndUpdateAll(GraphPath<Integer, DefaultWeightedEdge> augmentingPath) throws ResidualGraph.PathEdgeNotInResidualGraphException {
         this.updatePrices(); // Doing this first so that the updating process still has access to the un-augmented matchGraph...
         this.matchGraph = this.residualGraph.augmentMatchingAndUpdateResidualGraph(augmentingPath, this); // ...Because this modifies the matchGraph.
         return this.matchGraph;

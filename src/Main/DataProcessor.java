@@ -7,6 +7,7 @@ import HousingMarket.HousingMarket;
 import HousingMarket.HouseAndHouseholdPair;
 import HousingMarket.HouseAndHouseholdIDPair;
 import Matching.Matching;
+import Matching.MatchingEvaluator;
 
 import java.io.*;
 import java.util.HashMap;
@@ -151,20 +152,20 @@ public class DataProcessor implements Serializable {
     public Grader createGrader(Matching matching, GradingStrategy gradingStrategy) {
         BiFunction<Integer, Integer, Float> func = null;
         switch (gradingStrategy) {
-//            case MatchingEvaluator:
-//                MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
-//                func = (BiFunction<Integer, Integer, Float> & Serializable)
-//                        (Integer id1, Integer id2) -> {
-//                            float result = 0;
-//                            try {
-//                                // TODO: Isolate ME.
-//                                result = matchingEvaluator.evaluateIndividualTotalFit(id1, id2);
-//                            } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
-//                                e.printStackTrace();
-//                            }
-//                            return result;
-//                        };
-//                break;
+            case MatchingEvaluator:
+                MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching);
+                func = (BiFunction<Integer, Integer, Float> & Serializable)
+                        (Integer id1, Integer id2) -> {
+                            float result = 0;
+                            try {
+                                // TODO: Isolate ME.
+                                result = matchingEvaluator.evaluateIndividualTotalFit(id1, id2);
+                            } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
+                                e.printStackTrace();
+                            }
+                            return result;
+                        };
+                break;
             case Random:
                 HashMap<HouseAndHouseholdIDPair, Float> randomMap = new HashMap();
                     for (House house : matching.getHouses()) {

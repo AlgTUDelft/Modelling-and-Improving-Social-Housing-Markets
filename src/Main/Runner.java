@@ -14,11 +14,13 @@ public class Runner {
     private static ArrayList<DynamicMatching> dynamicMatchings;
     private static int nTimes;
     private static AlgorithmStrategy algorithmStrategy;
+    private boolean print;
 
-    public Runner(ArrayList<DynamicMatching> dynamicMatchings, int nTimes, AlgorithmStrategy algorithmStrategy) {
+    public Runner(ArrayList<DynamicMatching> dynamicMatchings, int nTimes, AlgorithmStrategy algorithmStrategy, boolean print) {
         this.dynamicMatchings = dynamicMatchings;
         this.nTimes = nTimes;
         this.algorithmStrategy = algorithmStrategy;
+        this.print = print;
     }
 
     public Runnable runDynamic(CompletableFuture<ArrayList<GenericResult>> resultsForAlgorithm) {
@@ -49,8 +51,8 @@ public class Runner {
         try {
 
             Matching[] matchings = new Matching[2];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(algorithmStrategy, false);
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(algorithmStrategy, false);
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(algorithmStrategy, print);
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(algorithmStrategy, print);
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
             genericResult = new GenericResult(scores[0], scores[1]);
@@ -90,7 +92,7 @@ public class Runner {
         try {
             Matching matching = dynamicMatching.getInputMatching();
             MCPMAOnMatchingRunner mcpmaOnMatchingRunner = new MCPMAOnMatchingRunner(matching, MCPMAStrategy.REGULAR);
-            Matching result = mcpmaOnMatchingRunner.optimizeMatching(false);
+            Matching result = mcpmaOnMatchingRunner.optimizeMatching(print);
             Matching[] matchings = new Matching[1];
             matchings[0] = result;
 
@@ -110,15 +112,9 @@ public class Runner {
 
 
     public static float[] evaluateMatchingsAverageIndividualTotalFit(Matching[] matchings) throws MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
-
-        MatchingEvaluator[] matchingEvaluators = new MatchingEvaluator[matchings.length];
-        for (int i = 0; i < matchings.length; i++) {
-            matchingEvaluators[i] = new MatchingEvaluator(matchings[i]);
-        }
-
         float[] scores = new float[matchings.length];
         for (int i = 0; i < matchings.length; i++) {
-            scores[i] = matchingEvaluators[i].evaluateAverageIndividualTotalFit(false);
+            scores[i] = matchings[i].gradeAverage();
         }
         return scores;
     }

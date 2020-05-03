@@ -3,6 +3,7 @@ package Algorithms.MCPMA;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarketVertex;
+import org.apache.xmlbeans.impl.regex.Match;
 import org.jgrapht.GraphPath;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -11,7 +12,7 @@ import org.jgrapht.graph.SimpleGraph;
 public class MCPMA {
 
     private ImprovementGraph improvementGraph;
-    private SimpleGraph<HousingMarketVertex, DefaultEdge> matchGraph;
+    private MatchGraph matchGraph;
     // Algorithm is functionally agnostic to strategy variant, which matters only to the improvement graph.
     // The only reason it's included here is because it's useful to throw an error at some point in ResidualGraph
     // when this strategy is REGULAR.
@@ -25,7 +26,7 @@ public class MCPMA {
             throw new UnequalSidesException("Error: Improvement graph does not contain equal amount of houses and households.");
         }
         // Create matchGraph
-        matchGraph = new SimpleGraph<HousingMarketVertex, DefaultEdge>(DefaultEdge.class);
+        matchGraph = new MatchGraph();
         for (House house : improvementGraph.getHouses()) {
             matchGraph.addVertex(house);
         }
@@ -42,26 +43,29 @@ public class MCPMA {
     }
 
     // Find optimal matching.
-    public SimpleGraph<HousingMarketVertex, DefaultEdge> findOptimalMatching(boolean print) throws MCPMAPrices.AlreadyInitiatedException, ResidualGraph.MatchGraphNotEmptyException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
+    public MatchGraph findOptimalMatching(boolean print) throws MCPMAPrices.AlreadyInitiatedException, ResidualGraph.MatchGraphNotEmptyException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
         MCPMAPrices MCPMAPrices = new MCPMAPrices(improvementGraph, matchGraph, mcpmaStrategy);
         MCPMAPrices.setInitialPrices();
         int i = 0;
-        boolean shouldContinue = matchGraph.edgeSet().size() != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size();
+        boolean shouldContinue = matchGraph.getEdgeCount() != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size();
         while (shouldContinue) {
             if (Thread.interrupted()) {
                 throw new InterruptedException();
             }
-
             if (print) {
-                System.out.println("Augmenting path " + i);
+                System.out.println("State " + i + ":" + this.matchGraph);
             }
+
             GraphPath<Integer, DefaultWeightedEdge> augmentingPath = MCPMAPrices.getResidualGraph().findAugmentingPath();
             if (augmentingPath == null) {
                 shouldContinue = false;
             } else {
+                if (print) {
+                    System.out.println("Augmenting path " + i + ": " + augmentingPath);
+                }
                 this.matchGraph = MCPMAPrices.augmentMatchGraphAndUpdateAll(augmentingPath);
                 i++;
-                shouldContinue = matchGraph.edgeSet().size() != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size();
+                shouldContinue = matchGraph.getEdgeCount() != improvementGraph.getHouseholds().size() + improvementGraph.getDummyHouseholds().size();
             }
         }
         return matchGraph;

@@ -14,7 +14,7 @@ public class MCPMAOnMatchingRunner {
     private Matching matching;
     private MCPMAStrategy mcpmaStrategy;
     private ImprovementGraph improvementGraph;
-    private SimpleGraph<HousingMarketVertex, DefaultEdge> matchGraph;
+    private MatchGraph matchGraph;
     private MCPMA MCPMA;
 
     public MCPMAOnMatchingRunner(Matching matching, MCPMAStrategy mcpmaStrategy) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MCPMA.UnequalSidesException, InterruptedException {
@@ -35,7 +35,7 @@ public class MCPMAOnMatchingRunner {
 
     private Matching parseMatchGraphRegular() throws Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException {
         matching.dissolveConnections();
-        for (DefaultEdge edge : matchGraph.edgeSet()) {
+        for (DefaultEdge edge : matchGraph.getEdges()) {
             HousingMarketVertex source = matchGraph.getEdgeSource(edge);
             HousingMarketVertex target = matchGraph.getEdgeTarget(edge);
             if (source instanceof DummyHouse || source instanceof DummyHousehold
@@ -60,7 +60,7 @@ public class MCPMAOnMatchingRunner {
     }
 
     private Matching parseMatchGraphImprovement() throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException {
-        for (DefaultEdge edge : matchGraph.edgeSet()) {
+        for (DefaultEdge edge : matchGraph.getEdges()) {
             HousingMarketVertex source = matchGraph.getEdgeSource(edge);
             HousingMarketVertex target = matchGraph.getEdgeTarget(edge);
             if (source instanceof DummyHouse || source instanceof DummyHousehold
