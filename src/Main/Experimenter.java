@@ -48,7 +48,12 @@ public class Experimenter {
                         break;
                     }
 
-                    Calendar cal = calculateRemainingTime(allowedRunningTime, lineCounts.size(), lineCounts.size() - lineCounts.indexOf(lineCount), AlgorithmStrategy.values().length - interruptedAlgorithmStrategies.size(), envRatios.size() - envRatios.indexOf(envRatio));
+                    List<GradingStrategy> gradingStrategies = Arrays.asList(GradingStrategy.values());
+                    Calendar cal = calculateRemainingTime(allowedRunningTime, lineCounts.size(),
+                            lineCounts.size() - lineCounts.indexOf(lineCount),
+                            AlgorithmStrategy.values().length - interruptedAlgorithmStrategies.size(),
+                            envRatios.size() - envRatios.indexOf(envRatio),
+                            GradingStrategy.values().length - gradingStrategies.indexOf(gradingStrategy));
                     System.out.println("Updated ETA: " + cal.getTime() + ".");
 
                     boolean oneSided = false;
@@ -83,14 +88,17 @@ public class Experimenter {
             return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount, envRatio, gradingStrategy);
         }
 
-        public static Calendar calculateRemainingTime(long allowedRunningTime, int linesCount, int linesLeftCount, int algorithmStrategiesLeft, int envRatiosLeft) {
-            long eta = 0;
-//            if (matchingEvaluatorStrategiesLeftCount == 1) {
-//                eta = allowedRunningTime * linesLeftCount  * algorithmStrategiesLeft;
-//            } else {
-//                eta = allowedRunningTime * (linesCount * AlgorithmStrategy.values().length + linesLeftCount * algorithmStrategiesLeft);
-//            }
-            eta = eta * envRatiosLeft;
+        public static Calendar calculateRemainingTime(long allowedRunningTime, int linesCount, int linesLeftCount, int algorithmStrategiesLeft, int envRatiosLeft, int gradingStrategiesLeft) {
+
+            // Current envRatio+gradingstrategy combination:
+            long eta = allowedRunningTime * linesLeftCount * algorithmStrategiesLeft;
+            // Future combinations:
+            if (gradingStrategiesLeft > 0) {
+                eta += allowedRunningTime * linesCount * AlgorithmStrategy.values().length * gradingStrategiesLeft * envRatiosLeft;
+            } else {
+                eta += allowedRunningTime * linesCount * AlgorithmStrategy.values().length * GradingStrategy.values().length * (envRatiosLeft - 1);
+            }
+
             Calendar cal = Calendar.getInstance(); // creates calendar
             cal.setTime(new Date()); // sets calendar time/date
             cal.add(Calendar.MILLISECOND, (int) eta); // adds time.
