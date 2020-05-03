@@ -14,7 +14,7 @@ public class Main {
 
         String outputfolder = "../../Data/Output/Scores/";
 
-        long allowedRunningTime = 5_000;
+        long allowedRunningTime = 2_000;
         int maxVal = 150;
         int nTimes = 50;
 

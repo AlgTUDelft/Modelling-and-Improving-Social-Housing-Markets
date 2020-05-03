@@ -120,13 +120,13 @@ public class Comparer {
                     float WOSMA_IRCyclesScore = WOSMA_IRCycles.get(i).getSolvedFinalMatchingAfterwardsScore();
                     float MCPMAScore = MCPMA.get(i).getSolvedFinalMatchingAfterwardsScore();
                     if (WOSMA_IRCyclesScore > MCPMAScore + 0.0001) {
-                        System.err.println("Error 2! Got nonsensical results.");
-//                        while (true) {
-//                            createNewRunner(AlgorithmStrategy.MCPMA, true)
-//                                    .individualRunStaticMCPMA(dynamicMatchings.get(i));
-//                            createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES, true)
-//                                    .individualRunDynamic(dynamicMatchings.get(i));
-//                        }
+                        System.err.println("Error 1! Got nonsensical results.");
+                        while (true) {
+                            createNewRunner(AlgorithmStrategy.MCPMA, true)
+                                    .individualRunStaticMCPMA(dynamicMatchings.get(i));
+                            createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES, true)
+                                    .individualRunDynamic(dynamicMatchings.get(i));
+                        }
                     }
                 }
             }
@@ -138,7 +138,7 @@ public class Comparer {
                     float WOSMA_FindMaxScore = WOSMA_FindMax.get(i).getSolvedFinalMatchingAfterwardsScore();
                     float WOSMA_IRCyclesScore = WOSMA_IRCycles.get(i).getSolvedFinalMatchingAfterwardsScore();
                     if (WOSMA_FindMaxScore > WOSMA_IRCyclesScore + 0.0001) {
-                        System.err.println("Error 1! Got nonsensical results.");
+                        System.err.println("Error 2! Got nonsensical results.");
 //                        while (true) {
 //                            createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES, true)
 //                                    .individualRunDynamic(dynamicMatchings.get(i));

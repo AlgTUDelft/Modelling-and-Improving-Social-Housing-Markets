@@ -58,6 +58,8 @@ public class Matching implements Serializable {
             if (house != null) {
                 scoreSum += grade(house.getID(), household.getID());
                 scoreCount++;
+            } else {
+                scoreCount++;
             }
         }
         return scoreSum/scoreCount;
