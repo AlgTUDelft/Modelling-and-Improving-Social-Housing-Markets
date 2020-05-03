@@ -1,5 +1,6 @@
 package Matching;
 
+import Algorithms.MCPMA.MatchGraph;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarket;
@@ -16,7 +17,7 @@ import org.jgrapht.graph.SimpleGraph;
 import static java.util.stream.Collectors.toSet;
 
 public class Matching implements Serializable {
-    private SimpleGraph<HousingMarketVertex, DefaultEdge> matchingGraph;
+    private MatchGraph matchingGraph;
     private int nextID = 1; //Since default/'null' int (read: id) is 0.
     private ArrayList<House> houses = new ArrayList<House>();
     private ArrayList<Household> households = new ArrayList<Household>();
@@ -31,7 +32,7 @@ public class Matching implements Serializable {
     private HousingMarket housingMarket;
 
     public Matching(HousingMarket housingMarket) {
-        this.matchingGraph = new SimpleGraph<>(DefaultEdge.class);
+        this.matchingGraph = new MatchGraph();
         this.housingMarket = housingMarket;
     }
 
@@ -482,10 +483,6 @@ public class Matching implements Serializable {
 
     public HousingMarket getHousingMarket() {
         return this.housingMarket;
-    }
-
-    public SimpleGraph<HousingMarketVertex, DefaultEdge> getMatchingGraph() {
-        return this.matchingGraph;
     }
 
     public void randomlyRewire() throws HouseLinkedToMultipleException, HouseLinkedToHouseException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException {

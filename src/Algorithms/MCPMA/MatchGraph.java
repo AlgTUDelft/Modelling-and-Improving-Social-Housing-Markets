@@ -4,9 +4,10 @@ import HousingMarket.HousingMarketVertex;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
+import java.io.Serializable;
 import java.util.Set;
 
-public class MatchGraph {
+public class MatchGraph implements Serializable {
 
     private SimpleGraph<HousingMarketVertex, DefaultEdge> matchGraph;
 
@@ -48,6 +49,10 @@ public class MatchGraph {
 
     public void removeEdge(HousingMarketVertex source, HousingMarketVertex target) {
         this.matchGraph.removeEdge(source, target);
+    }
+
+    public void removeVertex(HousingMarketVertex vertex) {
+        this.matchGraph.removeVertex(vertex);
     }
 
     @Override

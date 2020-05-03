@@ -17,15 +17,17 @@ public class Experimenter {
     private int[] startLines;
     private ArrayList<Double> envRatios;
     private ArrayList<Integer> lineCounts;
+    private float timestepRatio;
 
     public Experimenter(String outputfolder, long allowedRunningTime, int nTimes,
-                        int[] startLines, ArrayList<Double> envRatios, ArrayList<Integer> lineCounts) {
+                        int[] startLines, ArrayList<Double> envRatios, ArrayList<Integer> lineCounts, float timestepRatio) {
         this.outputfolder = outputfolder;
         this.allowedRunningTime = allowedRunningTime;
         this.nTimes = nTimes;
         this.startLines = startLines;
         this.envRatios = envRatios;
         this.lineCounts = lineCounts;
+        this.timestepRatio = timestepRatio;
     }
 
     public void runExperiments() throws Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, HousingMarket.FreeSpaceException, Matching.HouseAlreadyMatchedException, IOException, DynamicMatching.TooManyTimestepsException, InterruptedException {
@@ -63,7 +65,7 @@ public class Experimenter {
                     ArrayList<DynamicMatching> dynamicMatchings = new ArrayList<DynamicMatching>(nTimes);
                     for (int i = 0; i < nTimes; i++) {
                         Matching matching = setupMatching(1, startLines[i], lineCount, envRatio, gradingStrategy);
-                        int timestepCount = (int) (Math.min(matching.getHouses().size(), matching.getHouseholds().size()) / 1.5);
+                        int timestepCount = (int) (Math.min(matching.getHouses().size(), matching.getHouseholds().size()) * timestepRatio);
                         DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
                         dynamicMatchings.add(i, dynamicMatching);
                     }
