@@ -112,29 +112,37 @@ public class Comparer {
 
     public void performSanityCheck(HashMap<AlgorithmStrategy, CompletableFuture<ArrayList<GenericResult>>> results) {
         try {
-            if (results.containsKey(AlgorithmStrategy.MCPMA) && results.containsKey(AlgorithmStrategy.WOSMA_IRCYCLES)) {
-                ArrayList<GenericResult> WOSMA_FindMax = results.get(AlgorithmStrategy.WOSMA_FINDMAX).get();
+            // Compare IR-Cycles with MCPMA.
+            if (results.get(AlgorithmStrategy.WOSMA_IRCYCLES).isDone() && results.get(AlgorithmStrategy.MCPMA).isDone()) {
                 ArrayList<GenericResult> WOSMA_IRCycles = results.get(AlgorithmStrategy.WOSMA_IRCYCLES).get();
                 ArrayList<GenericResult> MCPMA = results.get(AlgorithmStrategy.MCPMA).get();
                 for (int i = 0; i < nTimes; i++) {
-                    float WOSMA_FindMaxScore = WOSMA_FindMax.get(i).getSolvedFinalMatchingAfterwardsScore();
                     float WOSMA_IRCyclesScore = WOSMA_IRCycles.get(i).getSolvedFinalMatchingAfterwardsScore();
                     float MCPMAScore = MCPMA.get(i).getSolvedFinalMatchingAfterwardsScore();
-                    if (WOSMA_FindMaxScore > WOSMA_IRCyclesScore + 0.0001) {
-                        System.err.println("Error 1! Got nonsensical results.");
-//                        while (true) {
-//                            createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES, true)
-//                                    .individualRunDynamic(dynamicMatchings.get(i));
-//                            createNewRunner(AlgorithmStrategy.WOSMA_FINDMAX, true)
-//                                    .individualRunDynamic(dynamicMatchings.get(i));
-//                        }
-                    }
                     if (WOSMA_IRCyclesScore > MCPMAScore + 0.0001) {
                         System.err.println("Error 2! Got nonsensical results.");
 //                        while (true) {
 //                            createNewRunner(AlgorithmStrategy.MCPMA, true)
 //                                    .individualRunStaticMCPMA(dynamicMatchings.get(i));
 //                            createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES, true)
+//                                    .individualRunDynamic(dynamicMatchings.get(i));
+//                        }
+                    }
+                }
+            }
+            // Compare IR-Cycles with WOSMA_FindMax.
+            if (results.get(AlgorithmStrategy.WOSMA_IRCYCLES).isDone() && results.get(AlgorithmStrategy.WOSMA_FINDMAX).isDone()) {
+                ArrayList<GenericResult> WOSMA_FindMax = results.get(AlgorithmStrategy.WOSMA_FINDMAX).get();
+                ArrayList<GenericResult> WOSMA_IRCycles = results.get(AlgorithmStrategy.WOSMA_IRCYCLES).get();
+                for (int i = 0; i < nTimes; i++) {
+                    float WOSMA_FindMaxScore = WOSMA_FindMax.get(i).getSolvedFinalMatchingAfterwardsScore();
+                    float WOSMA_IRCyclesScore = WOSMA_IRCycles.get(i).getSolvedFinalMatchingAfterwardsScore();
+                    if (WOSMA_FindMaxScore > WOSMA_IRCyclesScore + 0.0001) {
+                        System.err.println("Error 1! Got nonsensical results.");
+//                        while (true) {
+//                            createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES, true)
+//                                    .individualRunDynamic(dynamicMatchings.get(i));
+//                            createNewRunner(AlgorithmStrategy.WOSMA_FINDMAX, true)
 //                                    .individualRunDynamic(dynamicMatchings.get(i));
 //                        }
                     }
@@ -154,9 +162,11 @@ public class Comparer {
                                       GradingStrategy gradingStrategy) {
         for (AlgorithmStrategy algorithmStrategy : AlgorithmStrategy.values()) {
             try {
-                ArrayList<GenericResult> algorithmResults = results.get(algorithmStrategy).get();
-                String outputFilename = createFilename(algorithmStrategy, lineCount, matchingEvaluatorStrategy, envRatio, gradingStrategy);
-                new GenericResultProcessor(algorithmResults).resultsToCSV(outputFilename);
+                if (results.get(algorithmStrategy).isDone()) {
+                    ArrayList<GenericResult> algorithmResults = results.get(algorithmStrategy).get();
+                    String outputFilename = createFilename(algorithmStrategy, lineCount, matchingEvaluatorStrategy, envRatio, gradingStrategy);
+                    new GenericResultProcessor(algorithmResults).resultsToCSV(outputFilename);
+                }
             } catch (InterruptedException e) {
                 // Then don't save file.
             } catch (ExecutionException e) {

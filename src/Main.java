@@ -14,7 +14,7 @@ public class Main {
 
         String outputfolder = "../../Data/Output/Scores/";
 
-        long allowedRunningTime = 15_000;
+        long allowedRunningTime = 5_000;
         int maxVal = 150;
         int nTimes = 50;
 
@@ -29,7 +29,7 @@ public class Main {
 
         ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
 //        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12));
-//        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(12, 13, 30, 35, 40, 45, 50, 75, 100, 125, 150));
+//        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
 
         Experimenter experimenter = new Experimenter(outputfolder, allowedRunningTime, nTimes, startLines, envRatios, lineCounts);
         experimenter.runExperiments();

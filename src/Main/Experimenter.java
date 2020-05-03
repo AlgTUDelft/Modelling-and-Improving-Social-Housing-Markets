@@ -76,6 +76,7 @@ public class Experimenter {
                                 lineCount, nTimes, matchingEvaluatorStrategy, envRatio,
                                 gradingStrategy, interruptedAlgorithmStrategies);
                         interruptedAlgorithmStrategies.addAll(comparer.run());
+
                     }
                 }
             }
