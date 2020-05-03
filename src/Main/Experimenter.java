@@ -38,7 +38,6 @@ public class Experimenter {
 
         // Start of execution loop.
         for (double envRatio : envRatios) {
-            envRatio = 1.25;
             for (GradingStrategy gradingStrategy : GradingStrategy.values()) {
                 HashSet<AlgorithmStrategy> interruptedAlgorithmStrategies = new HashSet<>();
 

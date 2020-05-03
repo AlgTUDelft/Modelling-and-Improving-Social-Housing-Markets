@@ -432,8 +432,9 @@ public class Matching implements Serializable {
                 // but we add a check just to be sure.
                 Set<Integer> householdlessHouses = getHouseholdlessHousesIDs();
                 float highestScore = 0;
+                float initialScore = 0;
                 if (householdInitialHouseMap.containsKey(sourceVertex)) {
-                    highestScore = grader.apply(householdInitialHouseMap.get(sourceVertex), sourceVertex);
+                    initialScore = grader.apply(householdInitialHouseMap.get(sourceVertex), sourceVertex);
                 }
                 House bestHouse = null;
                 for (int houseID : householdlessHouses) {
@@ -441,9 +442,17 @@ public class Matching implements Serializable {
                     // or this household didn't want it anyway, since this is not a cycle.
                     if (!housesList.contains(houseID)) {
                         float candidateScore = grader.apply(houseID, sourceVertex);
-                        if (candidateScore >= highestScore) {
+                        if (candidateScore >= highestScore && candidateScore > initialScore) {
                             highestScore = candidateScore;
                             bestHouse = getHouse(houseID);
+                        }
+                    }
+                }
+                if (bestHouse == null) {
+                    if ((householdInitialHouseMap.containsKey(sourceVertex))) {
+                        int initialHouseID = householdInitialHouseMap.get(sourceVertex);
+                        if (householdlessHouses.contains(initialHouseID)) {
+                            bestHouse = getHouse(initialHouseID);
                         }
                     }
                 }

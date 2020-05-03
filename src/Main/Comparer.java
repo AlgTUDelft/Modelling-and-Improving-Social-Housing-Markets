@@ -119,12 +119,12 @@ public class Comparer {
                     float MCPMAScore = MCPMA.get(i).getSolvedFinalMatchingAfterwardsScore();
                     if (WOSMA_IRCyclesScore > MCPMAScore + 0.0001) {
                         System.err.println("Error 1! Got nonsensical results.");
-                        while (true) {
-                            createNewRunner(AlgorithmStrategy.MCPMA, true)
-                                    .individualRunStaticMCPMA(dynamicMatchings.get(i));
-                            createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES, true)
-                                    .individualRunDynamic(dynamicMatchings.get(i));
-                        }
+//                        while (true) {
+//                            createNewRunner(AlgorithmStrategy.MCPMA, true)
+//                                    .individualRunStaticMCPMA(dynamicMatchings.get(i));
+//                            createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES, true)
+//                                    .individualRunDynamic(dynamicMatchings.get(i));
+//                        }
                     }
                 }
             }
@@ -137,12 +137,15 @@ public class Comparer {
                     float WOSMA_IRCyclesScore = WOSMA_IRCycles.get(i).getSolvedFinalMatchingAfterwardsScore();
                     if (WOSMA_FindMaxScore > WOSMA_IRCyclesScore + 0.0001) {
                         System.err.println("Error 2! Got nonsensical results.");
-                        while (true) {
-                            createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES, true)
-                                    .individualRunDynamic(dynamicMatchings.get(i));
-                            createNewRunner(AlgorithmStrategy.WOSMA_FINDMAX, true)
-                                    .individualRunDynamic(dynamicMatchings.get(i));
-                        }
+//                        while (true) {
+//                            createNewRunner(AlgorithmStrategy.WOSMA_IRCYCLES, true)
+//                                    .individualRunDynamic(dynamicMatchings.get(i));
+////                            createNewRunner(AlgorithmStrategy.WOSMA_FINDMAX, false)
+////                                    .individualRunDynamic(dynamicMatchings.get(i));
+//                            System.out.println("");
+//                            System.out.println("");
+//                            System.out.println("Restarting...");
+//                        }
                     }
                 }
             }

@@ -188,12 +188,11 @@ public class TwoLabeledGraph {
                 initialHouse = matching.getHouse(householdInitialHouseMap.get(householdID));
                 initialFit = this.matching.getGrader().apply(initialHouse.getID(), householdID);
             }
-            if (initialFit == 0){
-                // Household initially had no house or had a worthless house, so may be 'moved into houselessness' by IR-Cycles.
-                // Add type3 edge, condition 1.
-                underlyingStrictGraph.addEdge(nil, householdID);
-                underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
-            }
+//
+            // Anyone may, at a first approximation, be moved in such a way that their current house isn't immediately filled up.
+            // Add type3 edge, condition 1.
+            underlyingStrictGraph.addEdge(nil, householdID);
+            underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
 
             float currentFit = 0;
             House currentHouse = matching.getHouseFromHousehold(householdID);
@@ -239,27 +238,14 @@ public class TwoLabeledGraph {
 
         }
 
-        // TODO: Keep this type3cond2-addition here?
         for (Integer householdID : householdIDs) {
-            House currentHouse = matching.getHouseFromHousehold(householdID);
-            // If the household does not own a house, then the following edge will already have been added.
-            if (currentHouse != null) {
-                if (underlyingStrictGraph.incomingEdgesOf(householdID).isEmpty()) {
-                    // Add type 3 edge, condition 2.
-                    // If the above edge-additive process did not cause the current household to receive any incoming
-                    // edges, then the reduced second condition -- there is no worker who strictly desires the current
-                    // household's house -- is fulfilled, meaning the following edge should be added.
-                    underlyingStrictGraph.addEdge(nil, householdID);
-                    underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
-                }
-            }
-
             // Add edge to initial house, which is always allowed with weight initialFit - currentFit.
             // Since initial house just misses the conditions for edges above,
             // we add it separately here, either as an edge to some household currenly owning initialHouse, or to nil.
             // However, if we already have some edge to nil, it means there is some other free house which we prefer.
             // In that case we needn't replace that edge with this lower one.
             if (householdInitialHouseMap.containsKey(householdID)) {
+                House currentHouse = matching.getHouseFromHousehold(householdID);
                 House initialHouse = matching.getHouse(householdInitialHouseMap.get(householdID));
                 float initialFit = this.matching.getGrader().apply(initialHouse.getID(), householdID);
                 float currentFit = 0;

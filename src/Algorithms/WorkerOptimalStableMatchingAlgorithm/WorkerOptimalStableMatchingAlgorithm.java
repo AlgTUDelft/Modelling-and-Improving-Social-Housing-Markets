@@ -17,12 +17,11 @@ public class WorkerOptimalStableMatchingAlgorithm {
     }
 
     public Matching findWorkerOptimalStableMatching(AlgorithmStrategy algorithmStrategy, boolean print) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException, CycleFinder.FullyExploredVertexDiscoveredException, InterruptedException {
-        int i = 1;
         twoLabeledGraph = new TwoLabeledGraph(this.matching, algorithmStrategy);
         List<Integer> cycle;
         cycle = tryToFindCycle(print);
         while (cycle != null) {
-            if(print) { System.out.println("Executing cycle " + i); }
+            if(print) { System.out.println("Executing cycle " + cycle); }
             switch (algorithmStrategy) {
                 case WOSMA_REGULAR:
                 case WOSMA_FINDMAX: this.matching.executeCycle(cycle, twoLabeledGraph.getNil(), print); break;
@@ -30,7 +29,6 @@ public class WorkerOptimalStableMatchingAlgorithm {
             }
             twoLabeledGraph.updateAfterCycleExecution(this.matching);
             cycle = tryToFindCycle(print);
-            i++;
         }
 
         this.matching.resetHouseholdsMovedByWOSMA();

@@ -50,8 +50,14 @@ public class Runner {
         GenericResult genericResult = null;
         try {
 
+            if (print) {
+                System.out.println("Running " + algorithmStrategy);
+            }
             Matching[] matchings = new Matching[2];
             matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(algorithmStrategy, print);
+            if (print) {
+                System.out.println("");
+            }
             matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(algorithmStrategy, print);
 
             float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
