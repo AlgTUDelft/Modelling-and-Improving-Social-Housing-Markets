@@ -44,45 +44,45 @@ public class CustomSLSimpleCycles {
         this.graph = GraphTests.requireDirected(graph, "Graph must be directed");
     }
 
-//    public List<List<Integer>> findSimpleCycles() throws InterruptedException {
-//        if (this.graph == null) {
-//            throw new IllegalArgumentException("Null graph.");
-//        } else {
-//            this.initState();
-//            KosarajuStrongConnectivityInspector<Integer, DefaultWeightedEdge> inspector = new KosarajuStrongConnectivityInspector(this.graph);
-//            List<Set<Integer>> sccs = inspector.stronglyConnectedSets();
-//            Iterator var3 = sccs.iterator();
-//
-//            while(var3.hasNext()) {
-//                Set<Integer> scc = (Set)var3.next();
-//                int maxInDegree = -1;
-//                Integer startVertex = null;
-//                Iterator var7 = scc.iterator();
-//
-//                while(var7.hasNext()) {
-//                    Integer integer = (Integer) var7.next();
-//                    int inDegree = this.graph.inDegreeOf(integer);
-//                    if (inDegree > maxInDegree) {
-//                        maxInDegree = inDegree;
-//                        startVertex = integer;
-//                    }
-//                }
-//
-//                this.startVertices.add(startVertex);
-//            }
-//
-//            var3 = this.startVertices.iterator();
-//
-//            while(var3.hasNext()) {
-//                Integer vertex = (Integer) var3.next();
-//                this.cycle(this.toI(vertex), 0);
-//            }
-//
-//            List<List<Integer>> result = this.cycles;
-//            this.clearState();
-//            return result;
-//        }
-//    }
+    public List<List<Integer>> findSimpleCycles() throws InterruptedException {
+        if (this.graph == null) {
+            throw new IllegalArgumentException("Null graph.");
+        } else {
+            this.initState();
+            KosarajuStrongConnectivityInspector<Integer, DefaultWeightedEdge> inspector = new KosarajuStrongConnectivityInspector(this.graph);
+            List<Set<Integer>> sccs = inspector.stronglyConnectedSets();
+            Iterator var3 = sccs.iterator();
+
+            while(var3.hasNext()) {
+                Set<Integer> scc = (Set)var3.next();
+                int maxInDegree = -1;
+                Integer startVertex = null;
+                Iterator var7 = scc.iterator();
+
+                while(var7.hasNext()) {
+                    Integer integer = (Integer) var7.next();
+                    int inDegree = this.graph.inDegreeOf(integer);
+                    if (inDegree > maxInDegree) {
+                        maxInDegree = inDegree;
+                        startVertex = integer;
+                    }
+                }
+
+                this.startVertices.add(startVertex);
+            }
+
+            var3 = this.startVertices.iterator();
+
+            while(var3.hasNext()) {
+                Integer vertex = (Integer) var3.next();
+                this.cycleMultiple(this.toI(vertex), 0);
+            }
+
+            List<List<Integer>> result = this.cycles;
+            this.clearState();
+            return result;
+        }
+    }
 
     public List<Integer> findSimpleCycle() throws InterruptedException {
         if (this.graph == null) {
@@ -115,7 +115,7 @@ public class CustomSLSimpleCycles {
 
             while(var3.hasNext() && cycles.isEmpty()) {
                 Integer vertex = (Integer) var3.next();
-                this.cycle(this.toI(vertex), 0);
+                this.cycleSingle(this.toI(vertex), 0);
             }
 
             List<List<Integer>> cycles = this.cycles;
@@ -128,7 +128,7 @@ public class CustomSLSimpleCycles {
         }
     }
 
-    private boolean cycle(int v, int q) throws InterruptedException {
+    private boolean cycleMultiple(int v, int q) throws InterruptedException {
         if (Thread.interrupted()) {
             throw new InterruptedException();
         }
@@ -168,7 +168,84 @@ public class CustomSLSimpleCycles {
 
                 int w = this.toI((Integer) wV);
                 if (!this.marked.contains(wV)) {
-                    boolean gotCycle = this.cycle(w, q);
+                    boolean gotCycle = this.cycleMultiple(w, q);
+                    if (gotCycle) {
+                        foundCycle = true;
+                    } else {
+                        this.noCycle(v, w);
+                    }
+                } else if (this.position[w] > q) {
+                    this.noCycle(v, w);
+                } else {
+                    foundCycle = true;
+                    List<Integer> cycle = new ArrayList();
+                    Iterator it = this.stack.descendingIterator();
+
+                    Object current;
+                    while(it.hasNext()) {
+                        current = it.next();
+                        if (wV.equals(current)) {
+                            break;
+                        }
+                    }
+
+                    cycle.add((Integer) wV);
+
+                    while(it.hasNext()) {
+                        current = it.next();
+                        cycle.add((Integer) current);
+                        if (current.equals(vInteger)) {
+                            break;
+                        }
+                    }
+
+                    this.cycles.add(cycle);
+                }
+            }
+        }
+    }
+
+    private boolean cycleSingle(int v, int q) throws InterruptedException {
+        if (Thread.interrupted()) {
+            throw new InterruptedException();
+        }
+
+        boolean foundCycle = false;
+        Integer vInteger = this.toV(v);
+        this.marked.add(vInteger);
+        this.stack.push(vInteger);
+        int t = this.stack.size();
+        this.position[v] = t;
+        if (!this.reach[v]) {
+            q = t;
+        }
+
+        Set<Integer> avRemoved = this.getRemoved(vInteger);
+        Set<DefaultWeightedEdge> edgeSet = this.graph.outgoingEdgesOf(vInteger);
+        Iterator var8 = edgeSet.iterator();
+
+        while(true) {
+            while(true) {
+                Object wV;
+                do {
+                    if (!var8.hasNext()) {
+                        this.stack.pop();
+                        if (foundCycle) {
+                            this.unmark(v);
+                        }
+
+                        this.reach[v] = true;
+                        this.position[v] = this.graph.vertexSet().size();
+                        return foundCycle;
+                    }
+
+                    DefaultWeightedEdge defaultWeightedEdge = (DefaultWeightedEdge) var8.next();
+                    wV = this.graph.getEdgeTarget(defaultWeightedEdge);
+                } while(avRemoved.contains(wV));
+
+                int w = this.toI((Integer) wV);
+                if (!this.marked.contains(wV)) {
+                    boolean gotCycle = this.cycleSingle(w, q);
                     if (gotCycle) {
                         foundCycle = true;
 

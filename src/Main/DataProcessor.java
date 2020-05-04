@@ -8,6 +8,8 @@ import HousingMarket.HouseAndHouseholdPair;
 import HousingMarket.HouseAndHouseholdIDPair;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
+import org.apache.commons.collections4.iterators.ArrayIterator;
+import org.apache.commons.math3.distribution.NormalDistribution;
 
 import java.io.*;
 import java.util.HashMap;
@@ -91,7 +93,8 @@ public class DataProcessor implements Serializable {
         }
 
         matching = processEnv(matching, envRatio);
-        matching.setGrader(createGrader(matching, gradingStrategy));
+        GraderCreator graderCreator = new GraderCreator(gradingStrategy);
+        matching.setGrader(graderCreator.createGrader(matching));
         return this.matching;
     }
 
@@ -149,39 +152,6 @@ public class DataProcessor implements Serializable {
     }
 
 
-    public Grader createGrader(Matching matching, GradingStrategy gradingStrategy) {
-        BiFunction<Integer, Integer, Float> func = null;
-        switch (gradingStrategy) {
-            case MatchingEvaluatorAVG:
-            case MatchingEvaluatorMIN:
-                MatchingEvaluator matchingEvaluator = new MatchingEvaluator(matching, gradingStrategy);
-                func = (BiFunction<Integer, Integer, Float> & Serializable)
-                        (Integer id1, Integer id2) -> {
-                            float result = 0;
-                            try {
-                                // TODO: Isolate ME.
-                                result = matchingEvaluator.evaluateIndividualTotalFit(id1, id2);
-                            } catch (MatchingEvaluator.HouseholdIncomeTooHighException e) {
-                                e.printStackTrace();
-                            }
-                            return result;
-                        };
-                break;
-            case Random:
-                HashMap<HouseAndHouseholdIDPair, Float> randomMap = new HashMap();
-                    for (House house : matching.getHouses()) {
-                        for (Household household : matching.getHouseholds()) {
-                            float rand = new Random().nextFloat();
-                            randomMap.put(new HouseAndHouseholdIDPair(house.getID(), household.getID()), rand);
-                        }
-                    }
-                 func = (BiFunction<Integer, Integer, Float> & Serializable)
-                        (Integer id1, Integer id2) -> randomMap.get(new HouseAndHouseholdIDPair(id1, id2));
-                break;
-        }
-        return new Grader(func);
-    }
-
 
 
     public Matching processEnv(Matching matching, double envRatio) {
@@ -211,6 +181,5 @@ public class DataProcessor implements Serializable {
         }
         return matching;
     }
-
 }
 

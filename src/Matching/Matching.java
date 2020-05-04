@@ -543,6 +543,9 @@ public class Matching implements Serializable {
     }
 
     public String toString() {
+        if (grader == null) {
+            return this.households.toString();
+        }
         String result = this.households + " -- (";
         int i = 0;
         for (Household household : households) {

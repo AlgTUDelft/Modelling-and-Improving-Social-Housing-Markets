@@ -14,7 +14,7 @@ public class Main {
 
         String outputfolder = "../../Data/Output/Scores/";
 
-        long allowedRunningTime = 30_000;
+        long allowedRunningTime = 1_000;
         int maxVal = 150;
         int nTimes = 50;
         float timestepRatio = 2/3f;

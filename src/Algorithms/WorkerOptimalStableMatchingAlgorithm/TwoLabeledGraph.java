@@ -316,11 +316,10 @@ public class TwoLabeledGraph {
 
     private List<Integer> findCycleFindMax(boolean print) throws InterruptedException {
         List<Integer> cycle;
-        // Not custom version because custom version has been modified to fit IR-Cycles.
-        SzwarcfiterLauerSimpleCycles<Integer, DefaultWeightedEdge> szwarcfiterLauerSimpleCycles
-                = new SzwarcfiterLauerSimpleCycles<>(underlyingStrictGraph);
+        CustomSLSimpleCycles customSLSimpleCycles
+                = new CustomSLSimpleCycles(underlyingStrictGraph);
         try {
-            List<List<Integer>> cycles = szwarcfiterLauerSimpleCycles.findSimpleCycles();
+            List<List<Integer>> cycles = customSLSimpleCycles.findSimpleCycles();
             if (print) {
                 System.out.println("SL found " + cycles.size() + " cycles.");
             }
