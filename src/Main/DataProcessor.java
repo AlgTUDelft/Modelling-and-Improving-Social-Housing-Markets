@@ -156,6 +156,9 @@ public class DataProcessor implements Serializable {
 
     public Matching processEnv(Matching matching, double envRatio) {
         // envRatio denotes desired House:Household ratio.
+        // 1 means equal.
+        // <1 means too few houses.
+        // >1 means more than enough houses.
         float currentRatio = matching.getHouses().size()/matching.getHouseholds().size();
         // Ratio already good.
         if (currentRatio == envRatio) {
