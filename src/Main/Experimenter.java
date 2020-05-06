@@ -40,9 +40,11 @@ public class Experimenter {
 
         // Start of execution loop.
         for (double envRatio : envRatios) {
+            HashMap<GradingStrategy, HashSet<AlgorithmStrategy>> interruptedAlgorithmStrategies = new HashMap();
+            for (GradingStrategy gradingStrategy : GradingStrategy.values()) {
+                interruptedAlgorithmStrategies.put(gradingStrategy, new HashSet<>());
+            }
             for (int lineCount : lineCounts) {
-                HashSet<AlgorithmStrategy> interruptedAlgorithmStrategies = new HashSet<>();
-
 
                 boolean oneSided = false;
 
@@ -60,7 +62,7 @@ public class Experimenter {
                 // For each matching size...
                 for (GradingStrategy gradingStrategy : GradingStrategy.values()) {
                     // Unless there are no more algorithms left to run...
-                    if (interruptedAlgorithmStrategies.size() == AlgorithmStrategy.values().length) {
+                    if (interruptedAlgorithmStrategies.get(gradingStrategy).size() == AlgorithmStrategy.values().length) {
                         break;
                     }
 
@@ -78,8 +80,10 @@ public class Experimenter {
                     // Run and compare all algorithms as necessary, then add newly interrupted algorithms to set.
                     Comparer comparer = new Comparer(dynamicMatchings, allowedRunningTime,
                             lineCount, nTimes, envRatio,
-                            gradingStrategy, interruptedAlgorithmStrategies);
-                    interruptedAlgorithmStrategies.addAll(comparer.run());
+                            gradingStrategy, interruptedAlgorithmStrategies.get(gradingStrategy));
+                    HashSet<AlgorithmStrategy> newSet = interruptedAlgorithmStrategies.get(gradingStrategy);
+                    newSet.addAll(comparer.run());
+                    interruptedAlgorithmStrategies.put(gradingStrategy, newSet);
 
                 }
             }
