@@ -53,10 +53,14 @@ public class GraderCreator {
                 break;
             case NormalDistLowVar:
             case NormalDistHighVar:
+            case NormalDistLowVarConstrained:
+            case NormalDistHighVarConstrained:
                 func = calculateNormalDistributionValues(matching);
                 break;
             case ExpDistLowLambda:
             case ExpDistHighLambda:
+            case ExpDistLowLambdaConstrained:
+            case ExpDistHighLambdaConstrained:
                 func = calculateExponentialDistributionValues(matching);
                 break;
         }
@@ -66,12 +70,23 @@ public class GraderCreator {
     public BiFunction<Integer, Integer, Float> calculateNormalDistributionValues(Matching matching) {
         double mean = 0.5;
         double var = 1/6f; // Default value, unused.
+        boolean constrain = false; // Default value, unused.
         switch (gradingStrategy) {
             case NormalDistLowVar:
                 var = 1/18f;
+                constrain = false;
                 break;
             case NormalDistHighVar:
                 var = 1/6f;
+                constrain = false;
+                break;
+            case NormalDistLowVarConstrained:
+                var = 1/18f;
+                constrain = true;
+                break;
+            case NormalDistHighVarConstrained:
+                var = 1/6f;
+                constrain = true;
                 break;
         }
         NormalDistribution normalDistribution = new NormalDistribution(mean, var);
@@ -81,6 +96,9 @@ public class GraderCreator {
         for (House house : matching.getHouses()) {
             for (Household household : matching.getHouseholds()) {
                 double val = samplesIterator.next(); // Exists by definition.
+                if (constrain) {
+                    val = Math.round(val * 3)/3f;
+                }
                 // These two cases should happen very rarely in both gradingStrategies.
                 if (val < 0) {
                     val = 0;
@@ -96,12 +114,23 @@ public class GraderCreator {
 
     public BiFunction<Integer,Integer,Float> calculateExponentialDistributionValues(Matching matching) {
         double lambda = 1; // Default value, unused.
+        boolean constrain = false; // Default value, unused.
         switch(gradingStrategy) {
             case ExpDistLowLambda:
                 lambda = 1;
+                constrain = false;
                 break;
             case ExpDistHighLambda:
                 lambda = 5;
+                constrain = false;
+                break;
+            case ExpDistLowLambdaConstrained:
+                lambda = 1;
+                constrain = true;
+                break;
+            case ExpDistHighLambdaConstrained:
+                lambda = 5;
+                constrain = true;
                 break;
         }
 //        ExponentialDistribution exponentialDistribution = new ExponentialDistribution(mean);
@@ -111,6 +140,9 @@ public class GraderCreator {
         for (House house : matching.getHouses()) {
             for (Household household : matching.getHouseholds()) {
                 double val = samplesIterator.next(); // Exists by definition.
+                if (constrain) {
+                    val = Math.round(val*3)/3f;
+                }
                 valuesMap.put(new HouseAndHouseholdIDPair(house.getID(), household.getID()), (float) val);
             }
         }

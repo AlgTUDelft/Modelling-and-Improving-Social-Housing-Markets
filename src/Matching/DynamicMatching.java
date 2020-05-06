@@ -1,5 +1,6 @@
 package Matching;
 
+import Algorithms.Simple;
 import Main.AlgorithmStrategy;
 import Algorithms.MCPMA.*;
 import Algorithms.WorkerOptimalStableMatchingAlgorithm.CycleFinder;
@@ -134,6 +135,10 @@ public class DynamicMatching implements Serializable {
                 MCPMAOnMatchingRunner mcpmaOnMatchingRunner
                     = new MCPMAOnMatchingRunner(currentMatching, MCPMAStrategy.IMPROVEMENT);
                 currentMatching = mcpmaOnMatchingRunner.optimizeMatching(print);
+                break;
+            case SIMPLE:
+                Simple simple = new Simple(currentMatching);
+                currentMatching = simple.run();
                 break;
         }
     }

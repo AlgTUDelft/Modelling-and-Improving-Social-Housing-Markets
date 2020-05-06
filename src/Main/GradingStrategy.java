@@ -1,12 +1,16 @@
 package Main;
 
 public enum GradingStrategy {
-    ExpDistHighLambda,
     ExpDistLowLambda,
+    ExpDistHighLambda,
+    ExpDistLowLambdaConstrained,
+    ExpDistHighLambdaConstrained,
     MatchingEvaluatorAVG,
     MatchingEvaluatorMIN,
 //    PerfectAgreement,
     NormalDistLowVar,
     NormalDistHighVar,
+    NormalDistLowVarConstrained,
+    NormalDistHighVarConstrained,
     Random
 }

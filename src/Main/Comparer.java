@@ -64,7 +64,7 @@ public class Comparer {
         }
 
         processAndSaveResults(results, lineCount,envRatio, gradingStrategy);
-        performSanityCheck(results);
+//        performSanityCheck(results);
         return toInterrupt;
     }
 
@@ -83,6 +83,7 @@ public class Comparer {
             case WOSMA_FINDMAX:
             case WOSMA_IRCYCLES:
             case IMPROVEMENT_MCPMA:
+            case SIMPLE:
                 thread = new Thread(runner.runDynamic(resultsPerAlgorithm));
                 break;
             case MCPMA:
@@ -185,7 +186,8 @@ public class Comparer {
             case WOSMA_REGULAR:
             case WOSMA_FINDMAX:
             case WOSMA_IRCYCLES:
-            case IMPROVEMENT_MCPMA: outputFilename += "dyn-"; break;
+            case IMPROVEMENT_MCPMA:
+            case SIMPLE: outputFilename += "dyn-"; break;
             case MCPMA: outputFilename += "static-"; break;
         }
 
@@ -200,6 +202,8 @@ public class Comparer {
                 outputFilename += "WOSMAIRCycles-"; break;
             case IMPROVEMENT_MCPMA:
                 outputFilename += "ImprovementMCPMA-"; break;
+            case SIMPLE:
+                outputFilename += "Simple-"; break;
         }
         outputFilename += "50times" + lineCount + "-" + envRatio + "-" + gradingStrategy + "-100prob-twosided.csv";
         return outputFilename;

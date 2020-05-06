@@ -5,5 +5,6 @@ public enum AlgorithmStrategy {
     WOSMA_FINDMAX,
     WOSMA_IRCYCLES,
     IMPROVEMENT_MCPMA,
+    SIMPLE,
     MCPMA
 }
