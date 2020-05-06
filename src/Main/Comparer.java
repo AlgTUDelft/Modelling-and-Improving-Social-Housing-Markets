@@ -52,7 +52,7 @@ public class Comparer {
                 CompletableFuture<ArrayList<GenericResult>> resultsPerAlgorithm = results.get(algorithmStrategy);
 
 
-                boolean interrupted = this.runAlgorithm(resultsPerAlgorithm, algorithmStrategy);
+                boolean interrupted = this.runAlgorithm(resultsPerAlgorithm, algorithmStrategy, gradingStrategy);
 
                 if (interrupted) {
                     System.out.println("Interrupted: " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | " + algorithmStrategy);
@@ -72,7 +72,7 @@ public class Comparer {
         return new Runner(dynamicMatchings, nTimes, algorithmStrategy, print);
     }
 
-    public boolean runAlgorithm(CompletableFuture<ArrayList<GenericResult>> resultsPerAlgorithm, AlgorithmStrategy algorithmStrategy) throws InterruptedException
+    public boolean runAlgorithm(CompletableFuture<ArrayList<GenericResult>> resultsPerAlgorithm, AlgorithmStrategy algorithmStrategy, GradingStrategy gradingStrategy) throws InterruptedException
     {
         boolean tookTooLong = false;
         Thread thread = null;
@@ -84,10 +84,10 @@ public class Comparer {
             case WOSMA_IRCYCLES:
             case IMPROVEMENT_MCPMA:
             case SIMPLE:
-                thread = new Thread(runner.runDynamic(resultsPerAlgorithm));
+                thread = new Thread(runner.runDynamic(resultsPerAlgorithm, gradingStrategy));
                 break;
             case MCPMA:
-                thread = new Thread(runner.runStaticMCPMA(resultsPerAlgorithm));
+                thread = new Thread(runner.runStaticMCPMA(resultsPerAlgorithm, gradingStrategy));
                 break;
         }
 

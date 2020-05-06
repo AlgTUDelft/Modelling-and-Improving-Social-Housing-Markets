@@ -2,6 +2,7 @@ package Algorithms;
 
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
+import Main.GradingStrategy;
 import Matching.Matching;
 
 import java.util.ArrayList;
@@ -12,9 +13,11 @@ import static Miscellaneous.DeepCloner.deepClone;
 public class Simple {
 
     private Matching matching;
+    private GradingStrategy gradingStrategy;
 
-    public Simple(Matching matching) {
+    public Simple(Matching matching, GradingStrategy gradingStrategy) {
         this.matching = matching;
+        this.gradingStrategy = gradingStrategy;
     }
 
     public Matching run() throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException {
@@ -27,13 +30,13 @@ public class Simple {
             boolean hasHouse = false;
             if (matching.getHouseFromHousehold(household.getID()) != null) {
                 House currentHouse = matching.getHouseFromHousehold(household.getID());
-                currentFit = matching.grade(currentHouse.getID(), household.getID());
+                currentFit = matching.grade(currentHouse.getID(), household.getID(), gradingStrategy);
                 hasHouse = true;
             }
             float highscore = currentFit;
             int bestHouseID = -1;
             for (int ID : initiallyEmptyHouseIDs) {
-                float candidateFit = matching.grade(ID, household.getID());
+                float candidateFit = matching.grade(ID, household.getID(), gradingStrategy);
                 if (candidateFit > highscore) {
                     highscore = candidateFit;
                     bestHouseID = ID;

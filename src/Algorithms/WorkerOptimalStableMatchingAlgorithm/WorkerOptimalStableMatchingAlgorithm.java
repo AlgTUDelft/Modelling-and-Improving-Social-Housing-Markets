@@ -1,6 +1,7 @@
 package Algorithms.WorkerOptimalStableMatchingAlgorithm;
 
 import Main.AlgorithmStrategy;
+import Main.GradingStrategy;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
 
@@ -16,16 +17,16 @@ public class WorkerOptimalStableMatchingAlgorithm {
         this.matching = (Matching) deepClone(matching);
     }
 
-    public Matching findWorkerOptimalStableMatching(AlgorithmStrategy algorithmStrategy, boolean print) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException, CycleFinder.FullyExploredVertexDiscoveredException, InterruptedException {
-        twoLabeledGraph = new TwoLabeledGraph(this.matching, algorithmStrategy);
+    public Matching findWorkerOptimalStableMatching(AlgorithmStrategy algorithmStrategy, GradingStrategy gradingStrategy, boolean print) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, Matching.PreferredNoHouseholdlessHouseException, CycleFinder.FullyExploredVertexDiscoveredException, InterruptedException {
+        twoLabeledGraph = new TwoLabeledGraph(this.matching, algorithmStrategy, gradingStrategy);
         List<Integer> cycle;
         cycle = tryToFindCycle(print);
         while (cycle != null) {
             if(print) { System.out.println("Executing cycle " + cycle); }
             switch (algorithmStrategy) {
                 case WOSMA_REGULAR:
-                case WOSMA_FINDMAX: this.matching.executeCycle(cycle, twoLabeledGraph.getNil(), print); break;
-                case WOSMA_IRCYCLES: this.matching.executeCycleIRCycles(cycle, twoLabeledGraph.getNil(), twoLabeledGraph.getHouseholdInitialHouseMap(), print); break;
+                case WOSMA_FINDMAX: this.matching.executeCycle(cycle, twoLabeledGraph.getNil(), print, gradingStrategy); break;
+                case WOSMA_IRCYCLES: this.matching.executeCycleIRCycles(cycle, twoLabeledGraph.getNil(), twoLabeledGraph.getHouseholdInitialHouseMap(), print, gradingStrategy); break;
             }
             twoLabeledGraph.updateAfterCycleExecution(this.matching);
             cycle = tryToFindCycle(print);

@@ -3,6 +3,7 @@ package Algorithms.MCPMA;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarketVertex;
+import Main.GradingStrategy;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
 import org.jgrapht.graph.DefaultEdge;
@@ -17,10 +18,10 @@ public class MCPMAOnMatchingRunner {
     private MatchGraph matchGraph;
     private MCPMA MCPMA;
 
-    public MCPMAOnMatchingRunner(Matching matching, MCPMAStrategy mcpmaStrategy) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MCPMA.UnequalSidesException, InterruptedException {
+    public MCPMAOnMatchingRunner(Matching matching, MCPMAStrategy mcpmaStrategy, GradingStrategy gradingStrategy) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MCPMA.UnequalSidesException, InterruptedException {
         this.matching = (Matching) deepClone(matching);
         this.mcpmaStrategy = mcpmaStrategy;
-        improvementGraph = new ImprovementGraph(this.matching, mcpmaStrategy);
+        improvementGraph = new ImprovementGraph(this.matching, mcpmaStrategy, gradingStrategy);
         MCPMA = new MCPMA(improvementGraph, mcpmaStrategy);
     }
 

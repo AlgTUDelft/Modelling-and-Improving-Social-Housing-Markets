@@ -23,7 +23,7 @@ public class Runner {
         this.print = print;
     }
 
-    public Runnable runDynamic(CompletableFuture<ArrayList<GenericResult>> resultsForAlgorithm) {
+    public Runnable runDynamic(CompletableFuture<ArrayList<GenericResult>> resultsForAlgorithm, GradingStrategy gradingStrategy) {
         return () -> {
 
 
@@ -33,7 +33,7 @@ public class Runner {
             for (int i = 0; i < nTimes; i++) {
                 try {
                     DynamicMatching dynamicMatching = dynamicMatchings.get(i);
-                    results.add(i, individualRunDynamic(dynamicMatching));
+                    results.add(i, individualRunDynamic(dynamicMatching, gradingStrategy));
                 } catch (InterruptedException e) {
                     interrupted = true;
                     break;
@@ -46,7 +46,7 @@ public class Runner {
         };
     }
 
-    public GenericResult individualRunDynamic(DynamicMatching dynamicMatching) throws InterruptedException {
+    public GenericResult individualRunDynamic(DynamicMatching dynamicMatching, GradingStrategy gradingStrategy) throws InterruptedException {
         GenericResult genericResult = null;
         try {
 
@@ -54,13 +54,13 @@ public class Runner {
                 System.out.println("Running " + algorithmStrategy);
             }
             Matching[] matchings = new Matching[2];
-            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(algorithmStrategy, print);
+            matchings[0] = dynamicMatching.advanceTimeAndSolvePerStepAndReset(algorithmStrategy, gradingStrategy, print);
             if (print) {
                 System.out.println("");
             }
-            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(algorithmStrategy, print);
+            matchings[1] = dynamicMatching.advanceTimeFullyThenSolveAndReset(algorithmStrategy, gradingStrategy, print);
 
-            float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
+            float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings, gradingStrategy);
             genericResult = new GenericResult(scores[0], scores[1]);
 
         } catch (MCPMAPrices.AlreadyInitiatedException | Matching.HouseLinkedToMultipleException | Matching.HouseIDAlreadyPresentException | Matching.HouseholdLinkedToHouseholdException | Matching.HouseLinkedToHouseException | Matching.PreferredNoHouseholdlessHouseException | ResidualGraph.MatchGraphNotEmptyException | CycleFinder.FullyExploredVertexDiscoveredException | Matching.HouseholdIDAlreadyPresentException | ResidualGraph.PathEdgeNotInResidualGraphException | MCPMA.UnequalSidesException | MatchingEvaluator.HouseholdIncomeTooHighException | Matching.HouseAlreadyMatchedException | Matching.HouseholdLinkedToMultipleException | Matching.HouseholdAlreadyMatchedException e) {
@@ -70,7 +70,7 @@ public class Runner {
         return genericResult;
     }
 
-    public Runnable runStaticMCPMA(CompletableFuture<ArrayList<GenericResult>> resultsForAlgorithm) {
+    public Runnable runStaticMCPMA(CompletableFuture<ArrayList<GenericResult>> resultsForAlgorithm, GradingStrategy gradingStrategy) {
         return () -> {
 
             ArrayList<GenericResult> mcpmaResults
@@ -79,7 +79,7 @@ public class Runner {
             for (int i = 0; i < nTimes; i++) {
                 try {
                     DynamicMatching dynamicMatching = dynamicMatchings.get(i);
-                    mcpmaResults.add(i, individualRunStaticMCPMA(dynamicMatching));
+                    mcpmaResults.add(i, individualRunStaticMCPMA(dynamicMatching, gradingStrategy));
                 } catch (InterruptedException e) {
                     interrupted = true;
                     break;
@@ -93,16 +93,16 @@ public class Runner {
         };
     }
 
-    public GenericResult individualRunStaticMCPMA(DynamicMatching dynamicMatching) throws InterruptedException {
+    public GenericResult individualRunStaticMCPMA(DynamicMatching dynamicMatching, GradingStrategy gradingStrategy) throws InterruptedException {
         GenericResult mcpmaResult = null;
         try {
             Matching matching = dynamicMatching.getInputMatching();
-            MCPMAOnMatchingRunner mcpmaOnMatchingRunner = new MCPMAOnMatchingRunner(matching, MCPMAStrategy.REGULAR);
+            MCPMAOnMatchingRunner mcpmaOnMatchingRunner = new MCPMAOnMatchingRunner(matching, MCPMAStrategy.REGULAR, gradingStrategy);
             Matching result = mcpmaOnMatchingRunner.optimizeMatching(print);
             Matching[] matchings = new Matching[1];
             matchings[0] = result;
 
-            float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings);
+            float[] scores = evaluateMatchingsAverageIndividualTotalFit(matchings, gradingStrategy);
 
             mcpmaResult = new GenericResult(scores[0], scores[0]);
 
@@ -117,10 +117,10 @@ public class Runner {
 
 
 
-    public static float[] evaluateMatchingsAverageIndividualTotalFit(Matching[] matchings) throws MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
+    public static float[] evaluateMatchingsAverageIndividualTotalFit(Matching[] matchings, GradingStrategy gradingStrategy) throws MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         float[] scores = new float[matchings.length];
         for (int i = 0; i < matchings.length; i++) {
-            scores[i] = matchings[i].gradeAverage();
+            scores[i] = matchings[i].gradeAverage(gradingStrategy);
         }
         return scores;
     }

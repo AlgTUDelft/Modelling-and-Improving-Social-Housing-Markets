@@ -3,6 +3,7 @@ package Algorithms.MCPMA;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
 import HousingMarket.HousingMarketVertex;
+import Main.GradingStrategy;
 import Matching.Matching;
 import Main.Grader;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -23,7 +24,7 @@ public class ImprovementGraph {
     Grader grader;
 
     // Warning: This algorithm takes only empty houses into account if MCPMAStrategy == Improvement.
-    public ImprovementGraph(Matching matching, MCPMAStrategy mcpmaStrategy) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
+    public ImprovementGraph(Matching matching, MCPMAStrategy mcpmaStrategy, GradingStrategy gradingStrategy) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {
         this.matching = matching;
         this.grader = matching.getGrader();
         this.households = new ArrayList<>(matching.getHouseholds().size());
@@ -81,10 +82,10 @@ public class ImprovementGraph {
             // TODO: change floats to doubles
             float currentHouseholdFit = 0;
             if (currentHouseholdMatch != null) {
-                currentHouseholdFit = grader.apply(currentHouseholdMatch.getID(), household.getID());
+                currentHouseholdFit = grader.apply(currentHouseholdMatch.getID(), household.getID(), gradingStrategy);
             }
             for (House house : this.houses) {
-                float fitWithHouse = grader.apply(house.getID(), household.getID());
+                float fitWithHouse = grader.apply(house.getID(), household.getID(), gradingStrategy);
                 DefaultWeightedEdge edge = this.improvementGraph.addEdge(house, household);
                 switch (mcpmaStrategy) {
                     case REGULAR:

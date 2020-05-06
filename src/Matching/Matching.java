@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import Main.Grader;
+import Main.GradingStrategy;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
@@ -44,17 +45,17 @@ public class Matching implements Serializable {
         return grader;
     }
 
-    public float grade(int houseID, int householdID) {
-        return grader.apply(houseID, householdID);
+    public float grade(int houseID, int householdID, GradingStrategy gradingStrategy) {
+        return grader.apply(houseID, householdID, gradingStrategy);
     }
 
-    public float gradeAverage() throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException {
+    public float gradeAverage(GradingStrategy gradingStrategy) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException {
         float scoreSum = 0;
         int scoreCount = 0;
         for (Household household : households) {
             House house = this.getHouseFromHousehold(household.getID());
             if (house != null) {
-                scoreSum += grade(house.getID(), household.getID());
+                scoreSum += grade(house.getID(), household.getID(), gradingStrategy);
                 scoreCount++;
             } else {
                 scoreCount++;
@@ -288,7 +289,7 @@ public class Matching implements Serializable {
     }
 
     // Part of the WorkerOptimalStableMatchingAlgorithm.
-    public void executeCycle(List<Integer> cycle, int nilValue, boolean print) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
+    public void executeCycle(List<Integer> cycle, int nilValue, boolean print, GradingStrategy gradingStrategy) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
         int edgesCount = cycle.size();
 
         boolean isChain = false;
@@ -346,14 +347,14 @@ public class Matching implements Serializable {
                 if (housesList.get(i) == null) {
                     highestScore = 0;
                 } else {
-                    highestScore = grader.apply(housesList.get(i), sourceVertex);
+                    highestScore = grader.apply(housesList.get(i), sourceVertex, gradingStrategy);
                 }
                 House bestHouse = null;
                 for (int houseID : householdlessHouses) {
                     // _housesList_ houses will either go to *another* household in the chain,
                     // or this household didn't want it anyway, since this is not a cycle.
                     if (!housesList.contains(houseID)) {
-                        float candidateScore = grader.apply(houseID, sourceVertex);
+                        float candidateScore = grader.apply(houseID, sourceVertex, gradingStrategy);
                         if (candidateScore >= highestScore) {
                             highestScore = candidateScore;
                             bestHouse = getHouse(houseID);
@@ -378,7 +379,7 @@ public class Matching implements Serializable {
         }
     }
 
-    public void executeCycleIRCycles(List<Integer> cycle, int nilValue, HashMap<Integer, Integer> householdInitialHouseMap, boolean print) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
+    public void executeCycleIRCycles(List<Integer> cycle, int nilValue, HashMap<Integer, Integer> householdInitialHouseMap, boolean print, GradingStrategy gradingStrategy) throws HouseholdLinkedToMultipleException, HouseholdLinkedToHouseholdException, HouseholdAlreadyMatchedException, HouseAlreadyMatchedException, MatchingEvaluator.HouseholdIncomeTooHighException, PreferredNoHouseholdlessHouseException {
         int edgesCount = cycle.size();
 
         boolean isChain = false;
@@ -435,14 +436,14 @@ public class Matching implements Serializable {
                 float highestScore = 0;
                 float initialScore = 0;
                 if (householdInitialHouseMap.containsKey(sourceVertex)) {
-                    initialScore = grader.apply(householdInitialHouseMap.get(sourceVertex), sourceVertex);
+                    initialScore = grader.apply(householdInitialHouseMap.get(sourceVertex), sourceVertex, gradingStrategy);
                 }
                 House bestHouse = null;
                 for (int houseID : householdlessHouses) {
                     // _housesList_ houses will either go to *another* household in the chain,
                     // or this household didn't want it anyway, since this is not a cycle.
                     if (!housesList.contains(houseID)) {
-                        float candidateScore = grader.apply(houseID, sourceVertex);
+                        float candidateScore = grader.apply(houseID, sourceVertex, gradingStrategy);
                         if (candidateScore >= highestScore && candidateScore > initialScore) {
                             highestScore = candidateScore;
                             bestHouse = getHouse(houseID);
@@ -460,7 +461,7 @@ public class Matching implements Serializable {
                 if (bestHouse == null) {
                     if (!householdInitialHouseMap.containsKey(sourceVertex)
                             || (householdInitialHouseMap.containsKey(sourceVertex)
-                            && grader.apply(householdInitialHouseMap.get(sourceVertex), sourceVertex) == 0.0)) {
+                            && grader.apply(householdInitialHouseMap.get(sourceVertex), sourceVertex, gradingStrategy) == 0.0)) {
                         // Do nothing. Household may be moved back into houselessness.
                     } else {
                     throw new PreferredNoHouseholdlessHouseException("Cycle indicated that household would prefer some" +
@@ -552,7 +553,7 @@ public class Matching implements Serializable {
             try {
                 House house = getHouseFromHousehold(household.getID());
                 if (house != null) {
-                    String string = "{" + house.getID() + "," + household.getID() + ":" + grader.apply(house.getID(), household.getID()) + "}";
+                    String string = "{" + house.getID() + "," + household.getID() + "}";
                     if (i == 0) {
                         result += string;
                         i++;

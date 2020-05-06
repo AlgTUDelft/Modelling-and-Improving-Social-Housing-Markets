@@ -40,11 +40,25 @@ public class Experimenter {
 
         // Start of execution loop.
         for (double envRatio : envRatios) {
-            for (GradingStrategy gradingStrategy : GradingStrategy.values()) {
+            for (int lineCount : lineCounts) {
                 HashSet<AlgorithmStrategy> interruptedAlgorithmStrategies = new HashSet<>();
 
+
+                boolean oneSided = false;
+
+
+                // Create the dynamic matchings beforehand so all algorithms may run on the same dynamic matchings.
+                // Note that these also already will have generated samples for each gradingStrategy to draw from.
+                ArrayList<DynamicMatching> dynamicMatchings = new ArrayList<DynamicMatching>(nTimes);
+                for (int i = 0; i < nTimes; i++) {
+                    Matching matching = setupMatching(1, startLines[i], lineCount, envRatio);
+                    int timestepCount = (int) (Math.min(matching.getHouses().size(), matching.getHouseholds().size()) * timestepRatio);
+                    DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
+                    dynamicMatchings.add(i, dynamicMatching);
+                }
+
                 // For each matching size...
-                for (int lineCount : lineCounts) {
+                for (GradingStrategy gradingStrategy : GradingStrategy.values()) {
                     // Unless there are no more algorithms left to run...
                     if (interruptedAlgorithmStrategies.size() == AlgorithmStrategy.values().length) {
                         break;
@@ -58,17 +72,7 @@ public class Experimenter {
                             GradingStrategy.values().length - gradingStrategies.indexOf(gradingStrategy));
                     System.out.println("Updated ETA: " + cal.getTime() + ".");
 
-                    boolean oneSided = false;
 
-
-                    // Create the dynamic matchings beforehand so all algorithms may run on the same dynamic matchings.
-                    ArrayList<DynamicMatching> dynamicMatchings = new ArrayList<DynamicMatching>(nTimes);
-                    for (int i = 0; i < nTimes; i++) {
-                        Matching matching = setupMatching(1, startLines[i], lineCount, envRatio, gradingStrategy);
-                        int timestepCount = (int) (Math.min(matching.getHouses().size(), matching.getHouseholds().size()) * timestepRatio);
-                        DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
-                        dynamicMatchings.add(i, dynamicMatching);
-                    }
 
 
                     // Run and compare all algorithms as necessary, then add newly interrupted algorithms to set.
@@ -83,11 +87,11 @@ public class Experimenter {
     }
 
 
-        public static Matching setupMatching(double connectionProb, int startLine, int lineCount, double envRatio, GradingStrategy gradingStrategy) throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, IOException {
+        public static Matching setupMatching(double connectionProb, int startLine, int lineCount, double envRatio) throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, IOException {
             String inputFileName = "../../Data/Input/test2.csv";
             HousingMarket housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
-            return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount, envRatio, gradingStrategy);
+            return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount, envRatio);
         }
 
         public static Calendar calculateRemainingTime(long allowedRunningTime, int linesCount, int linesLeftCount, int algorithmStrategiesLeft, int envRatiosLeft, int gradingStrategiesLeft) {

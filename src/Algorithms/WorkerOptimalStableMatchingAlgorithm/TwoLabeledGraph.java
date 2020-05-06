@@ -3,6 +3,7 @@ package Algorithms.WorkerOptimalStableMatchingAlgorithm;
 import Main.AlgorithmStrategy;
 import HousingMarket.House.House;
 import HousingMarket.Household.Household;
+import Main.GradingStrategy;
 import Matching.Matching;
 import Matching.MatchingEvaluator;
 import org.jgrapht.alg.connectivity.GabowStrongConnectivityInspector;
@@ -23,10 +24,12 @@ public class TwoLabeledGraph {
     private Integer nil = -1;
     private AlgorithmStrategy algorithmStrategy;
     private HashMap<Integer, Integer> householdInitialHouseMap = new HashMap<Integer,Integer>();
+    private GradingStrategy gradingStrategy;
 
-    public TwoLabeledGraph(Matching matching, AlgorithmStrategy algorithmStrategy) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
+    public TwoLabeledGraph(Matching matching, AlgorithmStrategy algorithmStrategy, GradingStrategy gradingStrategy) throws Matching.HouseholdLinkedToHouseholdException, Matching.HouseLinkedToMultipleException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, MatchingEvaluator.HouseholdIncomeTooHighException {
         this.matching = matching;
         this.algorithmStrategy = algorithmStrategy;
+        this.gradingStrategy = gradingStrategy;
         householdIDs = new ArrayList<Integer>(matching.getHouseholds().size());
 
         // Add vertices.
@@ -40,7 +43,7 @@ public class TwoLabeledGraph {
         if (algorithmStrategy == AlgorithmStrategy.WOSMA_IRCYCLES) {
             for (Household household : this.matching.getHouseholds()) {
                 House house = this.matching.getHouseFromHousehold(household.getID());
-                if (house != null && matching.getGrader().apply(house.getID(), household.getID()) > 0) {
+                if (house != null && matching.getGrader().apply(house.getID(), household.getID(), gradingStrategy) > 0) {
                     householdInitialHouseMap.put(household.getID(), house.getID());
                 }
             }
@@ -65,7 +68,7 @@ public class TwoLabeledGraph {
 
         for (Integer householdID : householdIDs) {
             House currentHouse = matching.getHouseFromHousehold(householdID);
-            float fitWithCurrentHouse = addType3Cond1EdgeToHousehold(householdID, currentHouse);
+            float fitWithCurrentHouse = addType3Cond1EdgeToHousehold(householdID, currentHouse, gradingStrategy);
 
 
             for (House otherHouse : this.matching.getHouses()) {
@@ -74,7 +77,7 @@ public class TwoLabeledGraph {
                         continue;
                     }
                 }
-                float fitWithOtherHouse = this.matching.getGrader().apply(otherHouse.getID(), householdID);
+                float fitWithOtherHouse = this.matching.getGrader().apply(otherHouse.getID(), householdID, gradingStrategy);
                 if (fitWithOtherHouse >= fitWithCurrentHouse) {
                     Household householdOfOtherHouse = this.matching.getHouseholdFromHouse(otherHouse.getID());
                     if (householdOfOtherHouse == null) {
@@ -123,7 +126,7 @@ public class TwoLabeledGraph {
 
         for (Integer householdID : householdIDs) {
             House currentHouse = matching.getHouseFromHousehold(householdID);
-            float fitWithCurrentHouse = addType3Cond1EdgeToHousehold(householdID, currentHouse);
+            float fitWithCurrentHouse = addType3Cond1EdgeToHousehold(householdID, currentHouse, gradingStrategy);
 
             float highScore = 0;
 
@@ -133,7 +136,7 @@ public class TwoLabeledGraph {
                         continue;
                     }
                 }
-                float fitWithOtherHouse = this.matching.getGrader().apply(otherHouse.getID(), householdID);
+                float fitWithOtherHouse = this.matching.getGrader().apply(otherHouse.getID(), householdID, gradingStrategy);
                 if (fitWithOtherHouse >= fitWithCurrentHouse) {
                     Household householdOfOtherHouse = this.matching.getHouseholdFromHouse(otherHouse.getID());
                     if (householdOfOtherHouse == null) {
@@ -186,7 +189,7 @@ public class TwoLabeledGraph {
 
             if (householdInitialHouseMap.containsKey(householdID)) {
                 initialHouse = matching.getHouse(householdInitialHouseMap.get(householdID));
-                initialFit = this.matching.getGrader().apply(initialHouse.getID(), householdID);
+                initialFit = this.matching.getGrader().apply(initialHouse.getID(), householdID, gradingStrategy);
             }
 //
             // Anyone may, at a first approximation, be moved in such a way that their current house isn't immediately filled up.
@@ -197,7 +200,7 @@ public class TwoLabeledGraph {
             float currentFit = 0;
             House currentHouse = matching.getHouseFromHousehold(householdID);
             if (currentHouse != null) {
-                currentFit = this.matching.getGrader().apply(currentHouse.getID(), householdID);
+                currentFit = this.matching.getGrader().apply(currentHouse.getID(), householdID, gradingStrategy);
             }
 
             // HighScoreFree eventually represents the highest improvement that may be gained by moving
@@ -210,7 +213,7 @@ public class TwoLabeledGraph {
             float highScoreFree = -1 + initialFit;
 
             for (House house : this.matching.getHouses()) {
-                float candidateFit = this.matching.getGrader().apply(house.getID(), householdID);
+                float candidateFit = this.matching.getGrader().apply(house.getID(), householdID, gradingStrategy);
                 Household householdOfCandidateHouse = matching.getHouseholdFromHouse(house.getID());
                 if (householdOfCandidateHouse != null && householdOfCandidateHouse.getID() != householdID) {
                     if (candidateFit > initialFit) {
@@ -247,10 +250,10 @@ public class TwoLabeledGraph {
             if (householdInitialHouseMap.containsKey(householdID)) {
                 House currentHouse = matching.getHouseFromHousehold(householdID);
                 House initialHouse = matching.getHouse(householdInitialHouseMap.get(householdID));
-                float initialFit = this.matching.getGrader().apply(initialHouse.getID(), householdID);
+                float initialFit = this.matching.getGrader().apply(initialHouse.getID(), householdID, gradingStrategy);
                 float currentFit = 0;
                 if (currentHouse != null) {
-                    currentFit = this.matching.getGrader().apply(currentHouse.getID(), householdID);
+                    currentFit = this.matching.getGrader().apply(currentHouse.getID(), householdID, gradingStrategy);
                 }
                 Household householdOwningInitialHouse = matching.getHouseholdFromHouse(initialHouse.getID());
                 if (householdOwningInitialHouse != null && householdOwningInitialHouse.getID() != householdID) {
@@ -388,7 +391,7 @@ public class TwoLabeledGraph {
         return cycle;
     }
 
-    private float addType3Cond1EdgeToHousehold(int householdID, House currentHouse) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {
+    private float addType3Cond1EdgeToHousehold(int householdID, House currentHouse, GradingStrategy gradingStrategy) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException {
         float fitWithCurrentHouse;
 
         if (currentHouse == null) {
@@ -397,7 +400,7 @@ public class TwoLabeledGraph {
             underlyingStrictGraph.setEdgeWeight(nil, householdID, 0);
             fitWithCurrentHouse = 0;
         } else {
-            fitWithCurrentHouse = this.matching.getGrader().apply(currentHouse.getID(), householdID);
+            fitWithCurrentHouse = this.matching.getGrader().apply(currentHouse.getID(), householdID, gradingStrategy);
         }
         return fitWithCurrentHouse;
     }

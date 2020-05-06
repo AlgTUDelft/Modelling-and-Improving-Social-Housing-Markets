@@ -27,7 +27,7 @@ public class DataProcessor implements Serializable {
         this.matching = new Matching(housingMarket);
     }
 
-    public Matching csvToMatching(String csvFileName, double connectionProb, int startLine, int linesToParse, double envRatio, GradingStrategy gradingStrategy)
+    public Matching csvToMatching(String csvFileName, double connectionProb, int startLine, int linesToParse, double envRatio)
             throws Household.InvalidHouseholdException,
             Matching.HouseAlreadyMatchedException,
             Matching.HouseholdAlreadyMatchedException, IOException {
@@ -93,7 +93,7 @@ public class DataProcessor implements Serializable {
         }
 
         matching = processEnv(matching, envRatio);
-        GraderCreator graderCreator = new GraderCreator(gradingStrategy);
+        GraderCreator graderCreator = new GraderCreator();
         matching.setGrader(graderCreator.createGrader(matching));
         return this.matching;
     }
