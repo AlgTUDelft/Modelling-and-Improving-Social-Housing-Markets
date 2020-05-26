@@ -5,6 +5,8 @@ import Results.GenericResultProcessor;
 import Matching.DynamicMatching;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,14 +53,26 @@ public class Comparer {
 
                 CompletableFuture<ArrayList<GenericResult>> resultsPerAlgorithm = results.get(algorithmStrategy);
 
+                Instant start = Instant.now();
 
-                boolean interrupted = this.runAlgorithm(resultsPerAlgorithm, algorithmStrategy, gradingStrategy);
+                // TODO: remove if here.
+                boolean interrupted;
+                if (!(algorithmStrategy == AlgorithmStrategy.WOSMA_IRCYCLES || gradingStrategy != GradingStrategy.MatchingEvaluatorMIN)) {
+                    interrupted = this.runAlgorithm(resultsPerAlgorithm, algorithmStrategy, gradingStrategy);
+                } else { interrupted = false; }
 
+                Instant end = Instant.now();
+                Duration timeElapsed = Duration.between(start,end);
+                // TODO: Remove ifs!
                 if (interrupted) {
-                    System.out.println("Interrupted: " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | " + algorithmStrategy);
+                    if (!(algorithmStrategy == AlgorithmStrategy.WOSMA_IRCYCLES || gradingStrategy != GradingStrategy.MatchingEvaluatorMIN)) {
+                        System.out.println("Interrupted: " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | " + algorithmStrategy + " | " + timeElapsed.toSeconds() + " seconds");
+                    }
                     toInterrupt.add(algorithmStrategy);
                 } else {
-                    System.out.println("Finished:    " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | " + algorithmStrategy);
+                    if (!(algorithmStrategy == AlgorithmStrategy.WOSMA_IRCYCLES || gradingStrategy != GradingStrategy.MatchingEvaluatorMIN)) {
+                        System.out.println("Finished:    " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | " + algorithmStrategy + " | " + timeElapsed.toSeconds() + " seconds");
+                    }
                 }
             }
         }
@@ -93,7 +107,12 @@ public class Comparer {
 
         thread.start();
         try {
-            thread.join(allowedRunningTime);
+            // TODO: REMOVE
+            if (algorithmStrategy == AlgorithmStrategy.WOSMA_IRCYCLES || gradingStrategy != GradingStrategy.MatchingEvaluatorMIN) {
+                thread.join(0_010);
+            } else {
+                thread.join(allowedRunningTime);
+            }
         } catch (InterruptedException e) {
             // Needless to say, this shouldn't happen, since we never interrupt threads
             // except through the above thread.join call and the interrupt call just below this.

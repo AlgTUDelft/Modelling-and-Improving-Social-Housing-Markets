@@ -14,21 +14,22 @@ public class Main {
 
         String outputfolder = "../../Data/Output/Scores/";
 
-        long allowedRunningTime = 1_000;
+        long allowedRunningTime =3600_000;
         int maxVal = 150;
-        int nTimes = 50;
+        int nTimes = 1;
         float timestepRatio = 2/3f;
 
-        int[] startLines = new int[50];
+        int[] startLines = new int[nTimes];
         int counter = 0;
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < nTimes; i++) {
             startLines[i] = counter;
             counter = counter + (1000 - maxVal) / nTimes; // == 17 with maxVal == 150 & nTimes == 50.
         }
 
-        ArrayList<Double> envRatios = new ArrayList<>(Arrays.asList(0.5, 0.75, 1.0, 1.25, 1.5));
+//        ArrayList<Double> envRatios = new ArrayList<>(Arrays.asList(0.5, 0.75, 1.0, 1.25, 1.5));
+        ArrayList<Double> envRatios = new ArrayList<>(Arrays.asList(0.5));
 
-        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
+        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 12500, 15000, 17500, 20000));
 //        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12));
 //        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
 

@@ -69,6 +69,8 @@ public class DataProcessor implements Serializable {
                         }
                         else { linesToParse++; }
                     }
+                } else {
+                    currentLine = 0;
                 }
                 linesToParse--;
             }
