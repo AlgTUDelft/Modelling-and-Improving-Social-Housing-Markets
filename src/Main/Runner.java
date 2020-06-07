@@ -37,6 +37,9 @@ public class Runner {
                 } catch (InterruptedException e) {
                     interrupted = true;
                     break;
+                } catch (OutOfMemoryError e) {
+                    interrupted = true;
+                    break;
                 }
             }
 
@@ -81,6 +84,9 @@ public class Runner {
                     DynamicMatching dynamicMatching = dynamicMatchings.get(i);
                     mcpmaResults.add(i, individualRunStaticMCPMA(dynamicMatching, gradingStrategy));
                 } catch (InterruptedException e) {
+                    interrupted = true;
+                    break;
+                } catch (OutOfMemoryError e) {
                     interrupted = true;
                     break;
                 }

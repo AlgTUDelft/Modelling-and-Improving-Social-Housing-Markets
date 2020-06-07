@@ -29,7 +29,7 @@ public class Main {
 //        ArrayList<Double> envRatios = new ArrayList<>(Arrays.asList(0.5, 0.75, 1.0, 1.25, 1.5));
         ArrayList<Double> envRatios = new ArrayList<>(Arrays.asList(0.5));
 
-        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 12500, 15000, 17500, 20000));
+        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(100, 125, 150, 175, 200, 225, 250, 300, 350, 400, 450, 500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 12500, 15000, 17500, 20000));
 //        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12));
 //        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
 

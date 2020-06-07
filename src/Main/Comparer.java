@@ -58,7 +58,10 @@ public class Comparer {
                 // TODO: remove if here.
                 boolean interrupted;
                 if (!(algorithmStrategy == AlgorithmStrategy.WOSMA_IRCYCLES || gradingStrategy != GradingStrategy.MatchingEvaluatorMIN)) {
-                    interrupted = this.runAlgorithm(resultsPerAlgorithm, algorithmStrategy, gradingStrategy);
+                    if (lineCount < 500 || algorithmStrategy != AlgorithmStrategy.IMPROVEMENT_MCPMA) {
+                        interrupted = this.runAlgorithm(resultsPerAlgorithm, algorithmStrategy, gradingStrategy);
+                    }
+                    else { interrupted = false; }
                 } else { interrupted = false; }
 
                 Instant end = Instant.now();
