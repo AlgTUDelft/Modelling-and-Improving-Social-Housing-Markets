@@ -53,14 +53,20 @@ public class Comparer {
 
                 CompletableFuture<ArrayList<GenericResult>> resultsPerAlgorithm = results.get(algorithmStrategy);
 
-
-                boolean interrupted = this.runAlgorithm(resultsPerAlgorithm, algorithmStrategy, gradingStrategy, timestepRatio);
+                boolean interrupted;
+                if (algorithmStrategy == AlgorithmStrategy.WOSMA_IRCYCLES || algorithmStrategy == AlgorithmStrategy.MCPMA) {
+                    interrupted = this.runAlgorithm(resultsPerAlgorithm, algorithmStrategy, gradingStrategy, timestepRatio);
+                } else { interrupted = false; }
 
                 if (interrupted) {
-                    System.out.println("Interrupted: " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | timestepRatio:" + timestepRatio + " | " + algorithmStrategy);
+                    if (algorithmStrategy == AlgorithmStrategy.WOSMA_IRCYCLES || algorithmStrategy == AlgorithmStrategy.MCPMA) {
+                        System.out.println("Interrupted: " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | timestepRatio:" + timestepRatio + " | " + algorithmStrategy);
+                    }
                     toInterrupt.add(algorithmStrategy);
                 } else {
-                    System.out.println("Finished:    " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | timestepRatio:" + timestepRatio + " | " + algorithmStrategy);
+                    if (algorithmStrategy == AlgorithmStrategy.WOSMA_IRCYCLES || algorithmStrategy == AlgorithmStrategy.MCPMA) {
+                        System.out.println("Finished:    " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | timestepRatio:" + timestepRatio + " | " + algorithmStrategy);
+                    }
                 }
             }
         }

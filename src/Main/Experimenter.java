@@ -46,7 +46,7 @@ public class Experimenter {
 
                 boolean oneSided = false;
 
-                ArrayList<Double> timestepRatios = new ArrayList<>(Arrays.asList(0.25, 0.5, 0.75, 1.0));
+                ArrayList<Double> timestepRatios = new ArrayList<>(Arrays.asList(0.1, 0.15, 0.25, 0.5, 0.75, 1.0));
                 for (double timestepRatio : timestepRatios) {
                     // Create the dynamic matchings beforehand so all algorithms may run on the same dynamic matchings.
                     // Note that these also already will have generated samples for each gradingStrategy to draw from.
