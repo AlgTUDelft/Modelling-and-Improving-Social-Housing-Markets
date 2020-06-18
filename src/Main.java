@@ -14,10 +14,9 @@ public class Main {
 
         String outputfolder = "../../Data/Output/Scores/";
 
-        long allowedRunningTime = 1_000;
+        long allowedRunningTime = 5_000;
         int maxVal = 150;
         int nTimes = 50;
-        float timestepRatio = 2/3f;
 
         int[] startLines = new int[50];
         int counter = 0;
@@ -32,7 +31,7 @@ public class Main {
 //        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12));
 //        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
 
-        Experimenter experimenter = new Experimenter(outputfolder, allowedRunningTime, nTimes, startLines, envRatios, lineCounts, timestepRatio);
+        Experimenter experimenter = new Experimenter(outputfolder, allowedRunningTime, nTimes, startLines, envRatios, lineCounts);
         experimenter.runExperiments();
     }
 }

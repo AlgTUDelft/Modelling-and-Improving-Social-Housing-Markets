@@ -17,17 +17,15 @@ public class Experimenter {
     private int[] startLines;
     private ArrayList<Double> envRatios;
     private ArrayList<Integer> lineCounts;
-    private float timestepRatio;
 
     public Experimenter(String outputfolder, long allowedRunningTime, int nTimes,
-                        int[] startLines, ArrayList<Double> envRatios, ArrayList<Integer> lineCounts, float timestepRatio) {
+                        int[] startLines, ArrayList<Double> envRatios, ArrayList<Integer> lineCounts) {
         this.outputfolder = outputfolder;
         this.allowedRunningTime = allowedRunningTime;
         this.nTimes = nTimes;
         this.startLines = startLines;
         this.envRatios = envRatios;
         this.lineCounts = lineCounts;
-        this.timestepRatio = timestepRatio;
     }
 
     public void runExperiments() throws Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, HousingMarket.FreeSpaceException, Matching.HouseAlreadyMatchedException, IOException, DynamicMatching.TooManyTimestepsException, InterruptedException {
@@ -48,43 +46,43 @@ public class Experimenter {
 
                 boolean oneSided = false;
 
-
-                // Create the dynamic matchings beforehand so all algorithms may run on the same dynamic matchings.
-                // Note that these also already will have generated samples for each gradingStrategy to draw from.
-                ArrayList<DynamicMatching> dynamicMatchings = new ArrayList<DynamicMatching>(nTimes);
-                for (int i = 0; i < nTimes; i++) {
-                    Matching matching = setupMatching(1, startLines[i], lineCount, envRatio);
-                    int timestepCount = (int) (Math.min(matching.getHouses().size(), matching.getHouseholds().size()) * timestepRatio);
-                    DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
-                    dynamicMatchings.add(i, dynamicMatching);
-                }
-
-                // For each matching size...
-                for (GradingStrategy gradingStrategy : GradingStrategy.values()) {
-                    // Unless there are no more algorithms left to run...
-                    if (interruptedAlgorithmStrategies.get(gradingStrategy).size() == AlgorithmStrategy.values().length) {
-                        break;
+                ArrayList<Double> timestepRatios = new ArrayList<>(Arrays.asList(0.25, 0.5, 0.75, 1.0));
+                for (double timestepRatio : timestepRatios) {
+                    // Create the dynamic matchings beforehand so all algorithms may run on the same dynamic matchings.
+                    // Note that these also already will have generated samples for each gradingStrategy to draw from.
+                    ArrayList<DynamicMatching> dynamicMatchings = new ArrayList<DynamicMatching>(nTimes);
+                    for (int i = 0; i < nTimes; i++) {
+                        Matching matching = setupMatching(1, startLines[i], lineCount, envRatio);
+                        int timestepCount = (int) (Math.min(matching.getHouses().size(), matching.getHouseholds().size()) * timestepRatio);
+                        DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
+                        dynamicMatchings.add(i, dynamicMatching);
                     }
 
-                    List<GradingStrategy> gradingStrategies = Arrays.asList(GradingStrategy.values());
-                    Calendar cal = calculateRemainingTime(allowedRunningTime, lineCounts.size(),
-                            lineCounts.size() - lineCounts.indexOf(lineCount),
-                            AlgorithmStrategy.values().length - interruptedAlgorithmStrategies.size(),
-                            envRatios.size() - envRatios.indexOf(envRatio),
-                            GradingStrategy.values().length - gradingStrategies.indexOf(gradingStrategy));
-                    System.out.println("Updated ETA: " + cal.getTime() + ".");
+                    // For each matching size...
+                    for (GradingStrategy gradingStrategy : GradingStrategy.values()) {
+                        // Unless there are no more algorithms left to run...
+                        if (interruptedAlgorithmStrategies.get(gradingStrategy).size() == AlgorithmStrategy.values().length) {
+                            break;
+                        }
+
+                        List<GradingStrategy> gradingStrategies = Arrays.asList(GradingStrategy.values());
+                        Calendar cal = calculateRemainingTime(allowedRunningTime, lineCounts.size(),
+                                lineCounts.size() - lineCounts.indexOf(lineCount),
+                                AlgorithmStrategy.values().length - interruptedAlgorithmStrategies.size(),
+                                envRatios.size() - envRatios.indexOf(envRatio),
+                                GradingStrategy.values().length - gradingStrategies.indexOf(gradingStrategy));
+                        System.out.println("Updated ETA: " + cal.getTime() + ".");
 
 
+                        // Run and compare all algorithms as necessary, then add newly interrupted algorithms to set.
+                        Comparer comparer = new Comparer(dynamicMatchings, allowedRunningTime,
+                                lineCount, nTimes, envRatio,
+                                gradingStrategy, interruptedAlgorithmStrategies.get(gradingStrategy), timestepRatio);
+                        HashSet<AlgorithmStrategy> newSet = interruptedAlgorithmStrategies.get(gradingStrategy);
+                        newSet.addAll(comparer.run());
+                        interruptedAlgorithmStrategies.put(gradingStrategy, newSet);
 
-
-                    // Run and compare all algorithms as necessary, then add newly interrupted algorithms to set.
-                    Comparer comparer = new Comparer(dynamicMatchings, allowedRunningTime,
-                            lineCount, nTimes, envRatio,
-                            gradingStrategy, interruptedAlgorithmStrategies.get(gradingStrategy));
-                    HashSet<AlgorithmStrategy> newSet = interruptedAlgorithmStrategies.get(gradingStrategy);
-                    newSet.addAll(comparer.run());
-                    interruptedAlgorithmStrategies.put(gradingStrategy, newSet);
-
+                    }
                 }
             }
         }

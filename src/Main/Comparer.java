@@ -21,8 +21,9 @@ public class Comparer {
     private GradingStrategy gradingStrategy;
     private HashMap<AlgorithmStrategy, CompletableFuture<ArrayList<GenericResult>>> results;
     private HashSet<AlgorithmStrategy> interruptedAlgorithmStrategies;
+    private double timestepRatio;
 
-    public Comparer(ArrayList<DynamicMatching> dynamicMatchings, long allowedRunningTime, int lineCount, int nTimes, Double envRatio, GradingStrategy gradingStrategy, HashSet<AlgorithmStrategy> interruptedAlgorithmStrategies) {
+    public Comparer(ArrayList<DynamicMatching> dynamicMatchings, long allowedRunningTime, int lineCount, int nTimes, Double envRatio, GradingStrategy gradingStrategy, HashSet<AlgorithmStrategy> interruptedAlgorithmStrategies, double timestepRatio) {
         this.dynamicMatchings = dynamicMatchings;
         this.allowedRunningTime = allowedRunningTime;
         this.lineCount = lineCount;
@@ -30,6 +31,7 @@ public class Comparer {
         this.envRatio = envRatio;
         this.gradingStrategy = gradingStrategy;
         this.interruptedAlgorithmStrategies = interruptedAlgorithmStrategies;
+        this.timestepRatio = timestepRatio;
 
         this.results = new HashMap<>(AlgorithmStrategy.values().length);
         for (AlgorithmStrategy algorithmStrategy : AlgorithmStrategy.values()) {
@@ -45,25 +47,25 @@ public class Comparer {
         for (AlgorithmStrategy algorithmStrategy : AlgorithmStrategy.values()) {
             if (interruptedAlgorithmStrategies.contains(algorithmStrategy)) {
                 // Algorithm took too long in smaller instance, so don't go on.
-                System.out.println("Skipping:    " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | " + algorithmStrategy);
+                System.out.println("Skipping:    " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | timestepRatio:" + timestepRatio + " | " + algorithmStrategy);
             } else {
                 // Run it and check if we were interrupted during execution.
 
                 CompletableFuture<ArrayList<GenericResult>> resultsPerAlgorithm = results.get(algorithmStrategy);
 
 
-                boolean interrupted = this.runAlgorithm(resultsPerAlgorithm, algorithmStrategy, gradingStrategy);
+                boolean interrupted = this.runAlgorithm(resultsPerAlgorithm, algorithmStrategy, gradingStrategy, timestepRatio);
 
                 if (interrupted) {
-                    System.out.println("Interrupted: " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | " + algorithmStrategy);
+                    System.out.println("Interrupted: " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | timestepRatio:" + timestepRatio + " | " + algorithmStrategy);
                     toInterrupt.add(algorithmStrategy);
                 } else {
-                    System.out.println("Finished:    " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | " + algorithmStrategy);
+                    System.out.println("Finished:    " + envRatio + " | " + gradingStrategy + " | " + lineCount + " | timestepRatio:" + timestepRatio + " | " + algorithmStrategy);
                 }
             }
         }
 
-        processAndSaveResults(results, lineCount,envRatio, gradingStrategy);
+        processAndSaveResults(results, lineCount,envRatio, gradingStrategy, timestepRatio);
 //        performSanityCheck(results);
         return toInterrupt;
     }
@@ -72,7 +74,7 @@ public class Comparer {
         return new Runner(dynamicMatchings, nTimes, algorithmStrategy, print);
     }
 
-    public boolean runAlgorithm(CompletableFuture<ArrayList<GenericResult>> resultsPerAlgorithm, AlgorithmStrategy algorithmStrategy, GradingStrategy gradingStrategy) throws InterruptedException
+    public boolean runAlgorithm(CompletableFuture<ArrayList<GenericResult>> resultsPerAlgorithm, AlgorithmStrategy algorithmStrategy, GradingStrategy gradingStrategy, double timestepRatio) throws InterruptedException
     {
         boolean tookTooLong = false;
         Thread thread = null;
@@ -161,12 +163,12 @@ public class Comparer {
 
     public void processAndSaveResults(HashMap<AlgorithmStrategy, CompletableFuture<ArrayList<GenericResult>>> results,
                                       int lineCount, double envRatio,
-                                      GradingStrategy gradingStrategy) {
+                                      GradingStrategy gradingStrategy, double timestepRatio) {
         for (AlgorithmStrategy algorithmStrategy : AlgorithmStrategy.values()) {
             try {
                 if (results.get(algorithmStrategy).isDone()) {
                     ArrayList<GenericResult> algorithmResults = results.get(algorithmStrategy).get();
-                    String outputFilename = createFilename(algorithmStrategy, lineCount, envRatio, gradingStrategy);
+                    String outputFilename = createFilename(algorithmStrategy, lineCount, envRatio, gradingStrategy, timestepRatio);
                     new GenericResultProcessor(algorithmResults).resultsToCSV(outputFilename);
                 }
             } catch (InterruptedException e) {
@@ -179,7 +181,7 @@ public class Comparer {
         }
     }
 
-    public static String createFilename(AlgorithmStrategy algorithmStrategy, int lineCount, double envRatio, GradingStrategy gradingStrategy) {
+    public static String createFilename(AlgorithmStrategy algorithmStrategy, int lineCount, double envRatio, GradingStrategy gradingStrategy, double timestepRatio) {
         String outputFilename = "../../Data/Output/Scores/";
 
         switch (algorithmStrategy) {
@@ -205,7 +207,7 @@ public class Comparer {
             case SIMPLE:
                 outputFilename += "Simple-"; break;
         }
-        outputFilename += "50times" + lineCount + "-" + envRatio + "-" + gradingStrategy + "-100prob-twosided.csv";
+        outputFilename += "50times" + lineCount + "-" + envRatio + "-" + gradingStrategy + "-" + timestepRatio + "-100prob-twosided.csv";
         return outputFilename;
     }
 
