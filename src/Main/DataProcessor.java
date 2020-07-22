@@ -31,6 +31,30 @@ public class DataProcessor implements Serializable {
             throws Household.InvalidHouseholdException,
             Matching.HouseAlreadyMatchedException,
             Matching.HouseholdAlreadyMatchedException, IOException {
+        /*
+        Takes a CSV file and outputs a Matching.
+
+        Input CSV file must have the following columns:
+        - gemeente woning
+        - label woning
+        - subsidiabele huur
+        - huurklassen
+        - aantal kamers
+        - verdieping
+        - lift
+        - gemeente wz
+        - postcode wz
+        - label wz
+        - inkomen totaal
+        - inkomensklassen
+        - leeftijd verhuring
+        - leeftijdsklassen verhuring
+        - huishoudentype
+        - aantal personen
+        - voorrang wz
+
+        Possible values for these columns are directly implied by the code beneath.
+         */
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ";";
@@ -98,7 +122,7 @@ public class DataProcessor implements Serializable {
         return this.matching;
     }
 
-    public HouseAndHouseholdPair readSingleLine(String line, String cvsSplitBy) throws Household.InvalidHouseholdException {
+    private HouseAndHouseholdPair readSingleLine(String line, String cvsSplitBy) throws Household.InvalidHouseholdException {
         String[] row = line.split(cvsSplitBy, -1);
 
         String houseMunicipality = row[0];
@@ -154,7 +178,7 @@ public class DataProcessor implements Serializable {
 
 
 
-    public Matching processEnv(Matching matching, double envRatio) {
+    private Matching processEnv(Matching matching, double envRatio) {
         // envRatio denotes desired House:Household ratio.
         // 1 means equal.
         // <1 means too few houses.

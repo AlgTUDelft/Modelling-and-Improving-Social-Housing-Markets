@@ -85,7 +85,6 @@ public class MatchingEvaluator implements Serializable {
         }
         else if (house.getRoomCount() < household.getTotalHouseholdCount()) {
             fit = 0;}
-        // TODO: de-binarize individualroomfit.
         else { fit = 0; }
         return fit;
     }
@@ -248,14 +247,6 @@ public class MatchingEvaluator implements Serializable {
             }
         } else if(printOutput) { System.out.println("No households with priority present."); }
         return result;
-    }
-
-    public void evaluateOverallHouseholdType() {
-        // TODO: finish evaluator.
-    }
-
-    public void evaluateOverallHouseholdIncome() {
-        // TODO: finish evaluator. (Measure mixing in different neighborhoods.)
     }
 
     public float evaluateTotal(boolean printOutput) throws HouseholdIncomeTooHighException, Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException {

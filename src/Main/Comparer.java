@@ -72,7 +72,7 @@ public class Comparer {
         return new Runner(dynamicMatchings, nTimes, algorithmStrategy, print);
     }
 
-    public boolean runAlgorithm(CompletableFuture<ArrayList<GenericResult>> resultsPerAlgorithm, AlgorithmStrategy algorithmStrategy, GradingStrategy gradingStrategy) throws InterruptedException
+    private boolean runAlgorithm(CompletableFuture<ArrayList<GenericResult>> resultsPerAlgorithm, AlgorithmStrategy algorithmStrategy, GradingStrategy gradingStrategy) throws InterruptedException
     {
         boolean tookTooLong = false;
         Thread thread = null;
@@ -109,7 +109,7 @@ public class Comparer {
     }
 
 
-    public void performSanityCheck(HashMap<AlgorithmStrategy, CompletableFuture<ArrayList<GenericResult>>> results) {
+    private void performSanityCheck(HashMap<AlgorithmStrategy, CompletableFuture<ArrayList<GenericResult>>> results) {
         try {
             // Compare IR-Cycles with MCPMA.
             if (results.get(AlgorithmStrategy.WOSMA_IRCYCLES).isDone() && results.get(AlgorithmStrategy.MCPMA).isDone()) {
@@ -159,7 +159,7 @@ public class Comparer {
 
 
 
-    public void processAndSaveResults(HashMap<AlgorithmStrategy, CompletableFuture<ArrayList<GenericResult>>> results,
+    private void processAndSaveResults(HashMap<AlgorithmStrategy, CompletableFuture<ArrayList<GenericResult>>> results,
                                       int lineCount, double envRatio,
                                       GradingStrategy gradingStrategy) {
         for (AlgorithmStrategy algorithmStrategy : AlgorithmStrategy.values()) {
@@ -179,7 +179,7 @@ public class Comparer {
         }
     }
 
-    public static String createFilename(AlgorithmStrategy algorithmStrategy, int lineCount, double envRatio, GradingStrategy gradingStrategy) {
+    private static String createFilename(AlgorithmStrategy algorithmStrategy, int lineCount, double envRatio, GradingStrategy gradingStrategy) {
         String outputFilename = "../../Data/Output/Scores/";
 
         switch (algorithmStrategy) {

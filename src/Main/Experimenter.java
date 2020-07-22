@@ -91,14 +91,14 @@ public class Experimenter {
     }
 
 
-        public static Matching setupMatching(double connectionProb, int startLine, int lineCount, double envRatio) throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, IOException {
+        private static Matching setupMatching(double connectionProb, int startLine, int lineCount, double envRatio) throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, IOException {
             String inputFileName = "../../Data/Input/test2.csv";
             HousingMarket housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
             return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount, envRatio);
         }
 
-        public static Calendar calculateRemainingTime(long allowedRunningTime, int linesCount, int linesLeftCount, int algorithmStrategiesLeft, int envRatiosLeft, int gradingStrategiesLeft) {
+        private static Calendar calculateRemainingTime(long allowedRunningTime, int linesCount, int linesLeftCount, int algorithmStrategiesLeft, int envRatiosLeft, int gradingStrategiesLeft) {
 
             // Current envRatio+gradingstrategy combination:
             long eta = allowedRunningTime * linesLeftCount * algorithmStrategiesLeft;

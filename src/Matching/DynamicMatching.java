@@ -65,7 +65,7 @@ public class DynamicMatching implements Serializable {
         this.currentTimestepsLeft = (Integer) deepClone(this.timestepCount);
     }
 
-
+    // PerStep approach.
     public Matching advanceTimeAndSolvePerStepAndReset(AlgorithmStrategy algorithmStrategy, GradingStrategy gradingStrategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualGraph.MatchGraphNotEmptyException, MCPMAPrices.AlreadyInitiatedException, MCPMA.UnequalSidesException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
         if (print) {
             System.out.println("Running PerStep");
@@ -85,6 +85,7 @@ public class DynamicMatching implements Serializable {
         return resultingMatching;
     }
 
+    // AfterSteps approach.
     public Matching advanceTimeFullyThenSolveAndReset(AlgorithmStrategy algorithmStrategy, GradingStrategy gradingStrategy, boolean print) throws Matching.HouseholdLinkedToMultipleException, CycleFinder.FullyExploredVertexDiscoveredException, Matching.PreferredNoHouseholdlessHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseAlreadyMatchedException, Matching.HouseholdAlreadyMatchedException, Matching.HouseLinkedToHouseException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseIDAlreadyPresentException, Matching.HouseholdIDAlreadyPresentException, ResidualGraph.MatchGraphNotEmptyException, MCPMAPrices.AlreadyInitiatedException, MCPMA.UnequalSidesException, ResidualGraph.PathEdgeNotInResidualGraphException, InterruptedException {
         if (print) {
             System.out.println("Running AfterSteps");

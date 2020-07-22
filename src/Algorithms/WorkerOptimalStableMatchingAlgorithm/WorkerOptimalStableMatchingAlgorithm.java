@@ -36,7 +36,7 @@ public class WorkerOptimalStableMatchingAlgorithm {
         return this.matching;
     }
 
-    public List<Integer> tryToFindCycle(boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, InterruptedException {
+    private List<Integer> tryToFindCycle(boolean print) throws CycleFinder.FullyExploredVertexDiscoveredException, Matching.HouseholdLinkedToHouseholdException, Matching.HouseholdLinkedToMultipleException, Matching.HouseLinkedToHouseException, Matching.HouseLinkedToMultipleException, MatchingEvaluator.HouseholdIncomeTooHighException, InterruptedException {
         List<Integer> cycle;
         try {
             cycle = twoLabeledGraph.findCycle(print);

@@ -8,6 +8,7 @@ import java.util.List;
 
 
 
+@SuppressWarnings("JavaDoc")
 public class CSVUtils {
 
     private static final char DEFAULT_SEPARATOR = ';';

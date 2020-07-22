@@ -90,7 +90,7 @@ public class GraderCreator {
         return new Grader(stratToFunction);
     }
 
-    public BiFunction<Integer, Integer, Float> samplesToFunc(Matching matching, double[] samples, boolean constrain) {
+    private BiFunction<Integer, Integer, Float> samplesToFunc(Matching matching, double[] samples, boolean constrain) {
         ArrayIterator<Double> samplesIterator; samplesIterator = new ArrayIterator(samples);
         HashMap<HouseAndHouseholdIDPair, Float> valuesMap = new HashMap();
         for (House house : matching.getHouses()) {
@@ -113,7 +113,7 @@ public class GraderCreator {
     }
 
 
-    public double[] createExponentialSamples(int count, double lambda) {
+    private double[] createExponentialSamples(int count, double lambda) {
         double[] results = new double[count];
         for (int i = 0; i < count; i++) {
             // Exponential formula with lower limit of 0, upper limit of 1.

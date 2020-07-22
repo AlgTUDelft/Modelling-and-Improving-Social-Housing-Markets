@@ -30,7 +30,6 @@ public class CycleFinder {
     }
 
     public List<Integer> findCycle() throws FullyExploredVertexDiscoveredException, InterruptedException {
-        // TODO: Fix description.
         // Implements simple DFS. Returns the first cycle that it can find.
         // Two conditions need to hold:
         // 1) The cycle contains at least one strict edge.

@@ -12,6 +12,7 @@ public class Grader implements Serializable {
         this.grader = stratToFunction;
     }
 
+    // _id1_ is houseID, _id2_ is householdID.
     public float apply(int id1, int id2, GradingStrategy gradingStrategy) {
         return this.grader.get(gradingStrategy).apply(id1, id2);
     }

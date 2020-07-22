@@ -341,7 +341,6 @@ public class Matching implements Serializable {
             } else { // targetVertex == nilValue, so there is an empty house that the household prefers to their own.
                 // We now choose to connect him with that house amongst the empty houses, that they prefer most,
                 // so long as they do indeed prefer it to their current house.
-                // TODO: Is that method of picking a house legit, though?
                 Set<Integer> householdlessHouses = getHouseholdlessHousesIDs();
                 float highestScore;
                 if (housesList.get(i) == null) {
