@@ -29,18 +29,7 @@ public class CustomSLSimpleCycles {
     private List<Integer> startVertices = null;
     private int deniedCycles = 0;
 
-    public CustomSLSimpleCycles() {
-    }
-
     public CustomSLSimpleCycles(Graph<Integer, DefaultWeightedEdge> graph) {
-        this.graph = GraphTests.requireDirected(graph, "Graph must be directed");
-    }
-
-    public Graph<Integer, DefaultWeightedEdge> getGraph() {
-        return this.graph;
-    }
-
-    public void setGraph(Graph<Integer, DefaultWeightedEdge> graph) {
         this.graph = GraphTests.requireDirected(graph, "Graph must be directed");
     }
 

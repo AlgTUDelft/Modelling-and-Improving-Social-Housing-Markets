@@ -62,7 +62,6 @@ public class MCPMAPrices {
                 = new DijkstraShortestPath<Integer, DefaultWeightedEdge>(this.residualGraph.getResidualImprovementGraph());
         ShortestPathAlgorithm.SingleSourcePaths<Integer, DefaultWeightedEdge> sourcePaths
                 = dijkstraShortestPath.getPaths(this.residualGraph.getSourceID());
-        // TODO: check if null-path conditions here don't screw up the program.
         for (House house : this.improvementGraph.getHouses()) {
             int houseID = house.getID();
             double previousPrice = this.getHousePrice(house);

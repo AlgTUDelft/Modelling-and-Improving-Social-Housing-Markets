@@ -79,7 +79,6 @@ public class ImprovementGraph {
         // Create edges and assign weights for regular houses and households
         for (Household household : this.households){
             House currentHouseholdMatch = matching.getHouseFromHousehold(household.getID());
-            // TODO: change floats to doubles
             float currentHouseholdFit = 0;
             if (currentHouseholdMatch != null) {
                 currentHouseholdFit = grader.apply(currentHouseholdMatch.getID(), household.getID(), gradingStrategy);

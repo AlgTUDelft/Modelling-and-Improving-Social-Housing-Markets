@@ -255,8 +255,6 @@ public class ResidualGraph {
     }
 
     private void updateReducedEdgeWeightsAndPrices(MCPMAPrices newMCPMAPrices) throws PathEdgeNotInResidualGraphException {
-        // TODO: Watch out here! For some household/house, do I take only neighbors, or the entire other side?
-        //  I think the latter is true, as coded, but this merits some more thought.
         for (House house : this.improvementGraph.getHouses()) {
             for (Household household : this.improvementGraph.getHouseholds()) {
                 int houseID = house.getID();

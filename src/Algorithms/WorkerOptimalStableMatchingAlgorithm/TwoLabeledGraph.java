@@ -52,9 +52,6 @@ public class TwoLabeledGraph {
         this.wireHouseholds(householdIDs);
     }
 
-    // TODO: Note somewhere that I use edgeweights denoting exactly the preference, rather than "1 = strict".
-    //  Also note that this functionality is only implemented when strategy is findMax.
-    //  When strategy is regular, I just use edgeweights of 1.
     private void wireHouseholds(ArrayList<Integer> householdIDs) throws Matching.HouseholdLinkedToMultipleException, Matching.HouseholdLinkedToHouseholdException, MatchingEvaluator.HouseholdIncomeTooHighException, Matching.HouseLinkedToMultipleException, Matching.HouseLinkedToHouseException {
         switch (algorithmStrategy) {
             case WOSMA_REGULAR: wireHouseholdsNormally(householdIDs); break;
