@@ -38,6 +38,7 @@ public class Main {
          */
 
         // Customize these:
+        String inputFileName = "../../Data/Input/test2.csv";
         String outputfolder = "../../Data/Output/Scores/";
 
         int nTimes = 50; // Amount of matchings generated per configuration.
@@ -61,7 +62,7 @@ public class Main {
 //        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(5, 6, 7, 8, 9, 10, 11, 12));
 //        ArrayList<Integer> lineCounts = new ArrayList<>(Arrays.asList(20, 25, 30, 35, 40, 45, 50, 75, 100, 125, 150));
 
-        Experimenter experimenter = new Experimenter(outputfolder, allowedRunningTime, nTimes, startLines, envRatios, lineCounts, timestepRatio);
+        Experimenter experimenter = new Experimenter(inputFileName, outputfolder, allowedRunningTime, nTimes, startLines, envRatios, lineCounts, timestepRatio);
         experimenter.runExperiments();
     }
 }

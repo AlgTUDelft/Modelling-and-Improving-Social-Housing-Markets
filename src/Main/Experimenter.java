@@ -11,6 +11,7 @@ import java.util.*;
 
 public class Experimenter {
 
+    private String inputFileName;
     private String outputfolder;
     private long allowedRunningTime;
     private int nTimes;
@@ -19,8 +20,9 @@ public class Experimenter {
     private ArrayList<Integer> lineCounts;
     private float timestepRatio;
 
-    public Experimenter(String outputfolder, long allowedRunningTime, int nTimes,
+    public Experimenter(String inputFileName, String outputfolder, long allowedRunningTime, int nTimes,
                         int[] startLines, ArrayList<Double> envRatios, ArrayList<Integer> lineCounts, float timestepRatio) {
+        this.inputFileName = inputFileName;
         this.outputfolder = outputfolder;
         this.allowedRunningTime = allowedRunningTime;
         this.nTimes = nTimes;
@@ -53,7 +55,7 @@ public class Experimenter {
                 // Note that these also already will have generated samples for each gradingStrategy to draw from.
                 ArrayList<DynamicMatching> dynamicMatchings = new ArrayList<DynamicMatching>(nTimes);
                 for (int i = 0; i < nTimes; i++) {
-                    Matching matching = setupMatching(1, startLines[i], lineCount, envRatio);
+                    Matching matching = setupMatching(inputFileName, 1, startLines[i], lineCount, envRatio);
                     int timestepCount = (int) (Math.min(matching.getHouses().size(), matching.getHouseholds().size()) * timestepRatio);
                     DynamicMatching dynamicMatching = new DynamicMatching(matching, timestepCount, oneSided);
                     dynamicMatchings.add(i, dynamicMatching);
@@ -91,8 +93,7 @@ public class Experimenter {
     }
 
 
-        private static Matching setupMatching(double connectionProb, int startLine, int lineCount, double envRatio) throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, IOException {
-            String inputFileName = "../../Data/Input/test2.csv";
+        private static Matching setupMatching(String inputFileName, double connectionProb, int startLine, int lineCount, double envRatio) throws HousingMarket.FreeSpaceException, Household.InvalidHouseholdException, Matching.HouseholdAlreadyMatchedException, Matching.HouseAlreadyMatchedException, IOException {
             HousingMarket housingMarket = new HousingMarket(2017, 100);
             DataProcessor dataProcessor = new DataProcessor(housingMarket);
             return dataProcessor.csvToMatching(inputFileName, connectionProb, startLine, lineCount, envRatio);
