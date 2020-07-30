@@ -1,4 +1,5 @@
-# Modelling and Improving Social Housing Markets: MSc. Thesis Project by Olivier Maas
+# Modelling and Improving Social Housing Markets
+### MSc. Thesis Project by Olivier Maas
 - University: TU Delft
 - MSc.: Computer Science, Software Technology track, Algorithmics group.
 - Supervisor: Mathijs de Weerdt.
